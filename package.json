@@ -22,7 +22,7 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.14.0",
-    "terser": "^5.46.1",
+    "terser": "^5.47.1",
     "twilio": "^5.13.1"
   },
   "devDependencies": {
