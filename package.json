@@ -21,7 +21,7 @@
     "posthog-js": "^1.364.7",
     "react": "^19.2.5",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.14.0",
+    "react-router-dom": "^7.15.0",
     "terser": "^5.46.1",
     "twilio": "^5.13.1"
   },
