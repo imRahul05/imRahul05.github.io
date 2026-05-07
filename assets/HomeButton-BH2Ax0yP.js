@@ -1,0 +1,1 @@
+import{c as o}from"./icons-12DUWMc_.js";import{t as a}from"./react-vendor-JXTwX5f6.js";import{r as s}from"./ResumeButton-Bemi29rw.js";var r=a(),e=({className:a,onClick:e})=>(0,r.jsx)(s,{icon:o,label:"Home",onClick:e,className:a,ariaLabel:"Go to Home"});export{e as t};

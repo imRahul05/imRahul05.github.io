@@ -1,0 +1,1 @@
+import{n as o,t as r}from"./chunk-KGLVRYIC-TR86VW_K.js";export{o as createInfoServices};

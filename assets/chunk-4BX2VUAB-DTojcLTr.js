@@ -1,0 +1,1 @@
+import{r as t}from"./select-BrjwW7xJ.js";function c(t,c){t.accDescr&&c.setAccDescription?.(t.accDescr),t.accTitle&&c.setAccTitle?.(t.accTitle),t.title&&c.setDiagramTitle?.(t.title)}t(c,"populateCommonDb");export{c as t};

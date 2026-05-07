@@ -1,0 +1,1 @@
+import{i as r}from"./graph-Doc00gos.js";function t(t){return r(t,4)}export{t};
