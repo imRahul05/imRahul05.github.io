@@ -43,7 +43,7 @@
     "shadcn": "^4.1.2",
     "sharp": "^0.34.5",
     "typescript": "~5.8.3",
-    "typescript-eslint": "^8.58.0",
+    "typescript-eslint": "^8.59.2",
     "vite": "^8.0.8"
   }
 }
