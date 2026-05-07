@@ -1,13 +1,16 @@
-import { BookOpen } from 'lucide-react';
-import { FloatingButton } from './FloatingButton';
-import React from 'react';
+import { BookOpen } from "lucide-react";
+import { FloatingButton } from "./FloatingButton";
+import React from "react";
 
 interface BlogButtonProps {
   className?: string;
   onClick: () => void;
 }
 
-export const BlogButton: React.FC<BlogButtonProps> = ({ className, onClick }) => {
+export const BlogButton: React.FC<BlogButtonProps> = ({
+  className,
+  onClick,
+}) => {
   return (
     <FloatingButton
       icon={BookOpen}

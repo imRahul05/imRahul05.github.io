@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import mermaid from 'mermaid';
-import '../../styles.scss';
-import React from 'react';
+import { useEffect, useRef, useState } from "react";
+import mermaid from "mermaid";
+import "../../styles.scss";
+import React from "react";
 
 let mermaidInitialized = false;
 
@@ -17,8 +17,8 @@ export const MermaidDiagram: React.FC<Props> = ({ chart }) => {
     if (!mermaidInitialized) {
       mermaid.initialize({
         startOnLoad: false,
-        theme: 'default',
-        securityLevel: 'loose',
+        theme: "default",
+        securityLevel: "loose",
       });
       mermaidInitialized = true;
     }
@@ -26,7 +26,7 @@ export const MermaidDiagram: React.FC<Props> = ({ chart }) => {
     const renderDiagram = async () => {
       if (!ref.current) return;
 
-      const id = 'mermaid-' + Math.random().toString(36).slice(2);
+      const id = "mermaid-" + Math.random().toString(36).slice(2);
 
       try {
         const { svg } = await mermaid.render(id, chart);
@@ -38,8 +38,8 @@ export const MermaidDiagram: React.FC<Props> = ({ chart }) => {
         const tempEl = document.getElementById(id);
         if (tempEl) tempEl.remove();
 
-        console.error('Mermaid render error:', err);
-        setError('Failed to render diagram');
+        console.error("Mermaid render error:", err);
+        setError("Failed to render diagram");
       }
     };
 

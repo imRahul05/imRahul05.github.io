@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
-import { TypewriterText } from './TypewriterText';
+import React, { useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { TypewriterText } from "./TypewriterText";
 
 interface EntryItemProps {
   title: string;
@@ -9,7 +9,12 @@ interface EntryItemProps {
   description: string;
 }
 
-export const EntryItem: React.FC<EntryItemProps> = ({ title, subtitle, meta, description }) => {
+export const EntryItem: React.FC<EntryItemProps> = ({
+  title,
+  subtitle,
+  meta,
+  description,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -20,28 +25,28 @@ export const EntryItem: React.FC<EntryItemProps> = ({ title, subtitle, meta, des
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="entry-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <h3 className="font-bold text-sm">{title}</h3>
           <button
             onClick={() => setIsOpen(!isOpen)}
             style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
+              background: "none",
+              border: "none",
+              cursor: "pointer",
               padding: 0,
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
               opacity: isHovered || isOpen ? 1 : 0,
-              transition: 'opacity 0.2s ease-in-out',
+              transition: "opacity 0.2s ease-in-out",
             }}
-            aria-label={isOpen ? 'Collapse details' : 'Expand details'}
+            aria-label={isOpen ? "Collapse details" : "Expand details"}
           >
             <ChevronDown
               size={14}
               className="text-muted"
               style={{
-                transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.2s ease-in-out',
+                transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.2s ease-in-out",
               }}
             />
           </button>

@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { X, Phone } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { X, Phone } from "lucide-react";
 
 export function ElevenLabsAgent() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
     if (isMobile) {
       setDismissed(true);
     }
@@ -16,8 +16,8 @@ export function ElevenLabsAgent() {
   useEffect(() => {
     if (dismissed) return;
 
-    const script = document.createElement('script');
-    script.src = 'https://elevenlabs.io/convai-widget/index.js';
+    const script = document.createElement("script");
+    script.src = "https://elevenlabs.io/convai-widget/index.js";
     script.async = true;
     document.body.appendChild(script);
 
@@ -32,22 +32,22 @@ export function ElevenLabsAgent() {
         onClick={() => setDismissed(false)}
         aria-label="Talk to AI"
         style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
           zIndex: 10000,
-          width: '48px',
-          height: '48px',
-          borderRadius: '50%',
-          border: '1px solid var(--border-color)',
-          backgroundColor: 'var(--text-primary)',
-          color: 'var(--bg-color)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          width: "48px",
+          height: "48px",
+          borderRadius: "50%",
+          border: "1px solid var(--border-color)",
+          backgroundColor: "var(--text-primary)",
+          color: "var(--bg-color)",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           padding: 0,
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
         }}
       >
         <Phone size={20} />
@@ -67,22 +67,22 @@ export function ElevenLabsAgent() {
         onClick={() => setDismissed(true)}
         aria-label="Close AI agent"
         style={{
-          position: 'fixed',
-          bottom: '68px',
-          right: '8px',
+          position: "fixed",
+          bottom: "68px",
+          right: "8px",
           zIndex: 10000,
-          width: '28px',
-          height: '28px',
-          borderRadius: '50%',
-          border: '1px solid var(--border-color)',
-          backgroundColor: 'var(--bg-color)',
-          color: 'var(--text-primary)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          width: "28px",
+          height: "28px",
+          borderRadius: "50%",
+          border: "1px solid var(--border-color)",
+          backgroundColor: "var(--bg-color)",
+          color: "var(--text-primary)",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           padding: 0,
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
         }}
       >
         <X size={14} />

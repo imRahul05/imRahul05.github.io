@@ -1,23 +1,30 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Mail, MapPin, Github, ArrowRight, Linkedin, BookOpen } from 'lucide-react';
-import { DATA } from '../data/data';
-import { SectionTitle } from '../components/SectionTitle';
-import { ProjectCard } from '../components/project/ProjectCard';
-import { Education } from '../components/education/Education';
-import { Experience } from '../components/experience/Experience';
-import { SocialLink } from '../components/SocialLink';
-import { DigitalClock } from '../components/DigitalClock';
-import { AnimatedThemeToggler } from '../components/floatbuttons/AnimatedThemeToggler';
-import { ResumeButton } from '../components/floatbuttons/ResumeButton';
-import { BlogButton } from '../components/floatbuttons/BlogButton';
-import { SauronButton } from '../components/floatbuttons/SauronButton';
-import { XIcon } from '../components/XIcon';
-import EvilEye from '../components/backgrounds/EvilEye';
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Mail,
+  MapPin,
+  Github,
+  ArrowRight,
+  Linkedin,
+  BookOpen,
+} from "lucide-react";
+import { DATA } from "../data/data";
+import { SectionTitle } from "../components/SectionTitle";
+import { ProjectCard } from "../components/project/ProjectCard";
+import { Education } from "../components/education/Education";
+import { Experience } from "../components/experience/Experience";
+import { SocialLink } from "../components/SocialLink";
+import { DigitalClock } from "../components/DigitalClock";
+import { AnimatedThemeToggler } from "../components/floatbuttons/AnimatedThemeToggler";
+import { ResumeButton } from "../components/floatbuttons/ResumeButton";
+import { BlogButton } from "../components/floatbuttons/BlogButton";
+import { SauronButton } from "../components/floatbuttons/SauronButton";
+import { XIcon } from "../components/XIcon";
+import EvilEye from "../components/backgrounds/EvilEye";
 
 export const HomePage: React.FC = () => {
   const SAURON_AUDIO_URL =
-    'https://res.cloudinary.com/dw8r5ivmx/video/upload/v1775033836/mixkit-fire-explosion-1343_zl5ctw.wav';
+    "https://res.cloudinary.com/dw8r5ivmx/video/upload/v1775033836/mixkit-fire-explosion-1343_zl5ctw.wav";
 
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -72,10 +79,16 @@ export const HomePage: React.FC = () => {
       window.cancelAnimationFrame(fadeFrame);
     }
 
-    activeAudio.fadeFrame = fadeAudio(audio, audio.volume, 0, fadeDuration, () => {
-      audio.pause();
-      audio.currentTime = 0;
-    });
+    activeAudio.fadeFrame = fadeAudio(
+      audio,
+      audio.volume,
+      0,
+      fadeDuration,
+      () => {
+        audio.pause();
+        audio.currentTime = 0;
+      },
+    );
 
     sauronAudioRef.current = null;
   };
@@ -90,7 +103,12 @@ export const HomePage: React.FC = () => {
       existing.audio
         .play()
         .then(() => {
-          existing.fadeFrame = fadeAudio(existing.audio, existing.audio.volume, 0.3, 450);
+          existing.fadeFrame = fadeAudio(
+            existing.audio,
+            existing.audio.volume,
+            0.3,
+            450,
+          );
         })
         .catch(() => undefined);
       return;
@@ -98,9 +116,9 @@ export const HomePage: React.FC = () => {
 
     const audio = new Audio(SAURON_AUDIO_URL);
     audio.loop = true;
-    audio.preload = 'auto';
+    audio.preload = "auto";
     audio.volume = 0;
-    audio.crossOrigin = 'anonymous';
+    audio.crossOrigin = "anonymous";
 
     const fadeFrame = fadeAudio(audio, 0, 0.3, 450);
     sauronAudioRef.current = { audio, fadeFrame };
@@ -115,8 +133,10 @@ export const HomePage: React.FC = () => {
 
   useEffect(() => {
     const getThresholds = () => {
-      const isMobile = window.matchMedia('(max-width: 639px)').matches;
-      return isMobile ? { shrinkAt: 80, expandAt: 10 } : { shrinkAt: 120, expandAt: 60 };
+      const isMobile = window.matchMedia("(max-width: 639px)").matches;
+      return isMobile
+        ? { shrinkAt: 80, expandAt: 10 }
+        : { shrinkAt: 120, expandAt: 60 };
     };
 
     const computeAndSet = () => {
@@ -126,7 +146,8 @@ export const HomePage: React.FC = () => {
       const scrollY = window.scrollY;
       const { shrinkAt, expandAt } = getThresholds();
       setIsScrolled((prev) => {
-        const next = scrollY > shrinkAt ? true : scrollY < expandAt ? false : prev;
+        const next =
+          scrollY > shrinkAt ? true : scrollY < expandAt ? false : prev;
         if (next === prev) return prev;
 
         scrollLockRef.current = true;
@@ -146,9 +167,9 @@ export const HomePage: React.FC = () => {
 
     computeAndSet();
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
       if (unlockTimerRef.current) window.clearTimeout(unlockTimerRef.current);
       if (rafRef.current !== null) window.cancelAnimationFrame(rafRef.current);
     };
@@ -163,12 +184,12 @@ export const HomePage: React.FC = () => {
   const featuredProjects = DATA.projects.filter((p) => p.image).slice(0, 2);
 
   const handleViewAllProjects = () => {
-    navigate('/projects');
+    navigate("/projects");
     window.scrollTo(0, 0);
   };
 
   const handleViewBlogs = () => {
-    navigate('/blogs');
+    navigate("/blogs");
     window.scrollTo(0, 0);
   };
 
@@ -185,7 +206,7 @@ export const HomePage: React.FC = () => {
   };
 
   return (
-    <div className={`homepage-shell ${isSauronEnabled ? 'sauron-active' : ''}`}>
+    <div className={`homepage-shell ${isSauronEnabled ? "sauron-active" : ""}`}>
       {isSauronEnabled && (
         <EvilEye
           eyeColor="#FF6F37"
@@ -203,18 +224,20 @@ export const HomePage: React.FC = () => {
 
       <div className="container homepage-container">
         {/* HEADER */}
-        <header className={`header sticky-header ${isScrolled ? 'is-scrolled' : ''}`}>
+        <header
+          className={`header sticky-header ${isScrolled ? "is-scrolled" : ""}`}
+        >
           <div className="header-content">
             <h1>{DATA.personal.name}</h1>
             <p className="text-sm text-secondary mb-4">{DATA.personal.title}</p>
             <div className="header-meta text-xs text-muted">
-              <MapPin size={14} style={{ color: '#3b82f6' }} />
+              <MapPin size={14} style={{ color: "#3b82f6" }} />
               {DATA.personal.location}
             </div>
             <div className="building-status text-xs">
               <span className="building-dot" />
               <span>
-                Building{' '}
+                Building{" "}
                 <span className="arthion-wrapper">
                   <a
                     href={DATA.personal.currentlyBuilding.url}
@@ -237,7 +260,7 @@ export const HomePage: React.FC = () => {
 
           <div className="header-image">
             <div
-              className={`profile-flip-container ${isImageLoaded && isVideoReady ? 'flip-animation' : ''}`}
+              className={`profile-flip-container ${isImageLoaded && isVideoReady ? "flip-animation" : ""}`}
             >
               {/* Front Side - Profile Image */}
               <div className="profile-flip-face profile-flip-front">
@@ -245,9 +268,9 @@ export const HomePage: React.FC = () => {
                 <img
                   src={DATA.personal.image}
                   alt={DATA.personal.name}
-                  className={`profile-img ${!isImageLoaded ? 'hidden' : ''}`}
+                  className={`profile-img ${!isImageLoaded ? "hidden" : ""}`}
                   onLoad={() => setIsImageLoaded(true)}
-                  style={!isImageLoaded ? { display: 'none' } : {}}
+                  style={!isImageLoaded ? { display: "none" } : {}}
                 />
               </div>
               {/* Back Side - Video */}
@@ -269,7 +292,10 @@ export const HomePage: React.FC = () => {
 
         {/* BIO */}
         <section className="section">
-          <p className="text-sm leading-relaxed text-secondary" style={{ maxWidth: '400px' }}>
+          <p
+            className="text-sm leading-relaxed text-secondary"
+            style={{ maxWidth: "400px" }}
+          >
             {DATA.personal.bio}
           </p>
         </section>
@@ -299,8 +325,11 @@ export const HomePage: React.FC = () => {
               <ProjectCard key={index} {...project} />
             ))}
           </div>
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <button className="view-all-projects-btn" onClick={handleViewAllProjects}>
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            <button
+              className="view-all-projects-btn"
+              onClick={handleViewAllProjects}
+            >
               View All Projects
               <ArrowRight size={16} />
             </button>
@@ -314,19 +343,31 @@ export const HomePage: React.FC = () => {
         {/* FOOTER */}
         <footer className="footer">
           <div className="footer-links">
-            <SocialLink href={`mailto:${DATA.personal.email}`} icon={Mail} label="Email" />
-            <SocialLink href={`https://${DATA.personal.github}`} icon={Github} label="GitHub" />
+            <SocialLink
+              href={`mailto:${DATA.personal.email}`}
+              icon={Mail}
+              label="Email"
+            />
+            <SocialLink
+              href={`https://${DATA.personal.github}`}
+              icon={Github}
+              label="GitHub"
+            />
             <SocialLink
               href={`https://${DATA.personal.linkedin}`}
               icon={Linkedin}
               label="LinkedIn"
             />
-            <SocialLink href={`https://${DATA.personal.X}`} icon={XIcon} label="X" />
+            <SocialLink
+              href={`https://${DATA.personal.X}`}
+              icon={XIcon}
+              label="X"
+            />
             <DigitalClock />
           </div>
           <p className="text-xs text-muted mt-8">
-            © {new Date().getFullYear()} {DATA.personal.name}. Built with React, TypeScript, and
-            Plain CSS.
+            © {new Date().getFullYear()} {DATA.personal.name}. Built with React,
+            TypeScript, and Plain CSS.
           </p>
         </footer>
       </div>

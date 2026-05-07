@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Calendar, Clock, Tag } from 'lucide-react';
-import { BLOGS, Blog } from '../../data/blogs';
-import { AnimatedThemeToggler } from '../floatbuttons/AnimatedThemeToggler';
-import { HomeButton } from '../floatbuttons/HomeButton';
-import { ResumeButton } from '../floatbuttons/ResumeButton';
-import { MermaidDiagram } from './MermaidDiagram';
+import React, { useState, useMemo } from "react";
+import { ArrowLeft, Calendar, Clock, Tag } from "lucide-react";
+import { BLOGS, Blog } from "../../data/blogs";
+import { AnimatedThemeToggler } from "../floatbuttons/AnimatedThemeToggler";
+import { HomeButton } from "../floatbuttons/HomeButton";
+import { ResumeButton } from "../floatbuttons/ResumeButton";
+import { MermaidDiagram } from "./MermaidDiagram";
 
 interface BlogDetailPageProps {
   slug: string;
@@ -12,7 +12,11 @@ interface BlogDetailPageProps {
   onHome: () => void;
 }
 
-export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({ slug, onBack, onHome }) => {
+export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
+  slug,
+  onBack,
+  onHome,
+}) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   const blog = useMemo(() => {
@@ -21,20 +25,20 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({ slug, onBack, on
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
+    return date.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
   // Simple markdown-like rendering for the content
   const renderContent = (content: string) => {
-    const lines = content.trim().split('\n');
+    const lines = content.trim().split("\n");
     const elements: React.ReactNode[] = [];
     let inCodeBlock = false;
     let codeBlockContent: string[] = [];
-    let codeBlockLanguage = '';
+    let codeBlockLanguage = "";
     let unorderedListItems: React.ReactNode[] = [];
     let orderedListItems: React.ReactNode[] = [];
 
@@ -50,7 +54,10 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({ slug, onBack, on
 
       if (orderedListItems.length > 0) {
         elements.push(
-          <ol key={`ol-${elements.length}`} className="blog-list blog-list-ordered">
+          <ol
+            key={`ol-${elements.length}`}
+            className="blog-list blog-list-ordered"
+          >
             {orderedListItems}
           </ol>,
         );
@@ -60,16 +67,18 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({ slug, onBack, on
 
     lines.forEach((line, index) => {
       // Code block start/end
-      if (line.startsWith('```')) {
+      if (line.startsWith("```")) {
         if (!inCodeBlock) {
           inCodeBlock = true;
           codeBlockLanguage = line.slice(3).trim();
           codeBlockContent = [];
         } else {
-          const code = codeBlockContent.join('\n');
+          const code = codeBlockContent.join("\n");
 
-          if (codeBlockLanguage === 'mermaid') {
-            elements.push(<MermaidDiagram key={`mermaid-${index}`} chart={code} />);
+          if (codeBlockLanguage === "mermaid") {
+            elements.push(
+              <MermaidDiagram key={`mermaid-${index}`} chart={code} />,
+            );
           } else {
             elements.push(
               <pre key={`code-${index}`} className="blog-code-block">
@@ -79,7 +88,7 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({ slug, onBack, on
           }
           inCodeBlock = false;
           codeBlockContent = [];
-          codeBlockLanguage = '';
+          codeBlockLanguage = "";
         }
         return;
       }
@@ -90,13 +99,13 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({ slug, onBack, on
       }
 
       // Skip empty lines
-      if (line.trim() === '') {
+      if (line.trim() === "") {
         flushLists();
         return;
       }
 
       // H1
-      if (line.startsWith('# ')) {
+      if (line.startsWith("# ")) {
         flushLists();
         elements.push(
           <h1 key={index} className="blog-content-h1">
@@ -107,7 +116,7 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({ slug, onBack, on
       }
 
       // H2
-      if (line.startsWith('## ')) {
+      if (line.startsWith("## ")) {
         flushLists();
         elements.push(
           <h2 key={index} className="blog-content-h2">
@@ -118,7 +127,7 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({ slug, onBack, on
       }
 
       // H3
-      if (line.startsWith('### ')) {
+      if (line.startsWith("### ")) {
         flushLists();
         elements.push(
           <h3 key={index} className="blog-content-h3">
@@ -129,7 +138,7 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({ slug, onBack, on
       }
 
       // List items
-      if (line.startsWith('- ')) {
+      if (line.startsWith("- ")) {
         orderedListItems = [];
         unorderedListItems.push(
           <li key={index} className="blog-list-item">
@@ -177,13 +186,13 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({ slug, onBack, on
       }
 
       const token = match[0];
-      if (token.startsWith('`') && token.endsWith('`')) {
+      if (token.startsWith("`") && token.endsWith("`")) {
         nodes.push(
           <code key={`${match.index}-code`} className="blog-inline-code">
             {token.slice(1, -1)}
           </code>,
         );
-      } else if (token.startsWith('[')) {
+      } else if (token.startsWith("[")) {
         const linkMatch = token.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
         if (linkMatch) {
           const [, label, href] = linkMatch;
@@ -201,8 +210,10 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({ slug, onBack, on
         } else {
           nodes.push(token);
         }
-      } else if (token.startsWith('**') && token.endsWith('**')) {
-        nodes.push(<strong key={`${match.index}-bold`}>{token.slice(2, -2)}</strong>);
+      } else if (token.startsWith("**") && token.endsWith("**")) {
+        nodes.push(
+          <strong key={`${match.index}-bold`}>{token.slice(2, -2)}</strong>,
+        );
       } else {
         nodes.push(token);
       }
@@ -251,13 +262,15 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({ slug, onBack, on
       <article className="blog-article">
         {blog.image && (
           <div className="blog-article-image-wrapper">
-            {!isImageLoaded && <div className="skeleton blog-article-skeleton" />}
+            {!isImageLoaded && (
+              <div className="skeleton blog-article-skeleton" />
+            )}
             <img
               src={blog.image}
               alt={blog.title}
-              className={`blog-article-image ${!isImageLoaded ? 'hidden' : ''}`}
+              className={`blog-article-image ${!isImageLoaded ? "hidden" : ""}`}
               onLoad={() => setIsImageLoaded(true)}
-              style={!isImageLoaded ? { display: 'none' } : {}}
+              style={!isImageLoaded ? { display: "none" } : {}}
             />
           </div>
         )}
@@ -286,7 +299,9 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({ slug, onBack, on
           </div>
         </div>
 
-        <div className="blog-article-content">{renderContent(blog.content)}</div>
+        <div className="blog-article-content">
+          {renderContent(blog.content)}
+        </div>
       </article>
 
       <div className="floating-dock">

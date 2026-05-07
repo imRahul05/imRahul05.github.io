@@ -1,11 +1,11 @@
-import React, { Suspense, lazy } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense, lazy } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 // Lazy load all pages for code splitting
-const HomePage = lazy(() => import('../../pages/HomePage'));
-const ProjectsPage = lazy(() => import('../../pages/ProjectsPage'));
-const BlogsPage = lazy(() => import('../../pages/BlogsPage'));
-const BlogDetailPage = lazy(() => import('../../pages/BlogDetailPage'));
+const HomePage = lazy(() => import("../../pages/HomePage"));
+const ProjectsPage = lazy(() => import("../../pages/ProjectsPage"));
+const BlogsPage = lazy(() => import("../../pages/BlogsPage"));
+const BlogDetailPage = lazy(() => import("../../pages/BlogDetailPage"));
 
 // Simple loading fallback
 const PageLoader = () => (

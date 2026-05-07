@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 
 interface TimeState {
   hours: string;
@@ -15,10 +15,10 @@ function getISTTime(): TimeState {
   const ist = new Date(utc + istOffset);
 
   return {
-    hours: ist.getHours().toString().padStart(2, '0'),
-    minutes: ist.getMinutes().toString().padStart(2, '0'),
-    seconds: ist.getSeconds().toString().padStart(2, '0'),
-    milliseconds: ist.getMilliseconds().toString().padStart(3, '0').slice(0, 2),
+    hours: ist.getHours().toString().padStart(2, "0"),
+    minutes: ist.getMinutes().toString().padStart(2, "0"),
+    seconds: ist.getSeconds().toString().padStart(2, "0"),
+    milliseconds: ist.getMilliseconds().toString().padStart(3, "0").slice(0, 2),
   };
 }
 

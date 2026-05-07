@@ -41,7 +41,7 @@
 
 /* Tooltip arrow */
 .floating-btn-tooltip::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 100%;
   left: 50%;
@@ -60,7 +60,7 @@
 
 /* The ripple (hover preview) */
 .theme-toggle-btn::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 50%;
   top: 50%;

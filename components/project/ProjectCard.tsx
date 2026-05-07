@@ -1,5 +1,5 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { Play, X, Globe, Github } from 'lucide-react';
+import React, { useState, useRef, useCallback } from "react";
+import { Play, X, Globe, Github } from "lucide-react";
 
 interface ProjectCardProps {
   name: string;
@@ -58,7 +58,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         handleCloseModal();
       }
     },
@@ -70,14 +70,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       <div className="project-card">
         {/* Image Section */}
         <div className="project-card-image-wrapper">
-          {!isImageLoaded && image && <div className="skeleton project-card-skeleton" />}
+          {!isImageLoaded && image && (
+            <div className="skeleton project-card-skeleton" />
+          )}
           {image ? (
             <img
               src={image}
               alt={name}
-              className={`project-card-image ${!isImageLoaded ? 'hidden' : ''}`}
+              className={`project-card-image ${!isImageLoaded ? "hidden" : ""}`}
               onLoad={() => setIsImageLoaded(true)}
-              style={!isImageLoaded ? { display: 'none' } : {}}
+              style={!isImageLoaded ? { display: "none" } : {}}
             />
           ) : (
             <div className="project-card-placeholder" />
@@ -114,7 +116,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           {/* Action Buttons */}
           <div className="project-card-actions">
             {link && (
-              <a href={link} className="project-card-btn" target="_blank" rel="noopener noreferrer">
+              <a
+                href={link}
+                className="project-card-btn"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Globe size={14} />
                 Website
               </a>
@@ -153,7 +160,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             >
               <X size={24} />
             </button>
-            <video ref={videoRef} src={video} controls autoPlay className="video-modal-player">
+            <video
+              ref={videoRef}
+              src={video}
+              controls
+              autoPlay
+              className="video-modal-player"
+            >
               Your browser does not support the video tag.
             </video>
           </div>

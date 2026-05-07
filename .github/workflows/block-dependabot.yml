@@ -1,0 +1,62 @@
+name: Block Dependabot PRs
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  mark_draft_and_label:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Mark Dependabot PRs as draft, label, and request review
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.info('No pull request payload; exiting');
+              return;
+            }
+            const author = pr.user.login;
+            const dependabotUsers = ['dependabot[bot]', 'dependabot-preview[bot]'];
+            if (dependabotUsers.includes(author)) {
+              // Mark as draft
+              await github.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                draft: true,
+              });
+
+              // Add a label to indicate manual merge required
+              try {
+                await github.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  labels: ['do-not-merge/dependabot'],
+                });
+              } catch (e) {
+                core.warning('Failed to add label: ' + e.message);
+              }
+
+              // Request your review (replace with repo owner if different)
+              try {
+                await github.pulls.requestReviewers({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                  reviewers: ['imRahul05'],
+                });
+              } catch (e) {
+                core.warning('Failed to request reviewer: ' + e.message);
+              }
+            } else {
+              core.info('PR author is not Dependabot; no action taken.');
+            }

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { DATA } from '../../data/data';
-import { SectionTitle } from '../SectionTitle';
-import { TypewriterText } from '../TypewriterText';
-import { ChevronDown } from 'lucide-react';
+import React, { useState } from "react";
+import { DATA } from "../../data/data";
+import { SectionTitle } from "../SectionTitle";
+import { TypewriterText } from "../TypewriterText";
+import { ChevronDown } from "lucide-react";
 
 interface ExperienceItemProps {
   company: string;
@@ -29,17 +29,19 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => setIsOpen(!isOpen)}
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: "pointer" }}
     >
       {image && (
         <div className="experience-icon">
-          {!isImageLoaded && <div className="skeleton experience-icon-skeleton" />}
+          {!isImageLoaded && (
+            <div className="skeleton experience-icon-skeleton" />
+          )}
           <img
             src={image}
             alt={company}
-            className={`experience-icon-img ${!isImageLoaded ? 'hidden' : ''}`}
+            className={`experience-icon-img ${!isImageLoaded ? "hidden" : ""}`}
             onLoad={() => setIsImageLoaded(true)}
-            style={!isImageLoaded ? { display: 'none' } : {}}
+            style={!isImageLoaded ? { display: "none" } : {}}
           />
         </div>
       )}
@@ -53,14 +55,14 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({
               style={{
                 opacity: isHovered || isOpen ? 1 : 0,
               }}
-              aria-label={isOpen ? 'Collapse details' : 'Expand details'}
+              aria-label={isOpen ? "Collapse details" : "Expand details"}
             >
               <ChevronDown
                 size={14}
                 className="text-muted"
                 style={{
-                  transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.2s ease-in-out',
+                  transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.2s ease-in-out",
                 }}
               />
             </button>

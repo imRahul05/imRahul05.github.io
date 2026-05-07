@@ -1,17 +1,17 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { BLOGS } from '../data/blogs';
-import { BlogCard } from '../components/blog/BlogCard';
-import { AnimatedThemeToggler } from '../components/floatbuttons/AnimatedThemeToggler';
-import { HomeButton } from '../components/floatbuttons/HomeButton';
-import { ResumeButton } from '../components/floatbuttons/ResumeButton';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { BLOGS } from "../data/blogs";
+import { BlogCard } from "../components/blog/BlogCard";
+import { AnimatedThemeToggler } from "../components/floatbuttons/AnimatedThemeToggler";
+import { HomeButton } from "../components/floatbuttons/HomeButton";
+import { ResumeButton } from "../components/floatbuttons/ResumeButton";
 
 export const BlogsPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleBackClick = () => {
-    navigate('/');
+    navigate("/");
     window.scrollTo(0, 0);
   };
 
@@ -23,7 +23,11 @@ export const BlogsPage: React.FC = () => {
   return (
     <div className="container blogs-page">
       <header className="blogs-page-header">
-        <button className="back-button" onClick={handleBackClick} aria-label="Go back to home">
+        <button
+          className="back-button"
+          onClick={handleBackClick}
+          aria-label="Go back to home"
+        >
           <ArrowLeft size={20} />
           <span>Back</span>
         </button>

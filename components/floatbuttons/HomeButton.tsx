@@ -1,13 +1,16 @@
-import { Home } from 'lucide-react';
-import { FloatingButton } from './FloatingButton';
-import React from 'react';
+import { Home } from "lucide-react";
+import { FloatingButton } from "./FloatingButton";
+import React from "react";
 
 interface HomeButtonProps {
   className?: string;
   onClick: () => void;
 }
 
-export const HomeButton: React.FC<HomeButtonProps> = ({ className, onClick }) => {
+export const HomeButton: React.FC<HomeButtonProps> = ({
+  className,
+  onClick,
+}) => {
   return (
     <FloatingButton
       icon={Home}

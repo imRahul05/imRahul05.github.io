@@ -1,6 +1,6 @@
-import { Renderer, Program, Mesh, Triangle, Texture } from 'ogl';
-import { useEffect, useRef } from 'react';
-import './EvilEye.css';
+import { Renderer, Program, Mesh, Triangle, Texture } from "ogl";
+import { useEffect, useRef } from "react";
+import "./EvilEye.css";
 
 interface EvilEyeProps {
   eyeColor?: string;
@@ -16,7 +16,7 @@ interface EvilEyeProps {
 }
 
 function hexToVec3(hex: string): [number, number, number] {
-  const normalized = hex.replace('#', '');
+  const normalized = hex.replace("#", "");
 
   return [
     parseInt(normalized.slice(0, 2), 16) / 255,
@@ -63,7 +63,12 @@ function generateNoiseTexture(size = 256): Uint8Array {
       seed,
     );
 
-    return v00 * (1 - tx) * (1 - ty) + v10 * tx * (1 - ty) + v01 * (1 - tx) * ty + v11 * tx * ty;
+    return (
+      v00 * (1 - tx) * (1 - ty) +
+      v10 * tx * (1 - ty) +
+      v01 * (1 - tx) * ty +
+      v11 * tx * ty
+    );
   }
 
   for (let y = 0; y < size; y += 1) {
@@ -184,7 +189,7 @@ void main() {
 `;
 
 export default function EvilEye({
-  eyeColor = '#FF6F37',
+  eyeColor = "#FF6F37",
   intensity = 1.5,
   pupilSize = 0.6,
   irisWidth = 0.25,
@@ -193,7 +198,7 @@ export default function EvilEye({
   noiseScale = 1,
   pupilFollow = 1,
   flameSpeed = 1,
-  backgroundColor = '#060010',
+  backgroundColor = "#060010",
 }: EvilEyeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -254,11 +259,13 @@ export default function EvilEye({
       }
     };
 
-    window.addEventListener('resize', resize);
-    window.addEventListener('pointermove', handlePointerMove, { passive: true });
-    window.addEventListener('pointerleave', resetPointer);
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    window.addEventListener('touchend', resetPointer);
+    window.addEventListener("resize", resize);
+    window.addEventListener("pointermove", handlePointerMove, {
+      passive: true,
+    });
+    window.addEventListener("pointerleave", resetPointer);
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("touchend", resetPointer);
 
     resize();
 
@@ -269,7 +276,11 @@ export default function EvilEye({
       uniforms: {
         uTime: { value: 0 },
         uResolution: {
-          value: [gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height],
+          value: [
+            gl.canvas.width,
+            gl.canvas.height,
+            gl.canvas.width / gl.canvas.height,
+          ],
         },
         uNoiseTexture: { value: noiseTexture },
         uPupilSize: { value: pupilSize },
@@ -287,7 +298,7 @@ export default function EvilEye({
     });
 
     const mesh = new Mesh(gl, { geometry, program });
-    gl.canvas.className = 'evil-eye-canvas';
+    gl.canvas.className = "evil-eye-canvas";
     container.appendChild(gl.canvas);
 
     let animationFrameId = 0;
@@ -305,15 +316,15 @@ export default function EvilEye({
 
     return () => {
       window.cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', resize);
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerleave', resetPointer);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', resetPointer);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerleave", resetPointer);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", resetPointer);
       if (gl.canvas.parentNode === container) {
         container.removeChild(gl.canvas);
       }
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
   }, [
     backgroundColor,
@@ -328,5 +339,7 @@ export default function EvilEye({
     scale,
   ]);
 
-  return <div ref={containerRef} className="evil-eye-container" aria-hidden="true" />;
+  return (
+    <div ref={containerRef} className="evil-eye-container" aria-hidden="true" />
+  );
 }

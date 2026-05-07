@@ -1,17 +1,20 @@
-import React, { useCallback } from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { BLOGS } from '../../data/blogs';
-import { BlogCard } from './BlogCard';
-import { AnimatedThemeToggler } from '../floatbuttons/AnimatedThemeToggler';
-import { HomeButton } from '../floatbuttons/HomeButton';
-import { ResumeButton } from '../floatbuttons/ResumeButton';
+import React, { useCallback } from "react";
+import { ArrowLeft } from "lucide-react";
+import { BLOGS } from "../../data/blogs";
+import { BlogCard } from "./BlogCard";
+import { AnimatedThemeToggler } from "../floatbuttons/AnimatedThemeToggler";
+import { HomeButton } from "../floatbuttons/HomeButton";
+import { ResumeButton } from "../floatbuttons/ResumeButton";
 
 interface BlogsPageProps {
   onBack: () => void;
   onSelectBlog: (slug: string) => void;
 }
 
-export const BlogsPage: React.FC<BlogsPageProps> = ({ onBack, onSelectBlog }) => {
+export const BlogsPage: React.FC<BlogsPageProps> = ({
+  onBack,
+  onSelectBlog,
+}) => {
   const handleBackClick = useCallback(() => {
     onBack();
   }, [onBack]);
@@ -26,7 +29,11 @@ export const BlogsPage: React.FC<BlogsPageProps> = ({ onBack, onSelectBlog }) =>
   return (
     <div className="container blogs-page">
       <header className="blogs-page-header">
-        <button className="back-button" onClick={handleBackClick} aria-label="Go back to home">
+        <button
+          className="back-button"
+          onClick={handleBackClick}
+          aria-label="Go back to home"
+        >
           <ArrowLeft size={20} />
           <span>Back</span>
         </button>

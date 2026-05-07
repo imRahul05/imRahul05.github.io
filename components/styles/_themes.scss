@@ -39,6 +39,6 @@ $dark: (
   @include apply-theme($lilac); // Default
 }
 
-[data-theme='dark'] {
+[data-theme="dark"] {
   @include apply-theme($dark);
 }
