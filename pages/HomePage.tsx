@@ -9,6 +9,10 @@ import {
   BookOpen,
 } from "lucide-react";
 import { DATA } from "../data/data";
+import {
+  ContributionGraph,
+  generateContributionData,
+} from "../components/ContributionGraph";
 import { SectionTitle } from "../components/SectionTitle";
 import { ProjectCard } from "../components/project/ProjectCard";
 import { Education } from "../components/education/Education";
@@ -18,166 +22,66 @@ import { DigitalClock } from "../components/DigitalClock";
 import { AnimatedThemeToggler } from "../components/floatbuttons/AnimatedThemeToggler";
 import { ResumeButton } from "../components/floatbuttons/ResumeButton";
 import { BlogButton } from "../components/floatbuttons/BlogButton";
-import { SauronButton } from "../components/floatbuttons/SauronButton";
 import { XIcon } from "../components/XIcon";
-import EvilEye from "../components/backgrounds/EvilEye";
 
 export const HomePage: React.FC = () => {
-  const SAURON_AUDIO_URL =
-    "https://res.cloudinary.com/dw8r5ivmx/video/upload/v1775033836/mixkit-fire-explosion-1343_zl5ctw.wav";
-
   const navigate = useNavigate();
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
-  const [isSauronEnabled, setIsSauronEnabled] = useState(false);
+  const contributionData = React.useMemo(() => generateContributionData(), []);
 
-  const scrollLockRef = useRef(false);
-  const unlockTimerRef = useRef<number | null>(null);
+  const headerRef = useRef<HTMLElement | null>(null);
+  const scrolledRef = useRef(false);
   const rafRef = useRef<number | null>(null);
-  const sauronAudioRef = useRef<{
-    audio: HTMLAudioElement;
-    fadeFrame: number | null;
-  } | null>(null);
-
-  const fadeAudio = (
-    audio: HTMLAudioElement,
-    from: number,
-    to: number,
-    durationMs: number,
-    onComplete?: () => void,
-  ) => {
-    const start = performance.now();
-    let frameId = 0;
-
-    const step = (timestamp: number) => {
-      const progress = Math.min((timestamp - start) / durationMs, 1);
-      audio.volume = from + (to - from) * progress;
-
-      if (progress < 1) {
-        frameId = window.requestAnimationFrame(step);
-        const activeAudio = sauronAudioRef.current;
-        if (activeAudio?.audio === audio) {
-          activeAudio.fadeFrame = frameId;
-        }
-        return;
-      }
-
-      onComplete?.();
-    };
-
-    frameId = window.requestAnimationFrame(step);
-    return frameId;
-  };
-
-  const stopSauronAudio = (fadeDuration = 300) => {
-    const activeAudio = sauronAudioRef.current;
-    if (!activeAudio) return;
-
-    const { audio, fadeFrame } = activeAudio;
-    if (fadeFrame !== null) {
-      window.cancelAnimationFrame(fadeFrame);
-    }
-
-    activeAudio.fadeFrame = fadeAudio(
-      audio,
-      audio.volume,
-      0,
-      fadeDuration,
-      () => {
-        audio.pause();
-        audio.currentTime = 0;
-      },
-    );
-
-    sauronAudioRef.current = null;
-  };
-
-  const startSauronAudio = () => {
-    const existing = sauronAudioRef.current;
-    if (existing) {
-      if (existing.fadeFrame !== null) {
-        window.cancelAnimationFrame(existing.fadeFrame);
-      }
-      existing.audio.currentTime = 0;
-      existing.audio
-        .play()
-        .then(() => {
-          existing.fadeFrame = fadeAudio(
-            existing.audio,
-            existing.audio.volume,
-            0.3,
-            450,
-          );
-        })
-        .catch(() => undefined);
-      return;
-    }
-
-    const audio = new Audio(SAURON_AUDIO_URL);
-    audio.loop = true;
-    audio.preload = "auto";
-    audio.volume = 0;
-    audio.crossOrigin = "anonymous";
-
-    const fadeFrame = fadeAudio(audio, 0, 0.3, 450);
-    sauronAudioRef.current = { audio, fadeFrame };
-
-    audio.play().catch(() => {
-      if (sauronAudioRef.current?.audio === audio && fadeFrame !== null) {
-        window.cancelAnimationFrame(fadeFrame);
-      }
-      sauronAudioRef.current = null;
-    });
-  };
 
   useEffect(() => {
-    const getThresholds = () => {
-      const isMobile = window.matchMedia("(max-width: 639px)").matches;
-      return isMobile
+    const mobileQuery = window.matchMedia("(max-width: 639px)");
+    const thresholdsRef = {
+      current: mobileQuery.matches
+        ? { shrinkAt: 80, expandAt: 10 }
+        : { shrinkAt: 120, expandAt: 60 },
+    };
+
+    const syncThresholds = () => {
+      thresholdsRef.current = mobileQuery.matches
         ? { shrinkAt: 80, expandAt: 10 }
         : { shrinkAt: 120, expandAt: 60 };
     };
 
-    const computeAndSet = () => {
+    const applyHeaderState = () => {
       rafRef.current = null;
-      if (scrollLockRef.current) return;
 
+      const { shrinkAt, expandAt } = thresholdsRef.current;
       const scrollY = window.scrollY;
-      const { shrinkAt, expandAt } = getThresholds();
-      setIsScrolled((prev) => {
-        const next =
-          scrollY > shrinkAt ? true : scrollY < expandAt ? false : prev;
-        if (next === prev) return prev;
+      const nextIsScrolled =
+        scrollY > shrinkAt
+          ? true
+          : scrollY < expandAt
+            ? false
+            : scrolledRef.current;
 
-        scrollLockRef.current = true;
-        if (unlockTimerRef.current) window.clearTimeout(unlockTimerRef.current);
-        unlockTimerRef.current = window.setTimeout(() => {
-          scrollLockRef.current = false;
-        }, 350);
+      if (nextIsScrolled === scrolledRef.current) {
+        return;
+      }
 
-        return next;
-      });
+      scrolledRef.current = nextIsScrolled;
+      headerRef.current?.classList.toggle("is-scrolled", nextIsScrolled);
     };
 
     const handleScroll = () => {
       if (rafRef.current !== null) return;
-      rafRef.current = window.requestAnimationFrame(computeAndSet);
+      rafRef.current = window.requestAnimationFrame(applyHeaderState);
     };
 
-    computeAndSet();
+    syncThresholds();
+    applyHeaderState();
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    mobileQuery.addEventListener("change", syncThresholds);
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      if (unlockTimerRef.current) window.clearTimeout(unlockTimerRef.current);
+      mobileQuery.removeEventListener("change", syncThresholds);
       if (rafRef.current !== null) window.cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      stopSauronAudio(180);
     };
   }, []);
 
@@ -193,40 +97,11 @@ export const HomePage: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
-  const handleToggleSauron = () => {
-    setIsSauronEnabled((current) => {
-      const next = !current;
-      if (next) {
-        startSauronAudio();
-      } else {
-        stopSauronAudio();
-      }
-      return next;
-    });
-  };
-
   return (
-    <div className={`homepage-shell ${isSauronEnabled ? "sauron-active" : ""}`}>
-      {isSauronEnabled && (
-        <EvilEye
-          eyeColor="#FF6F37"
-          intensity={1.5}
-          pupilSize={0.6}
-          irisWidth={0.25}
-          glowIntensity={0.35}
-          scale={0.8}
-          noiseScale={1}
-          pupilFollow={1}
-          flameSpeed={1}
-          backgroundColor="#060010"
-        />
-      )}
-
+    <div className="homepage-shell">
       <div className="container homepage-container">
         {/* HEADER */}
-        <header
-          className={`header sticky-header ${isScrolled ? "is-scrolled" : ""}`}
-        >
+        <header ref={headerRef} className="header sticky-header">
           <div className="header-content">
             <h1>{DATA.personal.name}</h1>
             <p className="text-sm text-secondary mb-4">{DATA.personal.title}</p>
@@ -340,6 +215,15 @@ export const HomePage: React.FC = () => {
           </div>
         </section>
 
+        {/* CONTRIBUTION GRAPH */}
+        <section className="section contribution-section">
+          <SectionTitle>Build Rhythm</SectionTitle>
+          <ContributionGraph
+            className="contribution-graph-card"
+            data={contributionData}
+          />
+        </section>
+
         {/* FOOTER */}
         <footer className="footer">
           <div className="footer-links">
@@ -374,7 +258,6 @@ export const HomePage: React.FC = () => {
 
       <div className="floating-dock">
         <AnimatedThemeToggler />
-        <SauronButton enabled={isSauronEnabled} onClick={handleToggleSauron} />
         <BlogButton onClick={handleViewBlogs} />
         <ResumeButton />
       </div>

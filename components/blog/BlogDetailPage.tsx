@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { ArrowLeft, Calendar, Clock, Tag } from "lucide-react";
-import { BLOGS, Blog } from "../../data/blogs";
+import { BLOGS } from "../../data/blogs";
 import { AnimatedThemeToggler } from "../floatbuttons/AnimatedThemeToggler";
 import { HomeButton } from "../floatbuttons/HomeButton";
 import { ResumeButton } from "../floatbuttons/ResumeButton";

@@ -4,7 +4,6 @@ interface TimeState {
   hours: string;
   minutes: string;
   seconds: string;
-  milliseconds: string;
 }
 
 function getISTTime(): TimeState {
@@ -18,25 +17,36 @@ function getISTTime(): TimeState {
     hours: ist.getHours().toString().padStart(2, "0"),
     minutes: ist.getMinutes().toString().padStart(2, "0"),
     seconds: ist.getSeconds().toString().padStart(2, "0"),
-    milliseconds: ist.getMilliseconds().toString().padStart(3, "0").slice(0, 2),
   };
 }
 
 export const DigitalClock: React.FC = () => {
   const [time, setTime] = useState<TimeState>(getISTTime);
-  const animationRef = useRef<number | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const updateTime = () => {
+    const startTicker = () => {
       setTime(getISTTime());
-      animationRef.current = requestAnimationFrame(updateTime);
+      intervalRef.current = window.setInterval(() => {
+        setTime(getISTTime());
+      }, 1000);
     };
 
-    animationRef.current = requestAnimationFrame(updateTime);
+    const scheduleStart = () => {
+      const now = new Date();
+      const delay = 1000 - now.getMilliseconds();
+      timeoutRef.current = window.setTimeout(startTicker, delay);
+    };
+
+    scheduleStart();
 
     return () => {
-      if (animationRef.current !== null) {
-        cancelAnimationFrame(animationRef.current);
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
+      }
+      if (intervalRef.current !== null) {
+        window.clearInterval(intervalRef.current);
       }
     };
   }, []);
