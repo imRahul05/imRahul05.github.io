@@ -1,5 +1,14 @@
-import React, { useState, useMemo } from "react";
-import { ArrowLeft, Calendar, Clock, Tag } from "lucide-react";
+import React, { useState, useMemo, useEffect } from "react";
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  Tag,
+  Settings,
+  Type,
+  Maximize2,
+  Minimize2,
+} from "lucide-react";
 import { BLOGS } from "../../data/blogs";
 import { AnimatedThemeToggler } from "../floatbuttons/AnimatedThemeToggler";
 import { HomeButton } from "../floatbuttons/HomeButton";
@@ -12,16 +21,49 @@ interface BlogDetailPageProps {
   onHome: () => void;
 }
 
+type FontStyle = "mono" | "sans" | "serif";
+type ReadingTheme = "default" | "sepia" | "high-contrast";
+
 export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
   slug,
   onBack,
   onHome,
 }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [content, setContent] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Reading Preferences
+  const [fontSize, setFontSize] = useState(16);
+  const [fontStyle, setFontStyle] = useState<FontStyle>("mono");
+  const [readingTheme, setReadingTheme] = useState<ReadingTheme>("default");
+  const [showSettings, setShowSettings] = useState(false);
 
   const blog = useMemo(() => {
     return BLOGS.find((b) => b.slug === slug);
   }, [slug]);
+
+  useEffect(() => {
+    const loadContent = async () => {
+      if (!slug) return;
+      setIsLoading(true);
+      try {
+        const { BLOG_CONTENTS } = await import("../../data/blog-contents");
+        setContent(BLOG_CONTENTS[slug] || null);
+      } catch (err) {
+        console.error("Failed to load blog content:", err);
+        setContent(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadContent();
+  }, [slug]);
+
+  const handleFontSizeChange = (delta: number) => {
+    setFontSize((prev) => Math.min(Math.max(prev + delta * 2, 12), 32));
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -251,15 +293,87 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
   }
 
   return (
-    <div className="container blog-detail-page">
+    <div className={`container blog-detail-page reading-theme-${readingTheme}`}>
       <header className="blog-detail-header">
         <button className="back-button" onClick={onBack}>
           <ArrowLeft size={20} />
           <span>Back to Blogs</span>
         </button>
+
+        <div className="reading-settings-container">
+          <button
+            className={`settings-toggle ${showSettings ? "active" : ""}`}
+            onClick={() => setShowSettings(!showSettings)}
+            aria-label="Reading settings"
+          >
+            <Settings size={20} />
+          </button>
+
+          {showSettings && (
+            <div className="reading-settings-panel">
+              <div className="settings-section">
+                <span className="settings-label">Font Size</span>
+                <div className="settings-controls">
+                  <button onClick={() => handleFontSizeChange(-1)}>
+                    <Minimize2 size={16} />
+                  </button>
+                  <span className="font-size-value">{fontSize}px</span>
+                  <button onClick={() => handleFontSizeChange(1)}>
+                    <Maximize2 size={16} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="settings-section">
+                <span className="settings-label">Font Style</span>
+                <div className="font-style-options">
+                  <button
+                    className={fontStyle === "mono" ? "active" : ""}
+                    onClick={() => setFontStyle("mono")}
+                  >
+                    Mono
+                  </button>
+                  <button
+                    className={fontStyle === "sans" ? "active" : ""}
+                    onClick={() => setFontStyle("sans")}
+                  >
+                    Sans
+                  </button>
+                  <button
+                    className={fontStyle === "serif" ? "active" : ""}
+                    onClick={() => setFontStyle("serif")}
+                  >
+                    Serif
+                  </button>
+                </div>
+              </div>
+
+              <div className="settings-section">
+                <span className="settings-label">Reading Theme</span>
+                <div className="reading-theme-options">
+                  <button
+                    className={`theme-opt-default ${readingTheme === "default" ? "active" : ""}`}
+                    onClick={() => setReadingTheme("default")}
+                    title="Default"
+                  />
+                  <button
+                    className={`theme-opt-sepia ${readingTheme === "sepia" ? "active" : ""}`}
+                    onClick={() => setReadingTheme("sepia")}
+                    title="Sepia"
+                  />
+                  <button
+                    className={`theme-opt-contrast ${readingTheme === "high-contrast" ? "active" : ""}`}
+                    onClick={() => setReadingTheme("high-contrast")}
+                    title="High Contrast"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </header>
 
-      <article className="blog-article">
+      <article className={`blog-article font-style-${fontStyle}`}>
         {blog.image && (
           <div className="blog-article-image-wrapper">
             {!isImageLoaded && (
@@ -299,8 +413,35 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
           </div>
         </div>
 
-        <div className="blog-article-content">
-          {renderContent(blog.content)}
+        <div
+          className="blog-article-content"
+          style={{ fontSize: `${fontSize}px` }}
+        >
+          {isLoading ? (
+            <div className="blog-content-loading">
+              <div className="skeleton blog-content-skeleton" />
+              <div className="skeleton blog-content-skeleton" />
+              <div
+                className="skeleton blog-content-skeleton"
+                style={{ width: "80%" }}
+              />
+              <div
+                className="skeleton blog-content-skeleton"
+                style={{ width: "90%", marginTop: "2rem" }}
+              />
+              <div className="skeleton blog-content-skeleton" />
+              <div
+                className="skeleton blog-content-skeleton"
+                style={{ width: "70%" }}
+              />
+            </div>
+          ) : content ? (
+            renderContent(content)
+          ) : (
+            <div className="blog-no-content">
+              <p>Content could not be loaded. Please try again later.</p>
+            </div>
+          )}
         </div>
       </article>
 
