@@ -19,7 +19,7 @@ export const BLOGS: Blog[] = [
     readTime: "6 min read",
     tags: ["Frontend", "TypeScript", "API", "Automation"],
     image:
-      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80",
+      "https://res.cloudinary.com/dw8r5ivmx/image/upload/v1780543059/orval-blog_gbj7ia.png",
   },
   {
     slug: "strangler-fig-pattern-system-evolution",

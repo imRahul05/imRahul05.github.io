@@ -1,6 +1,5 @@
 export const BLOG_CONTENTS: Record<string, string> = {
   "reducing-frontend-api-boilerplate-openapi-orval": `
-# Reducing Frontend API Boilerplate with OpenAPI + Orval
 
 Recently, while working across both backend and frontend stacks (NestJS, Next.js, and TypeScript), I explored OpenAPI and Orval more deeply. After using it on a real project, I realized how much repetitive work we still do manually—even with AI assistance.
 
@@ -341,7 +340,6 @@ If the backend already knows the shape of the API, letting tools generate the cl
 The more APIs your application grows to support, the more valuable this pattern becomes.
 `,
   "strangler-fig-pattern-system-evolution": `
-# Evolving Systems with the Strangler Fig Pattern
 
 While working on improving the robustness of a backend service recently, I came across an interesting architecture pattern called the **Strangler Fig Pattern**.
 
@@ -457,7 +455,6 @@ The Strangler Fig Pattern is a great example of this — a simple concept that e
 If you're working with large or legacy systems, this pattern is definitely worth knowing.
 `,
   "github-whatsapp-notifications": `
-# Sending GitHub Notifications to WhatsApp with Webhooks
 
 While working on several repositories, I noticed that I was receiving **many GitHub email notifications** for things like PR reviews, assignments, and CI failures.
 
@@ -593,7 +590,6 @@ Receiving GitHub notifications on WhatsApp turned out to be a simple but effecti
 What started as a small personal automation eventually turned into a reusable tool that anyone can set up in seconds.
 `,
   "blocking-script-injection-with-csp": `
-# Blocking Script Injection with Content Security Policy
 
 While working on a security task, I wondered:
 
