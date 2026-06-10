@@ -5,7 +5,6 @@ import {
   Clock,
   Tag,
   Settings,
-  Type,
   Maximize2,
   Minimize2,
 } from "lucide-react";

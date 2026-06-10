@@ -24,12 +24,7 @@
   max-width: 100%;
   color: var(--cg-text);
   font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Helvetica,
-    Arial,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif;
   font-size: 12px;
   line-height: 1.4;
@@ -87,12 +82,8 @@
    ============================================================ */
 
 .contribution-level-0 {
-  background: color-mix(in srgb,
-      var(--border-light) 82%,
-      var(--bg-color));
-  fill: color-mix(in srgb,
-      var(--border-light) 82%,
-      var(--bg-color));
+  background: color-mix(in srgb, var(--border-light) 82%, var(--bg-color));
+  fill: color-mix(in srgb, var(--border-light) 82%, var(--bg-color));
 }
 
 .contribution-level-1 {
@@ -120,12 +111,8 @@
    ============================================================ */
 
 [data-theme="dark"] .contribution-level-0 {
-  background: color-mix(in srgb,
-      var(--border-light) 72%,
-      var(--bg-color));
-  fill: color-mix(in srgb,
-      var(--border-light) 72%,
-      var(--bg-color));
+  background: color-mix(in srgb, var(--border-light) 72%, var(--bg-color));
+  fill: color-mix(in srgb, var(--border-light) 72%, var(--bg-color));
 }
 
 [data-theme="dark"] .contribution-level-1 {
@@ -246,7 +233,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   .contribution-graph-cell,
   .contribution-graph-tooltip {
     transition: none;
