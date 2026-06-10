@@ -1,0 +1,254 @@
+/* ============================================================
+   Contribution graph
+   Plain CSS. All theming runs through custom properties on
+   .contribution-graph so it can be overridden per instance.
+   ============================================================ */
+
+.contribution-graph {
+  --cg-cell-border: rgba(27, 31, 35, 0.06);
+  --cg-cell-hover-border: rgba(27, 31, 35, 0.4);
+
+  --cg-text: #57606a;
+  --cg-text-muted: #8b949e;
+
+  --cg-tooltip-bg: #24292f;
+  --cg-tooltip-fg: #ffffff;
+  --cg-tooltip-fg-muted: rgba(255, 255, 255, 0.7);
+
+  /* Geometry — keep in sync with the component constants */
+  --cg-cell-size: 10px;
+  --cg-cell-gap: 3px;
+  --cg-cell-radius: 3px;
+
+  display: inline-block;
+  max-width: 100%;
+  color: var(--cg-text);
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* ============================================================
+   Dark mode (UNCHANGED)
+   ============================================================ */
+
+[data-theme="dark"] .contribution-graph {
+  --cg-cell-border: rgba(255, 255, 255, 0.05);
+  --cg-cell-hover-border: rgba(255, 255, 255, 0.5);
+
+  --cg-text: #7d8590;
+  --cg-text-muted: #6e7681;
+
+  --cg-tooltip-bg: #2d333b;
+  --cg-tooltip-fg: #f0f6fc;
+  --cg-tooltip-fg-muted: rgba(240, 246, 252, 0.7);
+}
+
+/* ============================================================
+   Horizontal scroll container
+   ============================================================ */
+
+.contribution-graph-scroll {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+
+/* ============================================================
+   Cells
+   ============================================================ */
+
+.contribution-graph-cell {
+  /* SVG geometry property; ignored by the legend <div>s */
+  rx: var(--cg-cell-radius);
+  ry: var(--cg-cell-radius);
+
+  stroke: var(--cg-cell-border);
+  stroke-width: 1px;
+
+  transition: stroke 0.1s ease;
+}
+
+.contribution-graph-cell:hover {
+  stroke: var(--cg-cell-hover-border);
+}
+
+/* ============================================================
+   Light mode contribution colors (UPDATED)
+   ============================================================ */
+
+.contribution-level-0 {
+  background: color-mix(in srgb,
+      var(--border-light) 82%,
+      var(--bg-color));
+  fill: color-mix(in srgb,
+      var(--border-light) 82%,
+      var(--bg-color));
+}
+
+.contribution-level-1 {
+  background: #c8e4d4;
+  fill: #c8e4d4;
+}
+
+.contribution-level-2 {
+  background: #7fd4c7;
+  fill: #7fd4c7;
+}
+
+.contribution-level-3 {
+  background: #f4c27f;
+  fill: #f4c27f;
+}
+
+.contribution-level-4 {
+  background: #ff8652;
+  fill: #ff8652;
+}
+
+/* ============================================================
+   Dark mode contribution colors (UNCHANGED)
+   ============================================================ */
+
+[data-theme="dark"] .contribution-level-0 {
+  background: color-mix(in srgb,
+      var(--border-light) 72%,
+      var(--bg-color));
+  fill: color-mix(in srgb,
+      var(--border-light) 72%,
+      var(--bg-color));
+}
+
+[data-theme="dark"] .contribution-level-1 {
+  background: #5b9785;
+  fill: #5b9785;
+}
+
+[data-theme="dark"] .contribution-level-2 {
+  background: #4fb7a5;
+  fill: #4fb7a5;
+}
+
+[data-theme="dark"] .contribution-level-3 {
+  background: #df9a52;
+  fill: #df9a52;
+}
+
+[data-theme="dark"] .contribution-level-4 {
+  background: #ff7b45;
+  fill: #ff7b45;
+}
+
+/* ============================================================
+   SVG text labels
+   ============================================================ */
+
+.contribution-graph-month-label,
+.contribution-graph-day-label-svg {
+  fill: var(--cg-text-muted);
+  font-size: 9px;
+  font-family: inherit;
+  user-select: none;
+}
+
+.contribution-graph-day-label-svg {
+  dominant-baseline: middle;
+}
+
+/* ============================================================
+   Loading indicator
+   ============================================================ */
+
+.contribution-graph-loading {
+  position: absolute;
+  top: 0;
+  right: var(--cg-cell-gap);
+  font-size: 10px;
+  color: var(--cg-text-muted);
+}
+
+/* ============================================================
+   Tooltip
+   ============================================================ */
+
+.contribution-graph-tooltip-wrapper {
+  will-change: transform;
+}
+
+.contribution-graph-tooltip {
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--cg-tooltip-bg);
+  color: var(--cg-tooltip-fg);
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: nowrap;
+
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.24),
+    0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+.contribution-graph-tooltip.is-animated {
+  transition: opacity 0.12s ease;
+}
+
+.contribution-graph-tooltip-count {
+  font-weight: 600;
+}
+
+.contribution-graph-tooltip-date {
+  color: var(--cg-tooltip-fg-muted);
+  font-size: 11px;
+}
+
+/* ============================================================
+   Legend
+   ============================================================ */
+
+.contribution-graph-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--cg-text-muted);
+}
+
+.contribution-graph-legend-swatch-row {
+  display: flex;
+  gap: var(--cg-cell-gap);
+}
+
+.contribution-graph-legend-swatch-row .contribution-graph-cell {
+  width: var(--cg-cell-size);
+  height: var(--cg-cell-size);
+  border-radius: var(--cg-cell-radius);
+  border: 1px solid var(--cg-cell-border);
+}
+
+/* ============================================================
+   Accessibility / motion
+   ============================================================ */
+
+.contribution-graph-cell:focus-visible {
+  outline: 2px solid var(--cg-cell-hover-border);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .contribution-graph-cell,
+  .contribution-graph-tooltip {
+    transition: none;
+  }
+}
