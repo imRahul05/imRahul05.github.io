@@ -16,7 +16,7 @@ import { DATA } from "../../data/data";
 import "../styles/FloatingDock.scss";
 
 // Safe interface for view transitions
-interface TransitionDocument extends Document {
+interface TransitionDocument extends Omit<Document, "startViewTransition"> {
   startViewTransition?: (callback: () => void) => { ready: Promise<void> };
 }
 
