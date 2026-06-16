@@ -2,9 +2,6 @@ import React, { useCallback } from "react";
 import { ArrowLeft } from "lucide-react";
 import { DATA } from "../../data/data";
 import { ProjectItem } from "./ProjectItem";
-import { AnimatedThemeToggler } from "../floatbuttons/AnimatedThemeToggler";
-import { HomeButton } from "../floatbuttons/HomeButton";
-import { ResumeButton } from "../floatbuttons/ResumeButton";
 
 interface ProjectsPageProps {
   onBack: () => void;
@@ -84,12 +81,6 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ onBack }) => {
           ))}
         </div>
       </section>
-
-      <div className="floating-dock">
-        <AnimatedThemeToggler />
-        <HomeButton onClick={onBack} />
-        <ResumeButton />
-      </div>
     </div>
   );
 };

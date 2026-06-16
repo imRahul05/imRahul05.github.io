@@ -3,9 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { BLOGS } from "../data/blogs";
 import { BlogCard } from "../components/blog/BlogCard";
-import { AnimatedThemeToggler } from "../components/floatbuttons/AnimatedThemeToggler";
-import { HomeButton } from "../components/floatbuttons/HomeButton";
-import { ResumeButton } from "../components/floatbuttons/ResumeButton";
 
 export const BlogsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -44,12 +41,6 @@ export const BlogsPage: React.FC = () => {
           ))}
         </div>
       </section>
-
-      <div className="floating-dock">
-        <AnimatedThemeToggler />
-        <HomeButton onClick={handleBackClick} />
-        <ResumeButton />
-      </div>
     </div>
   );
 };

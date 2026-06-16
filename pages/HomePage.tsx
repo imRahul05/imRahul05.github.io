@@ -19,9 +19,6 @@ import { Education } from "../components/education/Education";
 import { Experience } from "../components/experience/Experience";
 import { SocialLink } from "../components/SocialLink";
 import { DigitalClock } from "../components/DigitalClock";
-import { AnimatedThemeToggler } from "../components/floatbuttons/AnimatedThemeToggler";
-import { ResumeButton } from "../components/floatbuttons/ResumeButton";
-import { BlogButton } from "../components/floatbuttons/BlogButton";
 import { XIcon } from "../components/XIcon";
 
 export const HomePage: React.FC = () => {
@@ -254,12 +251,6 @@ export const HomePage: React.FC = () => {
             TypeScript, and Plain CSS.
           </p>
         </footer>
-      </div>
-
-      <div className="floating-dock">
-        <AnimatedThemeToggler />
-        <BlogButton onClick={handleViewBlogs} />
-        <ResumeButton />
       </div>
     </div>
   );

@@ -9,15 +9,11 @@ import {
   Minimize2,
 } from "lucide-react";
 import { BLOGS } from "../../data/blogs";
-import { AnimatedThemeToggler } from "../floatbuttons/AnimatedThemeToggler";
-import { HomeButton } from "../floatbuttons/HomeButton";
-import { ResumeButton } from "../floatbuttons/ResumeButton";
 import { MermaidDiagram } from "./MermaidDiagram";
 
 interface BlogDetailPageProps {
   slug: string;
   onBack: () => void;
-  onHome: () => void;
 }
 
 type FontStyle = "mono" | "sans" | "serif";
@@ -26,7 +22,6 @@ type ReadingTheme = "default" | "sepia" | "high-contrast";
 export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
   slug,
   onBack,
-  onHome,
 }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [content, setContent] = useState<string | null>(null);
@@ -50,6 +45,7 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
         const { BLOG_CONTENTS } = await import("../../data/blog-contents");
         setContent(BLOG_CONTENTS[slug] || null);
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error("Failed to load blog content:", err);
         setContent(null);
       } finally {
@@ -282,11 +278,6 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
           <h1>Blog not found</h1>
           <p>The blog post you're looking for doesn't exist.</p>
         </div>
-        <div className="floating-dock">
-          <AnimatedThemeToggler />
-          <HomeButton onClick={onHome} />
-          <ResumeButton />
-        </div>
       </div>
     );
   }
@@ -443,12 +434,6 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
           )}
         </div>
       </article>
-
-      <div className="floating-dock">
-        <AnimatedThemeToggler />
-        <HomeButton onClick={onHome} />
-        <ResumeButton />
-      </div>
     </div>
   );
 };

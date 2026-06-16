@@ -15,18 +15,7 @@ const BlogDetailPage: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
-  const handleHomeClick = () => {
-    navigate("/");
-    window.scrollTo(0, 0);
-  };
-
-  return (
-    <BlogDetailContent
-      slug={slug}
-      onBack={handleBackClick}
-      onHome={handleHomeClick}
-    />
-  );
+  return <BlogDetailContent slug={slug} onBack={handleBackClick} />;
 };
 
 export default BlogDetailPage;

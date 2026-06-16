@@ -1,4 +1,5 @@
 @use "./components/styles/_themes";
+@use "./components/styles/FloatingDock";
 
 :root {
   --font-mono:
@@ -779,29 +780,6 @@ a {
   height: 1em;
   display: inline-block;
   vertical-align: text-bottom;
-}
-
-/* Floating Dock */
-.floating-dock {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-
-  .theme-toggle-btn {
-    background-color: var(--bg-color);
-    border: 1px solid var(--border-color);
-    padding: 0.75rem;
-    border-radius: 9999px;
-    box-shadow:
-      0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
 }
 
 /* Featured Projects Grid */
