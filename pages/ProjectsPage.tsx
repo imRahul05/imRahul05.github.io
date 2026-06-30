@@ -13,6 +13,7 @@ export const ProjectsPage: React.FC = () => {
   };
 
   const pinnedTopOrder = [
+    "BenefitLens",
     "Billing and Management App",
     "FinSage AI",
     "School Management System",

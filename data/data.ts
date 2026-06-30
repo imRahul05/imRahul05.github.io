@@ -76,6 +76,29 @@ export const DATA = {
   ],
   projects: [
     {
+      name: "BenefitLens",
+      period: "",
+      description:
+        "An AI-powered document intelligence platform that transforms complex insurance and employee benefits documents into searchable, structured knowledge. It leverages LlamaParse, vector embeddings, and Retrieval-Augmented Generation (RAG) to enable accurate semantic search, intelligent document exploration, and AI-assisted question answering across enterprise benefit documents.", // :contentReference[oaicite:0]{index=0}
+      tech: [
+        "Next.js",
+        "React",
+        "TypeScript",
+        "Prisma",
+        "PostgreSQL",
+        "OpenAI",
+        "LlamaParse",
+        "RAG",
+        "Vector Store",
+        "TanStack Query",
+        "Tailwind CSS"
+      ],
+      link: "https://benefitlens.vercel.app",
+      sourceUrl: "https://github.com/imRahul05/benefitlens",
+      image: "https://res.cloudinary.com/dw8r5ivmx/image/upload/v1782806846/Screenshot_2026-06-30_at_1.36.19_PM_fee2ax.png",
+      video: "",
+    },
+    {
       name: "MarkDown Previewer",
       period: "February 2026 - Present",
       description: "AA markdown editor with live preview and instant sharing.",
