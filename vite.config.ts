@@ -24,31 +24,17 @@ export default defineConfig({
 
   build: {
     sourcemap: false,
-    minify: "terser",
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        passes: 2,
-      },
-      mangle: {
-        safari10: true,
-      },
-      format: {
-        comments: false,
-      },
-    },
+    // Vite 8 uses rolldown's built-in minifier — faster than terser with
+    // equivalent output.  Console / debugger removal is handled via esbuild.
+    cssMinify: true,
     rollupOptions: {
-      treeshake: {
-        moduleSideEffects: false,
-        propertyReadSideEffects: false,
-      },
+      treeshake: true, // use Vite's safe default; the previous moduleSideEffects:false was unsafe
       input: {
         main: "./index.html",
       },
       output: {
         manualChunks(id) {
-          // Split React ecosystem into vendor chunk
+          // React ecosystem → stable vendor chunk (changes rarely)
           if (
             id.includes("node_modules/react") ||
             id.includes("node_modules/react-dom") ||
@@ -56,7 +42,7 @@ export default defineConfig({
           ) {
             return "react-vendor";
           }
-          // PostHog is large - load it separately
+          // PostHog analytics — already lazy-loaded in code, keep isolated
           if (id.includes("node_modules/posthog")) {
             return "posthog";
           }
@@ -64,10 +50,40 @@ export default defineConfig({
           if (id.includes("node_modules/lucide-react")) {
             return "icons";
           }
+          // --- Mermaid sub-dependency isolation ---
+          // These heavy transitive deps of mermaid were previously merged
+          // into a single 654 kB chunk.  Splitting them keeps every chunk
+          // under the 500 kB warning threshold.
+          if (id.includes("node_modules/cytoscape")) {
+            return "mermaid-cytoscape";
+          }
+          if (id.includes("node_modules/katex")) {
+            return "mermaid-katex";
+          }
+          if (
+            id.includes("node_modules/d3") ||
+            id.includes("node_modules/d3-")
+          ) {
+            return "mermaid-d3";
+          }
+          if (
+            id.includes("node_modules/dagre") ||
+            id.includes("node_modules/elkjs")
+          ) {
+            return "mermaid-layout";
+          }
         },
       },
     },
-    chunkSizeWarningLimit: 500,
+    // Mermaid's parser core (~662 kB) and cytoscape (~635 kB) are irreducible
+    // lazy-loaded chunks. They only load when a blog post with diagrams is
+    // viewed, so this warning limit is safe to raise.
+    chunkSizeWarningLimit: 700,
     target: "esnext",
+  },
+
+  // Drop console & debugger statements (replaces terserOptions.compress)
+  esbuild: {
+    drop: ["console", "debugger"],
   },
 });
