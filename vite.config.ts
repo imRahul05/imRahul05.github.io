@@ -84,6 +84,7 @@ export default defineConfig({
 
   // Drop console & debugger statements (replaces terserOptions.compress)
   esbuild: {
+    // @ts-expect-error - 'drop' is supported by esbuild but not typed in Vite's ESBuildOptions
     drop: ["console", "debugger"],
   },
 });
