@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { DATA } from "../../data/data";
+import { playMouseClickSound } from "../utils/mouseClickSound";
 import "../styles/FloatingDock.scss";
 
 // Safe interface for view transitions
@@ -119,6 +120,8 @@ export const FloatingDock: React.FC = () => {
 
   // Perform theme toggle using startViewTransition API with fallback
   const toggleTheme = useCallback(async () => {
+    playMouseClickSound();
+
     const nextIndex = (currentThemeIndex + 1) % THEMES.length;
     const isNextDark = THEMES[nextIndex].name === "dark";
 
