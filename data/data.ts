@@ -109,7 +109,7 @@ export const DATA = {
       ],
       link: "https://rhl-cli.vercel.app",
       sourceUrl: "https://github.com/imRahul05/rhl-ai",
-      image: "",
+      image: "/projects/rhl-ai.webp",
       video: "",
     },
     {
@@ -130,9 +130,9 @@ export const DATA = {
         "Neon Postgres",
         "Zod",
       ],
-      link: "",
+      link: "https://asha-saathi-mocha.vercel.app/",
       sourceUrl: "https://github.com/imRahul05/asha-saathi",
-      image: "",
+      image: "/projects/asha-saathi.webp",
       video: "",
     },
     {
