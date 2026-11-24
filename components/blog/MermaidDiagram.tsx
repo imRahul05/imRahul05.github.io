@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import "../../styles.scss";
 import React from "react";
 
 let mermaidInitialized = false;
@@ -50,7 +49,6 @@ export const MermaidDiagram: React.FC<Props> = ({ chart }) => {
         const tempEl = document.getElementById(id);
         if (tempEl) tempEl.remove();
 
-        // console.error("Mermaid render error:", err);
         setError("Failed to render diagram");
       }
     };
@@ -62,13 +60,16 @@ export const MermaidDiagram: React.FC<Props> = ({ chart }) => {
     };
   }, [chart]);
 
+  const containerClasses =
+    "my-8 flex justify-center overflow-x-auto rounded-lg border border-border bg-background p-6 [&_svg]:h-auto [&_svg]:max-w-full";
+
   if (error) {
     return (
-      <pre className="mermaid-diagram">
-        <code>{chart}</code>
+      <pre className={containerClasses}>
+        <code className="font-mono text-sm text-foreground">{chart}</code>
       </pre>
     );
   }
 
-  return <div ref={ref} className="mermaid-diagram" />;
+  return <div ref={ref} className={containerClasses} />;
 };

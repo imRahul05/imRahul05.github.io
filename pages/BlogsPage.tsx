@@ -18,24 +18,24 @@ export const BlogsPage: React.FC = () => {
   };
 
   return (
-    <div className="container blogs-page">
-      <header className="blogs-page-header">
+    <div className="container pb-24">
+      <header className="mb-8 flex flex-col gap-2 border-b border-border pb-4">
         <button
-          className="back-button"
+          className="inline-flex cursor-pointer items-center gap-2 self-start py-2 font-mono text-sm text-secondary-foreground transition-colors hover:text-foreground"
           onClick={handleBackClick}
           aria-label="Go back to home"
         >
           <ArrowLeft size={20} />
           <span>Back</span>
         </button>
-        <h1>Blog</h1>
-        <p className="blogs-page-subtitle">
+        <h1 className="text-2xl font-bold tracking-tight">Blog</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Thoughts, tutorials, and insights on software development
         </p>
       </header>
 
-      <section className="section">
-        <div className="blogs-grid">
+      <section>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {BLOGS.map((blog) => (
             <BlogCard key={blog.slug} blog={blog} onReadMore={handleReadMore} />
           ))}
