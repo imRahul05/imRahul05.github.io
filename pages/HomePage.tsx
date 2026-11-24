@@ -36,25 +36,50 @@ export const HomePage: React.FC = () => {
   const contributionData = React.useMemo(() => generateContributionData(), []);
 
   const headerRef = useRef<HTMLElement | null>(null);
+  const spacerRef = useRef<HTMLDivElement | null>(null);
+  const expandedHeightRef = useRef<number>(0);
   const scrolledRef = useRef(false);
+  const lockUntilRef = useRef<number>(0);
+  const unlockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     const mobileQuery = window.matchMedia("(max-width: 639px)");
     const thresholdsRef = {
       current: mobileQuery.matches
-        ? { shrinkAt: 80, expandAt: 10 }
-        : { shrinkAt: 120, expandAt: 60 },
+        ? { shrinkAt: 120, expandAt: 20 }
+        : { shrinkAt: 140, expandAt: 25 },
     };
 
     const syncThresholds = () => {
       thresholdsRef.current = mobileQuery.matches
-        ? { shrinkAt: 80, expandAt: 10 }
-        : { shrinkAt: 120, expandAt: 60 };
+        ? { shrinkAt: 120, expandAt: 20 }
+        : { shrinkAt: 140, expandAt: 25 };
+
+      if (!scrolledRef.current && headerRef.current) {
+        expandedHeightRef.current = headerRef.current.offsetHeight;
+      }
     };
 
     const applyHeaderState = () => {
       rafRef.current = null;
+
+      const header = headerRef.current;
+      if (!header) return;
+
+      const now = performance.now();
+      if (now < lockUntilRef.current) {
+        if (!unlockTimerRef.current) {
+          unlockTimerRef.current = setTimeout(
+            () => {
+              unlockTimerRef.current = null;
+              applyHeaderState();
+            },
+            Math.ceil(lockUntilRef.current - now) + 16,
+          );
+        }
+        return;
+      }
 
       const { shrinkAt, expandAt } = thresholdsRef.current;
       const scrollY = window.scrollY;
@@ -69,8 +94,27 @@ export const HomePage: React.FC = () => {
         return;
       }
 
+      // Capture exact expanded height before collapsing so spacer compensates 1:1
+      if (nextIsScrolled && !scrolledRef.current) {
+        expandedHeightRef.current = header.offsetHeight;
+      }
+
       scrolledRef.current = nextIsScrolled;
-      headerRef.current?.classList.toggle("is-scrolled", nextIsScrolled);
+      lockUntilRef.current = now + 350;
+      header.classList.toggle("is-scrolled", nextIsScrolled);
+
+      if (spacerRef.current) {
+        if (nextIsScrolled) {
+          const collapsedEstimate = mobileQuery.matches ? 76 : 82;
+          const delta = Math.max(
+            0,
+            expandedHeightRef.current - collapsedEstimate,
+          );
+          spacerRef.current.style.height = `${delta}px`;
+        } else {
+          spacerRef.current.style.height = "0px";
+        }
+      }
     };
 
     const handleScroll = () => {
@@ -87,6 +131,7 @@ export const HomePage: React.FC = () => {
       window.removeEventListener("scroll", handleScroll);
       mobileQuery.removeEventListener("change", syncThresholds);
       if (rafRef.current !== null) window.cancelAnimationFrame(rafRef.current);
+      if (unlockTimerRef.current) clearTimeout(unlockTimerRef.current);
     };
   }, []);
 
@@ -105,12 +150,12 @@ export const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen [overflow-anchor:none]">
       <div className="relative z-[1] max-w-[42rem] mx-auto px-6 py-16 min-h-screen">
         {/* HEADER */}
         <header
           ref={headerRef}
-          className="group sticky top-0 z-50 bg-background/90 backdrop-blur-[10px] py-4 -mt-4 mb-8 flex flex-col-reverse sm:flex-row justify-between items-start gap-8 border-b border-transparent transition-[gap,padding,border-color,align-items,background-color] duration-300 ease-out [&.is-scrolled]:flex-row [&.is-scrolled]:items-center [&.is-scrolled]:gap-4 [&.is-scrolled]:py-2 [&.is-scrolled]:border-b-border-light"
+          className="group sticky top-0 z-50 bg-background/90 backdrop-blur-[10px] py-4 -mt-4 mb-8 flex flex-row justify-between items-start gap-6 sm:gap-8 border-b border-transparent transition-[gap,padding,border-color,background-color] duration-300 ease-out [&.is-scrolled]:items-center [&.is-scrolled]:gap-4 [&.is-scrolled]:py-2 [&.is-scrolled]:border-b-border-light"
         >
           <div>
             <h1 className="text-[1.5rem] mb-2 tracking-[-0.025em] transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[1.1rem] group-[.is-scrolled]:mb-[0.1rem]">
@@ -191,6 +236,11 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
         </header>
+        <div
+          ref={spacerRef}
+          aria-hidden="true"
+          className="h-0 transition-[height] duration-300 ease-out"
+        />
 
         {/* BIO */}
         <section className="mb-12">
