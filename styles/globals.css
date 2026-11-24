@@ -92,7 +92,48 @@
 
   body {
     @apply m-0 p-0 bg-background text-foreground font-mono antialiased leading-[1.6];
+    background-image:
+      radial-gradient(
+        ellipse 70% 40% at 50% -10%,
+        var(--hover-ripple),
+        transparent 65%
+      ),
+      radial-gradient(var(--border-light) 1px, transparent 1px);
+    background-size:
+      100% 100%,
+      24px 24px;
+    background-attachment: fixed;
   }
+}
+
+/* Cursor-follow specular spotlight for cards (60fps CSS custom properties) */
+.spotlight-card {
+  position: relative;
+}
+
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+  background: radial-gradient(
+    360px circle at var(--mx, 50%) var(--my, 50%),
+    var(--hover-ripple),
+    transparent 65%
+  );
+  z-index: 0;
+}
+
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+.spotlight-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* Keyframes for bespoke portfolio animations */
