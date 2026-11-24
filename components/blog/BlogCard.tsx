@@ -37,16 +37,9 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog, onReadMore }) => {
     onReadMore(blog.slug);
   };
 
-  const handlePointerMove = (e: React.PointerEvent<HTMLElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty("--mx", `${e.clientX - rect.left}px`);
-    e.currentTarget.style.setProperty("--my", `${e.clientY - rect.top}px`);
-  };
-
   return (
     <article
-      onPointerMove={handlePointerMove}
-      className="spotlight-card group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-background/90 backdrop-blur-[2px] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-[0_10px_30px_var(--hover-ripple)] active:scale-[0.995]"
+      className="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-background transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-muted-foreground"
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       role="button"

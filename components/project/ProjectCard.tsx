@@ -83,21 +83,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     }
   }, []);
 
-  const handlePointerMove = useCallback(
-    (e: React.PointerEvent<HTMLElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      e.currentTarget.style.setProperty("--mx", `${e.clientX - rect.left}px`);
-      e.currentTarget.style.setProperty("--my", `${e.clientY - rect.top}px`);
-    },
-    [],
-  );
-
   return (
     <>
-      <article
-        onPointerMove={handlePointerMove}
-        className="spotlight-card group/card flex h-full flex-col overflow-hidden rounded-xl border border-border bg-background/90 backdrop-blur-[2px] transition-[border-color,box-shadow,transform] duration-300 hover:border-accent/60 hover:shadow-[0_10px_30px_var(--hover-ripple)] active:scale-[0.995]"
-      >
+      <article className="group/card flex h-full flex-col overflow-hidden rounded-xl border border-border bg-background transition-[border-color,box-shadow,transform] duration-300 hover:border-accent/60 hover:shadow-[0_8px_28px_var(--hover-ripple)]">
         {/* Visual Header Section */}
         <div className="relative m-3 mb-0 aspect-video w-[calc(100%-1.5rem)] shrink-0 overflow-hidden rounded-lg border border-border-light bg-border-light">
           {!isImageLoaded && image && (
