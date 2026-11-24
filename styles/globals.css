@@ -35,29 +35,29 @@
 
 [data-theme="dark"],
 .dark {
-  /* Pencil Dark Theme — Pure Chalk White on Ink Black */
+  /* Pencil Dark Theme — High-Contrast Pure White on Ink Black */
   --background: #0b0b0c;
-  --foreground: #f5f5f3;
+  --foreground: #ffffff;
   --card: #121214;
-  --card-foreground: #f5f5f3;
+  --card-foreground: #ffffff;
   --popover: #121214;
-  --popover-foreground: #f5f5f3;
-  --primary: #f5f5f3;
+  --popover-foreground: #ffffff;
+  --primary: #ffffff;
   --primary-foreground: #0b0b0c;
   --secondary: #1b1b1e;
-  --secondary-foreground: #dcdcd8;
+  --secondary-foreground: #f4f4f5;
   --muted: #1b1b1e;
-  --muted-foreground: #a3a39e;
-  --accent: #f5f5f3;
+  --muted-foreground: #d4d4d8;
+  --accent: #ffffff;
   --accent-foreground: #0b0b0c;
-  --destructive: #f5f5f3;
+  --destructive: #ffffff;
   --destructive-foreground: #0b0b0c;
-  --border: #e8e8e4;
-  --border-light: #26262a;
-  --input: #e8e8e4;
-  --ring: #f5f5f3;
-  --hover-ripple: rgba(245, 245, 243, 0.16);
-  --pencil-shadow: #e8e8e4;
+  --border: #f5f5f5;
+  --border-light: #2c2c31;
+  --input: #f5f5f5;
+  --ring: #ffffff;
+  --hover-ripple: rgba(255, 255, 255, 0.2);
+  --pencil-shadow: #f5f5f5;
 }
 
 @theme inline {
