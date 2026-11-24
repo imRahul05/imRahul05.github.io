@@ -297,18 +297,17 @@ export const FloatingDock: React.FC = () => {
     >
       <div
         ref={containerRef}
-        className="relative flex items-center gap-1 rounded-full border border-white/75 bg-white/30 p-[5px] shadow-[0_12px_36px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.05),inset_0_1.5px_1px_rgba(255,255,255,0.88),inset_0_-1px_1px_rgba(0,0,0,0.06)] backdrop-blur-[32px] backdrop-saturate-[220%] transition-all duration-300 ease-in-out before:pointer-events-none before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-b before:from-white/40 before:via-white/5 before:to-transparent sm:gap-2 sm:p-1.5 dark:border-white/20 dark:bg-[rgba(22,22,28,0.42)] dark:shadow-[0_16px_42px_rgba(0,0,0,0.5),0_2px_10px_rgba(0,0,0,0.28),inset_0_1px_1px_rgba(255,255,255,0.22),inset_0_-1px_1px_rgba(0,0,0,0.35)] dark:before:from-white/12 dark:before:via-white/[0.02] dark:before:to-transparent"
+        className="relative flex items-center gap-1 rounded-full border-[1.75px] border-border bg-background/80 p-[5px] shadow-[3px_3px_0px_0px_var(--pencil-shadow)] backdrop-blur-2xl backdrop-saturate-[180%] transition-all duration-300 ease-in-out sm:gap-2 sm:p-1.5"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onMouseLeave={() => setHoveredIndex(null)}
       >
-        {/* Apple Liquid Glass sliding circular lens */}
+        {/* Pencil Monochrome sliding circular lens */}
         <div
           className={cn(
-            "pointer-events-none absolute top-[5px] left-[5px] z-[1] h-9 w-9 rounded-full border border-white/90 bg-white/70 shadow-[0_3px_12px_rgba(155,92,255,0.18),0_1px_3px_rgba(0,0,0,0.08),inset_0_1.5px_2px_rgba(255,255,255,1),inset_0_-1px_2px_rgba(155,92,255,0.12)] backdrop-blur-md transition-[transform,box-shadow,background-color] duration-[420ms] ease-[cubic-bezier(0.32,0.72,0,1)] sm:top-1.5 sm:left-1.5 sm:h-10 sm:w-10 dark:border-white/28 dark:bg-white/[0.16] dark:shadow-[0_3px_14px_rgba(0,0,0,0.42),inset_0_1.5px_1.5px_rgba(255,255,255,0.35),inset_0_-1px_2px_rgba(0,0,0,0.3)]",
-            isLensGliding &&
-              "bg-white/82 shadow-[0_5px_18px_rgba(155,92,255,0.24),0_1px_4px_rgba(0,0,0,0.1),inset_0_2px_2px_rgba(255,255,255,1)] dark:bg-white/[0.22]",
+            "pointer-events-none absolute top-[5px] left-[5px] z-[1] h-9 w-9 rounded-full border-[1.5px] border-border bg-foreground/10 transition-[transform,box-shadow,background-color] duration-[420ms] ease-[cubic-bezier(0.32,0.72,0,1)] sm:top-1.5 sm:left-1.5 sm:h-10 sm:w-10",
+            isLensGliding && "bg-foreground/16",
           )}
           style={{
             transform: `translate3d(${translationOffset}px, 0, 0) scale(${isLensGliding ? 1.07 : 1})`,

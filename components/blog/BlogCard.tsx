@@ -39,7 +39,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog, onReadMore }) => {
 
   return (
     <article
-      className="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-background transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-muted-foreground"
+      className="pencil-box group relative flex h-full cursor-pointer flex-col overflow-hidden bg-card"
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       role="button"

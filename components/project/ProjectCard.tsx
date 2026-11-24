@@ -85,9 +85,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
   return (
     <>
-      <article className="group/card flex h-full flex-col overflow-hidden rounded-xl border border-border bg-background transition-[border-color,box-shadow,transform] duration-300 hover:border-accent/60 hover:shadow-[0_8px_28px_var(--hover-ripple)]">
+      <article className="pencil-box group/card flex h-full flex-col overflow-hidden bg-card">
         {/* Visual Header Section */}
-        <div className="relative m-3 mb-0 aspect-video w-[calc(100%-1.5rem)] shrink-0 overflow-hidden rounded-lg border border-border-light bg-border-light">
+        <div className="relative m-3 mb-0 aspect-video w-[calc(100%-1.5rem)] shrink-0 overflow-hidden rounded-lg border-[1.5px] border-border bg-secondary">
           {!isImageLoaded && image && (
             <Skeleton className="absolute inset-0 h-full w-full rounded-lg animate-shimmer" />
           )}
@@ -96,7 +96,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               src={image}
               alt={name}
               className={cn(
-                "h-full w-full rounded-lg object-cover transition-[transform,filter] duration-300 group-hover/card:scale-[1.03] dark:grayscale dark:group-hover/card:grayscale-0",
+                "h-full w-full rounded-md object-cover grayscale contrast-[1.06] transition-[transform,filter] duration-300 group-hover/card:scale-[1.03] group-hover/card:grayscale-0",
                 !isImageLoaded && "hidden",
               )}
               onLoad={() => setIsImageLoaded(true)}
@@ -188,7 +188,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               <Badge
                 key={t}
                 variant="outline"
-                className="h-auto rounded border-border bg-transparent px-2 py-0.5 text-[0.68rem] font-normal text-secondary-foreground transition-colors group-hover/card:border-muted-foreground"
+                className="pencil-badge h-auto bg-background px-2 py-0.5 text-[0.68rem] font-normal text-foreground"
               >
                 {t}
               </Badge>
@@ -199,7 +199,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   type="button"
                   onClick={() => setIsTechExpanded(true)}
                   aria-label={`Show ${remainingTechCount} more technologies: ${hiddenTech.join(", ")}`}
-                  className="inline-flex h-auto cursor-pointer items-center rounded border border-border-light bg-border-light/60 px-2 py-0.5 font-mono text-[0.68rem] font-normal text-muted-foreground transition-colors hover:border-border hover:bg-border-light hover:text-foreground"
+                  className="pencil-badge inline-flex h-auto cursor-pointer items-center bg-secondary px-2 py-0.5 font-mono text-[0.68rem] font-semibold text-foreground transition-colors hover:bg-foreground hover:text-background"
                 >
                   +{remainingTechCount}
                 </TooltipTrigger>
@@ -212,7 +212,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               <button
                 type="button"
                 onClick={() => setIsTechExpanded(false)}
-                className="inline-flex h-auto cursor-pointer items-center rounded border border-border-light bg-transparent px-2 py-0.5 font-mono text-[0.68rem] font-normal text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+                className="pencil-badge inline-flex h-auto cursor-pointer items-center bg-transparent px-2 py-0.5 font-mono text-[0.68rem] font-normal text-muted-foreground transition-colors hover:text-foreground"
               >
                 Show less
               </button>
@@ -220,11 +220,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
 
           {/* Action Links */}
-          <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-border-light pt-3">
+          <div className="mt-auto flex flex-wrap items-center gap-2 border-t-[1.5px] border-dashed border-border/60 pt-3">
             {link && (
               <a
                 href={link}
-                className="inline-flex items-center gap-1.5 rounded-md border border-foreground/20 bg-foreground px-3 py-1.5 font-mono text-[0.72rem] font-medium text-background transition-opacity duration-200 hover:opacity-85"
+                className="pencil-btn inline-flex items-center gap-1.5 bg-foreground px-3 py-1.5 font-mono text-[0.72rem] font-semibold text-background"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -235,7 +235,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             {sourceUrl && (
               <a
                 href={sourceUrl}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-transparent px-3 py-1.5 font-mono text-[0.72rem] font-medium text-secondary-foreground transition-colors duration-200 hover:border-muted-foreground hover:bg-border-light hover:text-foreground"
+                className="pencil-btn inline-flex items-center gap-1.5 bg-background px-3 py-1.5 font-mono text-[0.72rem] font-medium text-foreground hover:bg-foreground hover:text-background"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -247,7 +247,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               <Link
                 to={`/blogs/${blogSlug}`}
                 onClick={() => window.scrollTo(0, 0)}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-transparent px-3 py-1.5 font-mono text-[0.72rem] font-medium text-secondary-foreground transition-colors duration-200 hover:border-accent/60 hover:bg-border-light hover:text-foreground"
+                className="pencil-btn inline-flex items-center gap-1.5 bg-background px-3 py-1.5 font-mono text-[0.72rem] font-medium text-foreground hover:bg-foreground hover:text-background"
               >
                 <BookOpen size={13} />
                 Blog
@@ -257,7 +257,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               <button
                 type="button"
                 onClick={handlePlayClick}
-                className="ml-auto inline-flex cursor-pointer items-center gap-1 rounded-md border border-border-light bg-transparent px-2.5 py-1.5 font-mono text-[0.7rem] text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+                className="pencil-btn ml-auto inline-flex cursor-pointer items-center gap-1 bg-background px-2.5 py-1.5 font-mono text-[0.7rem] text-foreground hover:bg-foreground hover:text-background"
               >
                 <Play size={12} className="fill-current" />
                 Video

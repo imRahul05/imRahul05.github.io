@@ -342,7 +342,7 @@ export const CommandPalette: React.FC = () => {
 
   return (
     <>
-      {/* Subtle Liquid Glass ⌘K Trigger Pill (Desktop Top-Right) */}
+      {/* Subtle Pencil-Glass ⌘K Trigger Pill (Desktop Top-Right) */}
       <button
         type="button"
         onClick={(e) => {
@@ -350,17 +350,17 @@ export const CommandPalette: React.FC = () => {
           handleOpenChange(true);
         }}
         aria-label="Open command palette (Command + K)"
-        className="fixed top-5 right-5 z-[900] hidden cursor-pointer items-center gap-1.5 rounded-full border border-white/75 bg-white/35 px-3 py-1.5 font-mono text-[0.7rem] text-secondary-foreground shadow-[0_6px_20px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.85)] backdrop-blur-2xl backdrop-saturate-[200%] transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/50 hover:text-foreground hover:shadow-[0_10px_28px_var(--hover-ripple)] sm:inline-flex dark:border-white/18 dark:bg-[rgba(22,22,28,0.48)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.2)]"
+        className="pencil-btn fixed top-5 right-5 z-[900] hidden cursor-pointer items-center gap-1.5 bg-background/85 px-3 py-1.5 font-mono text-[0.7rem] font-semibold text-foreground backdrop-blur-xl hover:bg-foreground hover:text-background sm:inline-flex"
       >
-        <Command size={12} className="text-accent" />
+        <Command size={12} />
         <span>K</span>
       </button>
 
-      {/* Apple Liquid Glass Command Palette Dialog (Base UI) */}
+      {/* Monochrome Liquid Glass + Pencil Border Command Palette Dialog */}
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent
           showCloseButton={false}
-          className="fixed top-[16%] left-1/2 z-[1100] flex max-h-[72vh] w-[92vw] max-w-xl -translate-x-1/2 translate-y-0 flex-col gap-0 overflow-hidden rounded-2xl border border-white/80 bg-white/65 p-0 font-mono shadow-[0_24px_80px_rgba(26,21,35,0.22),0_4px_16px_rgba(0,0,0,0.08),inset_0_1.5px_1px_rgba(255,255,255,0.95)] ring-0 backdrop-blur-[36px] backdrop-saturate-[220%] outline-none sm:max-w-xl dark:border-white/20 dark:bg-[rgba(18,18,24,0.72)] dark:shadow-[0_28px_90px_rgba(0,0,0,0.68),inset_0_1px_1px_rgba(255,255,255,0.22)]"
+          className="fixed top-[16%] left-1/2 z-[1100] flex max-h-[72vh] w-[92vw] max-w-xl -translate-x-1/2 translate-y-0 flex-col gap-0 overflow-hidden rounded-2xl border-[2px] border-border bg-background/88 p-0 font-mono shadow-[5px_5px_0px_0px_var(--pencil-shadow)] ring-0 backdrop-blur-[32px] backdrop-saturate-[180%] outline-none sm:max-w-xl"
         >
           <DialogHeader className="sr-only">
             <DialogTitle>Command Palette</DialogTitle>

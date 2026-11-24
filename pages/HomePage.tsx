@@ -155,7 +155,7 @@ export const HomePage: React.FC = () => {
         {/* HEADER */}
         <header
           ref={headerRef}
-          className="group sticky top-0 z-50 bg-background/90 backdrop-blur-[10px] py-4 -mt-4 mb-8 flex flex-row justify-between items-start gap-6 sm:gap-8 border-b border-transparent transition-[gap,padding,border-color,background-color] duration-300 ease-out [&.is-scrolled]:items-center [&.is-scrolled]:gap-4 [&.is-scrolled]:py-2 [&.is-scrolled]:border-b-border-light"
+          className="group sticky top-0 z-50 bg-background/90 backdrop-blur-[10px] py-4 -mt-4 mb-8 flex flex-row justify-between items-start gap-6 sm:gap-8 border-b-[1.5px] border-dashed border-transparent transition-[gap,padding,border-color,background-color] duration-300 ease-out [&.is-scrolled]:items-center [&.is-scrolled]:gap-4 [&.is-scrolled]:py-2 [&.is-scrolled]:border-b-border"
         >
           <div>
             <h1 className="text-[1.5rem] mb-2 tracking-[-0.025em] transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[1.1rem] group-[.is-scrolled]:mb-[0.1rem]">
@@ -165,11 +165,11 @@ export const HomePage: React.FC = () => {
               {DATA.personal.title}
             </p>
             <div className="flex items-center gap-1 mb-2 text-xs text-muted-foreground transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:mb-0 group-[.is-scrolled]:text-xs">
-              <MapPin size={14} className="text-[#3b82f6]" />
+              <MapPin size={14} className="text-foreground" />
               {DATA.personal.location}
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4 transition-[font-size,margin-bottom,opacity] duration-300 ease-out group-[.is-scrolled]:hidden">
-              <span className="w-2 h-2 rounded-full bg-[#38bdf8] animate-pulse-glow shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-foreground animate-pulse-glow shrink-0" />
               <span>
                 Building{" "}
                 <HoverCard>
@@ -177,7 +177,7 @@ export const HomePage: React.FC = () => {
                     href={DATA.personal.currentlyBuilding.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-[linear-gradient(135deg,#4c2354_0%,#818cf8_50%,#61546d_100%)] bg-clip-text text-transparent font-bold tracking-[0.02em] cursor-pointer no-underline relative transition-opacity duration-200 ease-out hover:opacity-80 hover:underline hover:decoration-[#818cf8] hover:underline-offset-[3px]"
+                    className="text-foreground font-bold tracking-[0.02em] cursor-pointer underline decoration-dashed decoration-foreground/70 underline-offset-[4px] relative transition-opacity duration-200 ease-out hover:opacity-75"
                   >
                     {DATA.personal.currentlyBuilding.name}
                   </HoverCardTrigger>
@@ -190,7 +190,7 @@ export const HomePage: React.FC = () => {
                     <img
                       src={DATA.personal.currentlyBuilding.previewImage}
                       alt={DATA.personal.currentlyBuilding.name}
-                      className="w-[280px] max-w-[80vw] rounded-lg border border-border shadow-[0_10px_40px_rgba(0,0,0,0.3)] bg-background"
+                      className="pencil-box w-[280px] max-w-[80vw] bg-background grayscale hover:grayscale-0 transition-all duration-300"
                     />
                   </HoverCardContent>
                 </HoverCard>
@@ -256,7 +256,7 @@ export const HomePage: React.FC = () => {
               <Badge
                 key={skill}
                 variant="outline"
-                className="rounded-none h-auto px-1.5 py-0.5 text-xs font-normal text-secondary-foreground border-border"
+                className="pencil-badge h-auto bg-card px-2.5 py-1 text-xs font-normal text-foreground"
               >
                 {skill}
               </Badge>
@@ -281,7 +281,7 @@ export const HomePage: React.FC = () => {
           <div className="flex gap-4 flex-wrap">
             <button
               type="button"
-              className="inline-flex items-center gap-2 px-6 py-3.5 bg-white/5 border border-border rounded-lg text-secondary-foreground font-mono text-[0.8rem] font-medium tracking-[0.05em] uppercase cursor-pointer transition-[background-color,border-color,color,box-shadow] duration-200 ease-out hover:bg-white/10 hover:border-[rgba(80,200,120,0.5)] hover:text-foreground hover:shadow-[0_0_15px_rgba(80,200,120,0.1)]"
+              className="pencil-btn inline-flex items-center gap-2 px-5 py-3 bg-card text-foreground font-mono text-[0.8rem] font-semibold tracking-[0.05em] uppercase cursor-pointer hover:bg-foreground hover:text-background"
               onClick={handleViewAllProjects}
             >
               View All Projects ({DATA.projects.length})
@@ -289,7 +289,7 @@ export const HomePage: React.FC = () => {
             </button>
             <button
               type="button"
-              className="inline-flex items-center gap-2 px-6 py-3.5 bg-white/5 border border-border rounded-lg text-secondary-foreground font-mono text-[0.8rem] font-medium tracking-[0.05em] uppercase cursor-pointer transition-[background-color,border-color,color,box-shadow] duration-200 ease-out hover:bg-white/10 hover:border-[rgba(80,200,120,0.5)] hover:text-foreground hover:shadow-[0_0_15px_rgba(80,200,120,0.1)]"
+              className="pencil-btn inline-flex items-center gap-2 px-5 py-3 bg-card text-foreground font-mono text-[0.8rem] font-semibold tracking-[0.05em] uppercase cursor-pointer hover:bg-foreground hover:text-background"
               onClick={handleViewBlogs}
             >
               <BookOpen size={16} />
@@ -302,13 +302,13 @@ export const HomePage: React.FC = () => {
         <section className="mb-12">
           <SectionTitle>Build Rhythm</SectionTitle>
           <ContributionGraph
-            className="relative overflow-hidden border border-[rgba(155,92,255,0.16)] dark:border-[rgba(255,126,76,0.18)] rounded-2xl p-4 bg-[radial-gradient(circle_at_top_left,rgba(255,111,55,0.16),transparent_32%),radial-gradient(circle_at_top_right,rgba(80,200,120,0.12),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,245,255,0.92))] dark:bg-[radial-gradient(circle_at_top_left,rgba(255,111,55,0.2),transparent_34%),radial-gradient(circle_at_top_right,rgba(81,170,180,0.16),transparent_30%),linear-gradient(180deg,rgba(17,16,24,0.98),rgba(12,10,16,0.95))] shadow-[0_18px_40px_rgba(35,20,58,0.08),inset_0_1px_0_rgba(255,255,255,0.72)] dark:shadow-[0_24px_50px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,214,179,0.08)]"
+            className="pencil-box relative overflow-hidden bg-card p-4"
             data={contributionData}
           />
         </section>
 
         {/* FOOTER */}
-        <footer className="mt-20 border-t border-border-light pt-8 pb-16">
+        <footer className="mt-20 border-t-[1.5px] border-dashed border-border pt-8 pb-16">
           <div className="flex flex-row flex-wrap items-center gap-4 sm:gap-8">
             <SocialLink
               href={`mailto:${DATA.personal.email}`}

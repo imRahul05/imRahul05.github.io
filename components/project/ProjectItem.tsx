@@ -29,7 +29,7 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
 
   return (
     <div
-      className="group rounded-xl border border-border bg-background/60 p-4 transition-[border-color,background-color,box-shadow] duration-200 hover:border-accent/50 hover:bg-border-light/30 hover:shadow-[0_4px_20px_var(--hover-ripple)]"
+      className="pencil-box group bg-card p-4"
       onClick={toggleOpen}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
