@@ -90,7 +90,9 @@ export const HomePage: React.FC = () => {
     };
   }, []);
 
-  const featuredProjects = DATA.projects.filter((p) => p.image).slice(0, 2);
+  const featuredProjects = DATA.projects
+    .filter((p) => "featured" in p && p.featured)
+    .slice(0, 4);
 
   const handleViewAllProjects = () => {
     navigate("/projects");
@@ -221,9 +223,9 @@ export const HomePage: React.FC = () => {
         {/* FEATURED PROJECTS */}
         <section className="mb-12">
           <SectionTitle>Featured Projects</SectionTitle>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-            {featuredProjects.map((project, index) => (
-              <ProjectCard key={index} {...project} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+            {featuredProjects.map((project) => (
+              <ProjectCard key={project.name} {...project} />
             ))}
           </div>
           <div className="flex gap-4 flex-wrap">
@@ -232,7 +234,7 @@ export const HomePage: React.FC = () => {
               className="inline-flex items-center gap-2 px-6 py-3.5 bg-white/5 border border-border rounded-lg text-secondary-foreground font-mono text-[0.8rem] font-medium tracking-[0.05em] uppercase cursor-pointer transition-[background-color,border-color,color,box-shadow] duration-200 ease-out hover:bg-white/10 hover:border-[rgba(80,200,120,0.5)] hover:text-foreground hover:shadow-[0_0_15px_rgba(80,200,120,0.1)]"
               onClick={handleViewAllProjects}
             >
-              View All Projects
+              View All Projects ({DATA.projects.length})
               <ArrowRight size={16} />
             </button>
             <button
