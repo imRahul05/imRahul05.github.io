@@ -342,7 +342,7 @@ export const CommandPalette: React.FC = () => {
 
   return (
     <>
-      {/* Subtle Pencil-Glass ⌘K Trigger Pill (Desktop Top-Right) */}
+      {/* Sharp ui-sdk.dev ⌘K Trigger Keycap (Desktop Top-Right) */}
       <button
         type="button"
         onClick={(e) => {
@@ -350,17 +350,17 @@ export const CommandPalette: React.FC = () => {
           handleOpenChange(true);
         }}
         aria-label="Open command palette (Command + K)"
-        className="pencil-btn fixed top-5 right-5 z-[900] hidden cursor-pointer items-center gap-1.5 bg-background/85 px-3 py-1.5 font-mono text-[0.7rem] font-semibold text-foreground backdrop-blur-xl hover:bg-foreground hover:text-background sm:inline-flex"
+        className="cad-btn fixed top-5 right-5 z-[900] hidden cursor-pointer items-center gap-1.5 bg-card/90 px-3 py-1.5 font-mono text-[0.7rem] font-medium tracking-[0.04em] text-foreground backdrop-blur-xl sm:inline-flex"
       >
-        <Command size={12} />
+        <Command size={12} className="text-accent" />
         <span>K</span>
       </button>
 
-      {/* Monochrome Liquid Glass + Pencil Border Command Palette Dialog */}
+      {/* Sharp CAD Liquid Glass Command Palette Dialog (Base UI) */}
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent
           showCloseButton={false}
-          className="fixed top-[16%] left-1/2 z-[1100] flex max-h-[72vh] w-[92vw] max-w-xl -translate-x-1/2 translate-y-0 flex-col gap-0 overflow-hidden rounded-2xl border-[2px] border-border bg-background/88 p-0 font-mono shadow-[5px_5px_0px_0px_var(--pencil-shadow)] ring-0 backdrop-blur-[32px] backdrop-saturate-[180%] outline-none sm:max-w-xl"
+          className="fixed top-[16%] left-1/2 z-[1100] flex max-h-[72vh] w-[92vw] max-w-xl -translate-x-1/2 translate-y-0 flex-col gap-0 overflow-hidden rounded-none border border-border bg-card/92 p-0 font-mono shadow-none ring-0 backdrop-blur-[28px] backdrop-saturate-[180%] outline-none sm:max-w-xl"
         >
           <DialogHeader className="sr-only">
             <DialogTitle>Command Palette</DialogTitle>

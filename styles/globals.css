@@ -3,61 +3,63 @@
 @custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
 
 :root {
+  --font-sans-stack:
+    "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono-stack:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-    "Courier New", monospace;
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
 
-  /* Pencil Light Theme — Pure Black Graphite on Paper White */
-  --background: #fcfbf9;
-  --foreground: #141414;
+  /* Light Mode — ui-sdk.dev Blueprint Precision */
+  --background: #f8f8f8;
+  --foreground: #0a0a0a;
   --card: #ffffff;
-  --card-foreground: #141414;
+  --card-foreground: #0a0a0a;
   --popover: #ffffff;
-  --popover-foreground: #141414;
-  --primary: #141414;
-  --primary-foreground: #fcfbf9;
-  --secondary: #f2f1ed;
-  --secondary-foreground: #2e2e2e;
-  --muted: #f2f1ed;
-  --muted-foreground: #5c5c5c;
-  --accent: #141414;
-  --accent-foreground: #fcfbf9;
-  --destructive: #141414;
-  --destructive-foreground: #fcfbf9;
-  --border: #1c1c1c;
-  --border-light: #e5e4df;
-  --input: #1c1c1c;
-  --ring: #141414;
-  --hover-ripple: rgba(20, 20, 20, 0.12);
-  --pencil-shadow: #141414;
-  --radius: 0.5rem;
+  --popover-foreground: #0a0a0a;
+  --primary: #0a0a0a;
+  --primary-foreground: #ffffff;
+  --secondary: #f2f2f2;
+  --secondary-foreground: #3a3a3a;
+  --muted: #f2f2f2;
+  --muted-foreground: #6f6f6f;
+  --accent: #006bff;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #c8c8c8;
+  --border-light: #e5e5e5;
+  --input: #c8c8c8;
+  --ring: #006bff;
+  --hover-ripple: rgba(0, 107, 255, 0.14);
+  --cad-grid: rgba(10, 10, 10, 0.045);
+  --radius: 0px;
 }
 
 [data-theme="dark"],
 .dark {
-  /* Pencil Dark Theme — Balanced Warm Chalk on Soft Charcoal (Low Eye-Strain) */
-  --background: #111113;
-  --foreground: #f2f2f0;
-  --card: #17171a;
-  --card-foreground: #f2f2f0;
-  --popover: #17171a;
-  --popover-foreground: #f2f2f0;
-  --primary: #f2f2f0;
-  --primary-foreground: #111113;
-  --secondary: #202024;
-  --secondary-foreground: #d8d8d4;
-  --muted: #202024;
-  --muted-foreground: #a8a8a3;
-  --accent: #f2f2f0;
-  --accent-foreground: #111113;
-  --destructive: #f2f2f0;
-  --destructive-foreground: #111113;
-  --border: #6e6e73;
-  --border-light: #242428;
-  --input: #6e6e73;
-  --ring: #d8d8d4;
-  --hover-ripple: rgba(242, 242, 240, 0.14);
-  --pencil-shadow: #48484e;
+  /* Dark Mode — ui-sdk.dev Deep Architectural Monochrome */
+  --background: #101010;
+  --foreground: #fafafa;
+  --card: #0a0a0a;
+  --card-foreground: #fafafa;
+  --popover: #0a0a0a;
+  --popover-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #0a0a0a;
+  --secondary: #1b1b1b;
+  --secondary-foreground: #cfcfcf;
+  --muted: #1b1b1b;
+  --muted-foreground: #9a9a9a;
+  --accent: #5fa1f3;
+  --accent-foreground: #0a0a0a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #303030;
+  --border-light: #202020;
+  --input: #303030;
+  --ring: #5fa1f3;
+  --hover-ripple: rgba(95, 161, 243, 0.16);
+  --cad-grid: rgba(255, 255, 255, 0.045);
 }
 
 @theme inline {
@@ -81,11 +83,12 @@
   --color-border-light: var(--border-light);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --font-sans: var(--font-sans-stack);
   --font-mono: var(--font-mono-stack);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
 }
 
 @layer base {
@@ -94,79 +97,83 @@
   }
 
   body {
-    @apply m-0 p-0 bg-background text-foreground font-mono antialiased leading-[1.6];
-    /* Subtle sketchbook graph-paper grain */
-    background-image: radial-gradient(var(--border-light) 1px, transparent 1px);
+    @apply m-0 p-0 bg-background text-foreground font-sans antialiased leading-[1.6];
+    /* Ultra-subtle CAD dot matrix (4.5% opacity like ui-sdk.dev) */
+    background-image: radial-gradient(var(--cad-grid) 1px, transparent 1px);
     background-size: 20px 20px;
   }
 }
 
-/* ========================================== */
-/* Hand-Drawn Pencil Border & Shadow System   */
-/* ========================================== */
+/* ================================================== */
+/* ui-sdk.dev Inspired CAD / Blueprint Surface System */
+/* ================================================== */
 
-/* Organic hand-sketched card box with tactile graphite offset shadow */
-.pencil-box {
-  border: 1.75px solid var(--border);
-  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-  box-shadow: 3px 3px 0px 0px var(--pencil-shadow);
+/* Sharp 1px flat architectural frame with zero drop-shadow */
+.cad-card {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background-color: var(--card);
+  transition: border-color 0.2s ease;
+}
+
+.cad-card:hover {
+  border-color: var(--foreground);
+}
+
+/* Subtle 45deg CAD diagonal hatching texture for blueprint headers */
+.cad-hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 6px,
+    var(--cad-grid) 6px,
+    var(--cad-grid) 7px
+  );
+}
+
+/* Sharp 1px interactive button (inverts cleanly on hover) */
+.cad-btn {
+  border: 1px solid var(--border);
+  border-radius: 0;
   transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    border-color 0.18s ease;
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
 }
 
-.pencil-box:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0px 0px var(--pencil-shadow);
+.cad-btn:hover {
+  border-color: var(--foreground);
+  background-color: var(--foreground);
+  color: var(--background);
 }
 
-/* Alternate wobbly sketch radius for visual variety */
-.pencil-box-alt {
-  border: 1.75px solid var(--border);
-  border-radius: 15px 225px 15px 255px / 255px 15px 225px 15px;
-  box-shadow: 3px 3px 0px 0px var(--pencil-shadow);
+/* Blueprint blue secondary CTA button */
+.cad-btn-blue {
+  border: 1px solid var(--accent);
+  border-radius: 0;
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+  transition: opacity 0.16s ease;
+}
+
+.cad-btn-blue:hover {
+  opacity: 0.88;
+}
+
+/* Sharp mono micro-chip */
+.cad-chip {
+  border: 1px solid var(--border);
+  border-radius: 0;
+  font-family: var(--font-mono-stack);
   transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
+    border-color 0.16s ease,
+    color 0.16s ease;
 }
 
-.pencil-box-alt:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0px 0px var(--pencil-shadow);
-}
-
-/* Hand-sketched interactive button */
-.pencil-btn {
-  border: 1.5px solid var(--border);
-  border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px;
-  box-shadow: 2px 2px 0px 0px var(--pencil-shadow);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    background-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.pencil-btn:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 3.5px 3.5px 0px 0px var(--pencil-shadow);
-}
-
-.pencil-btn:active {
-  transform: translate(1.5px, 1.5px);
-  box-shadow: 0.5px 0.5px 0px 0px var(--pencil-shadow);
-}
-
-/* Hand-sketched small pill / badge */
-.pencil-badge {
-  border: 1.25px solid var(--border);
-  border-radius: 220px 16px 200px 14px / 14px 200px 16px 220px;
-}
-
-/* Hand-sketched horizontal divider */
-.pencil-divider {
-  border-bottom: 1.5px dashed var(--border);
+.cad-chip:hover {
+  border-color: var(--foreground);
+  color: var(--foreground);
 }
 
 /* Keyframes for bespoke portfolio animations */
@@ -179,7 +186,7 @@
   }
 
   50% {
-    opacity: 0.55;
+    opacity: 0.6;
     box-shadow: 0 0 0 5px var(--hover-ripple);
     transform: scale(1.15);
   }
@@ -228,14 +235,14 @@
   }
 }
 
-/* Profile animated pencil-sketch ring */
+/* Profile precision CAD dashed ring */
 .profile-aura-ring::before {
   content: "";
   position: absolute;
   inset: -5px;
   border-radius: inherit;
-  border: 2px dashed var(--border);
-  animation: aura-spin 18s linear infinite;
+  border: 1px dashed var(--accent);
+  animation: aura-spin 20s linear infinite;
   pointer-events: none;
   opacity: 0.85;
 }
@@ -266,7 +273,7 @@
   background: linear-gradient(
     90deg,
     var(--border-light) 25%,
-    var(--muted-foreground) 50%,
+    var(--border) 50%,
     var(--border-light) 75%
   );
   background-size: 200% 100%;

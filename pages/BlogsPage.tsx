@@ -19,7 +19,7 @@ export const BlogsPage: React.FC = () => {
 
   return (
     <div className="mx-auto min-h-screen max-w-4xl px-6 pt-14 pb-28 font-mono">
-      <header className="mb-8 flex flex-col gap-2 border-b-[1.5px] border-dashed border-border pb-6">
+      <header className="mb-8 flex flex-col gap-2 border-b border-border pb-6">
         <button
           className="inline-flex cursor-pointer items-center gap-2 self-start py-2 font-mono text-sm text-secondary-foreground transition-colors hover:text-foreground"
           onClick={handleBackClick}

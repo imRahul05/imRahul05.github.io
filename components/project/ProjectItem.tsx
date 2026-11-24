@@ -29,7 +29,7 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
 
   return (
     <div
-      className="pencil-box group bg-card p-4"
+      className="cad-card group p-4"
       onClick={toggleOpen}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {

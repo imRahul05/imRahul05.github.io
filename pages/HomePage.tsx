@@ -155,21 +155,21 @@ export const HomePage: React.FC = () => {
         {/* HEADER */}
         <header
           ref={headerRef}
-          className="group sticky top-0 z-50 bg-background/90 backdrop-blur-[10px] py-4 -mt-4 mb-8 flex flex-row justify-between items-start gap-6 sm:gap-8 border-b-[1.5px] border-dashed border-transparent transition-[gap,padding,border-color,background-color] duration-300 ease-out [&.is-scrolled]:items-center [&.is-scrolled]:gap-4 [&.is-scrolled]:py-2 [&.is-scrolled]:border-b-border"
+          className="group sticky top-0 z-50 bg-background/92 backdrop-blur-[12px] py-4 -mt-4 mb-8 flex flex-row justify-between items-start gap-6 sm:gap-8 border-b border-transparent transition-[gap,padding,border-color,background-color] duration-300 ease-out [&.is-scrolled]:items-center [&.is-scrolled]:gap-4 [&.is-scrolled]:py-2.5 [&.is-scrolled]:border-b-border"
         >
           <div>
-            <h1 className="text-[1.5rem] mb-2 tracking-[-0.025em] transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[1.1rem] group-[.is-scrolled]:mb-[0.1rem]">
+            <h1 className="font-sans text-[1.75rem] font-medium mb-1.5 tracking-[-0.04em] leading-[1.1] transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[1.15rem] group-[.is-scrolled]:mb-[0.1rem]">
               {DATA.personal.name}
             </h1>
-            <p className="text-sm text-secondary-foreground mb-4 transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[0.8rem] group-[.is-scrolled]:mb-[0.1rem]">
+            <p className="font-mono text-[0.75rem] uppercase tracking-[0.07em] text-muted-foreground mb-3.5 transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[0.68rem] group-[.is-scrolled]:mb-[0.15rem]">
               {DATA.personal.title}
             </p>
-            <div className="flex items-center gap-1 mb-2 text-xs text-muted-foreground transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:mb-0 group-[.is-scrolled]:text-xs">
-              <MapPin size={14} className="text-foreground" />
+            <div className="flex items-center gap-1.5 mb-2 font-mono text-[0.72rem] text-muted-foreground transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:mb-0 group-[.is-scrolled]:text-[0.68rem]">
+              <MapPin size={13} className="text-accent" />
               {DATA.personal.location}
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4 transition-[font-size,margin-bottom,opacity] duration-300 ease-out group-[.is-scrolled]:hidden">
-              <span className="w-2 h-2 rounded-full bg-foreground animate-pulse-glow shrink-0" />
+            <div className="flex items-center gap-2 font-mono text-[0.72rem] text-muted-foreground mb-4 transition-[font-size,margin-bottom,opacity] duration-300 ease-out group-[.is-scrolled]:hidden">
+              <span className="w-2 h-2 bg-accent animate-pulse-glow shrink-0" />
               <span>
                 Building{" "}
                 <HoverCard>
@@ -177,7 +177,7 @@ export const HomePage: React.FC = () => {
                     href={DATA.personal.currentlyBuilding.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-foreground font-bold tracking-[0.02em] cursor-pointer underline decoration-dashed decoration-foreground/70 underline-offset-[4px] relative transition-opacity duration-200 ease-out hover:opacity-75"
+                    className="text-foreground font-medium tracking-[0.01em] cursor-pointer underline decoration-accent decoration-1 underline-offset-[4px] relative transition-colors duration-200 ease-out hover:text-accent"
                   >
                     {DATA.personal.currentlyBuilding.name}
                   </HoverCardTrigger>
@@ -190,7 +190,7 @@ export const HomePage: React.FC = () => {
                     <img
                       src={DATA.personal.currentlyBuilding.previewImage}
                       alt={DATA.personal.currentlyBuilding.name}
-                      className="pencil-box w-[280px] max-w-[80vw] bg-background grayscale hover:grayscale-0 transition-all duration-300"
+                      className="w-[280px] max-w-[80vw] border border-border bg-card"
                     />
                   </HoverCardContent>
                 </HoverCard>
@@ -249,14 +249,14 @@ export const HomePage: React.FC = () => {
           </p>
         </section>
 
-        {/* SKILLS (Badges Style) */}
+        {/* SKILLS (CAD Micro-Chips) */}
         <section className="mb-12">
-          <div className="flex flex-wrap gap-2 text-xs">
+          <div className="flex flex-wrap gap-1.5 text-xs">
             {DATA.skills.map((skill) => (
               <Badge
                 key={skill}
                 variant="outline"
-                className="pencil-badge h-auto bg-card px-2.5 py-1 text-xs font-normal text-foreground"
+                className="cad-chip h-auto bg-card px-2.5 py-1 text-[0.72rem] font-normal text-secondary-foreground"
               >
                 {skill}
               </Badge>
@@ -272,43 +272,43 @@ export const HomePage: React.FC = () => {
 
         {/* FEATURED PROJECTS */}
         <section className="mb-12">
-          <SectionTitle>Featured Projects</SectionTitle>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+          <SectionTitle index="03">Featured Projects</SectionTitle>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             {featuredProjects.map((project) => (
               <ProjectCard key={project.name} {...project} />
             ))}
           </div>
-          <div className="flex gap-4 flex-wrap">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
-              className="pencil-btn inline-flex items-center gap-2 px-5 py-3 bg-card text-foreground font-mono text-[0.8rem] font-semibold tracking-[0.05em] uppercase cursor-pointer hover:bg-foreground hover:text-background"
+              className="cad-btn inline-flex items-center justify-between px-5 py-3.5 bg-foreground text-background font-mono text-[0.75rem] font-medium tracking-[0.06em] uppercase cursor-pointer hover:opacity-88"
               onClick={handleViewAllProjects}
             >
-              View All Projects ({DATA.projects.length})
-              <ArrowRight size={16} />
+              <span>View All Projects ({DATA.projects.length})</span>
+              <ArrowRight size={15} />
             </button>
             <button
               type="button"
-              className="pencil-btn inline-flex items-center gap-2 px-5 py-3 bg-card text-foreground font-mono text-[0.8rem] font-semibold tracking-[0.05em] uppercase cursor-pointer hover:bg-foreground hover:text-background"
+              className="cad-btn-blue inline-flex items-center justify-between px-5 py-3.5 font-mono text-[0.75rem] font-medium tracking-[0.06em] uppercase cursor-pointer"
               onClick={handleViewBlogs}
             >
-              <BookOpen size={16} />
-              Read Blog
+              <span>Read Architecture Blogs</span>
+              <BookOpen size={15} />
             </button>
           </div>
         </section>
 
         {/* CONTRIBUTION GRAPH */}
         <section className="mb-12">
-          <SectionTitle>Build Rhythm</SectionTitle>
+          <SectionTitle index="04">Build Rhythm</SectionTitle>
           <ContributionGraph
-            className="pencil-box relative overflow-hidden bg-card p-4"
+            className="cad-card relative overflow-hidden p-4"
             data={contributionData}
           />
         </section>
 
         {/* FOOTER */}
-        <footer className="mt-20 border-t-[1.5px] border-dashed border-border pt-8 pb-16">
+        <footer className="mt-20 border-t border-border pt-8 pb-16">
           <div className="flex flex-row flex-wrap items-center gap-4 sm:gap-8">
             <SocialLink
               href={`mailto:${DATA.personal.email}`}

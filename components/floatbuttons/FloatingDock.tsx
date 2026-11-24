@@ -297,17 +297,17 @@ export const FloatingDock: React.FC = () => {
     >
       <div
         ref={containerRef}
-        className="relative flex items-center gap-1 rounded-full border-[1.75px] border-border bg-background/80 p-[5px] shadow-[3px_3px_0px_0px_var(--pencil-shadow)] backdrop-blur-2xl backdrop-saturate-[180%] transition-all duration-300 ease-in-out sm:gap-2 sm:p-1.5"
+        className="relative flex items-center gap-1 rounded-full border border-border bg-card/75 p-[5px] shadow-[0_12px_36px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur-[32px] backdrop-saturate-[220%] transition-all duration-300 ease-in-out sm:gap-2 sm:p-1.5 dark:border-white/18 dark:bg-[#0a0a0a]/75 dark:shadow-[0_16px_42px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.16)]"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onMouseLeave={() => setHoveredIndex(null)}
       >
-        {/* Pencil Monochrome sliding circular lens */}
+        {/* Apple Liquid Glass sliding circular lens */}
         <div
           className={cn(
-            "pointer-events-none absolute top-[5px] left-[5px] z-[1] h-9 w-9 rounded-full border-[1.5px] border-border bg-foreground/10 transition-[transform,box-shadow,background-color] duration-[420ms] ease-[cubic-bezier(0.32,0.72,0,1)] sm:top-1.5 sm:left-1.5 sm:h-10 sm:w-10",
-            isLensGliding && "bg-foreground/16",
+            "pointer-events-none absolute top-[5px] left-[5px] z-[1] h-9 w-9 rounded-full border border-foreground/20 bg-foreground/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.85)] backdrop-blur-md transition-[transform,box-shadow,background-color] duration-[420ms] ease-[cubic-bezier(0.32,0.72,0,1)] sm:top-1.5 sm:left-1.5 sm:h-10 sm:w-10 dark:border-white/25 dark:bg-white/[0.14] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.28)]",
+            isLensGliding && "border-accent/50 bg-accent/15",
           )}
           style={{
             transform: `translate3d(${translationOffset}px, 0, 0) scale(${isLensGliding ? 1.07 : 1})`,

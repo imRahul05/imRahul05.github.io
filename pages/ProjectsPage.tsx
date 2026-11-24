@@ -81,7 +81,7 @@ export const ProjectsPage: React.FC = () => {
   return (
     <div className="mx-auto min-h-screen max-w-4xl px-6 pt-14 pb-28 font-mono">
       {/* Header */}
-      <header className="mb-8 flex flex-col gap-4 border-b-[1.5px] border-dashed border-border pb-6">
+      <header className="mb-8 flex flex-col gap-4 border-b border-border pb-6">
         <button
           type="button"
           className="inline-flex cursor-pointer items-center gap-2 self-start py-1 font-mono text-sm text-secondary-foreground transition-colors duration-200 hover:text-foreground"
@@ -128,9 +128,9 @@ export const ProjectsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Filter Pills */}
+        {/* Sharp ui-sdk.dev Segmented Filter Bar */}
         <div
-          className="flex flex-wrap items-center gap-2 pt-1"
+          className="inline-flex w-fit flex-wrap items-center border border-border bg-card"
           role="tablist"
           aria-label="Filter projects"
         >
@@ -144,16 +144,16 @@ export const ProjectsPage: React.FC = () => {
                 aria-selected={isActive}
                 onClick={() => setActiveFilter(option.id)}
                 className={cn(
-                  "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 font-mono text-xs transition-colors duration-200",
+                  "inline-flex cursor-pointer items-center gap-1.5 border-r border-border px-3.5 py-2 font-mono text-[0.72rem] uppercase tracking-[0.06em] transition-colors duration-150 last:border-r-0",
                   isActive
-                    ? "border-foreground bg-foreground font-semibold text-background"
-                    : "border-border bg-transparent text-secondary-foreground hover:border-muted-foreground hover:bg-border-light hover:text-foreground",
+                    ? "bg-foreground font-semibold text-background"
+                    : "bg-transparent text-secondary-foreground hover:bg-secondary hover:text-foreground",
                 )}
               >
                 <span>{option.label}</span>
                 <span
                   className={cn(
-                    "text-[0.65rem]",
+                    "text-[0.65rem] tabular-nums",
                     isActive ? "text-background/75" : "text-muted-foreground",
                   )}
                 >
