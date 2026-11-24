@@ -244,7 +244,7 @@ export const HomePage: React.FC = () => {
 
         {/* BIO */}
         <section className="mb-12">
-          <p className="text-sm leading-relaxed text-secondary-foreground max-w-[400px]">
+          <p className="max-w-[540px] text-[0.95rem] leading-[1.75] text-secondary-foreground">
             {DATA.personal.bio}
           </p>
         </section>

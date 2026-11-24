@@ -68,11 +68,13 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({
               />
             </button>
           </div>
-          <p className="text-[0.8rem] text-secondary-foreground my-1">{role}</p>
+          <p className="my-1 text-[0.875rem] text-secondary-foreground">
+            {role}
+          </p>
           <span className="text-xs text-muted-foreground">{period}</span>
         </div>
         {isOpen && (
-          <p className="text-[0.8rem] text-secondary-foreground leading-relaxed mt-2">
+          <p className="mt-2 text-[0.875rem] leading-[1.7] text-secondary-foreground">
             <TypewriterText text={description} speed={5} />
           </p>
         )}

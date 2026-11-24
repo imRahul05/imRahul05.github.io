@@ -78,7 +78,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog, onReadMore }) => {
           {blog.title}
         </h3>
 
-        <p className="mb-4 line-clamp-3 text-[0.8rem] leading-relaxed text-secondary-foreground">
+        <p className="mb-4 line-clamp-3 text-[0.875rem] leading-[1.7] text-secondary-foreground">
           {blog.excerpt}
         </p>
 

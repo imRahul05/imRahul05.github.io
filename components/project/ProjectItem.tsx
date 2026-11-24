@@ -62,11 +62,11 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
 
           {/* Concise description preview when collapsed, full typewriter when expanded */}
           {!isOpen ? (
-            <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-secondary-foreground">
+            <p className="mt-2 line-clamp-2 text-[0.875rem] leading-[1.7] text-secondary-foreground">
               {description}
             </p>
           ) : (
-            <p className="mt-2 text-xs leading-relaxed text-secondary-foreground">
+            <p className="mt-2 text-[0.875rem] leading-[1.7] text-secondary-foreground">
               <TypewriterText text={description} speed={4} />
             </p>
           )}

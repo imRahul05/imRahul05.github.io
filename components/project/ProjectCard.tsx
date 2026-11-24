@@ -178,7 +178,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             </p>
           )}
 
-          <p className="mb-4 line-clamp-3 text-[0.78rem] leading-[1.6] text-secondary-foreground">
+          <p className="mb-4 line-clamp-3 text-[0.875rem] leading-[1.7] text-secondary-foreground">
             {description}
           </p>
 
