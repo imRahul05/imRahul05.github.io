@@ -1,7 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
-
-import "./styles/contribution.scss";
+import { cn } from "@/lib/utils";
 
 export interface ContributionData {
   count: number;
@@ -246,6 +245,27 @@ const getContributionText = (count: number) => {
   return `${count} contributions`;
 };
 
+const CELL_RADIUS = 3;
+
+const CELL_BASE_CLASS =
+  "stroke-[rgba(27,31,35,0.06)] dark:stroke-[rgba(255,255,255,0.05)] stroke-1 transition-[stroke] duration-100 ease-out motion-reduce:transition-none hover:stroke-[rgba(27,31,35,0.4)] dark:hover:stroke-[rgba(255,255,255,0.5)] focus-visible:outline-2 focus-visible:outline-[rgba(27,31,35,0.4)] dark:focus-visible:outline-[rgba(255,255,255,0.5)] focus-visible:outline-offset-1";
+
+const CELL_LEVEL_FILL_CLASSES: Record<number, string> = {
+  0: "fill-[color-mix(in_srgb,var(--border-light)_82%,var(--background))] dark:fill-[color-mix(in_srgb,var(--border-light)_72%,var(--background))]",
+  1: "fill-[#c8e4d4] dark:fill-[#5b9785]",
+  2: "fill-[#7fd4c7] dark:fill-[#4fb7a5]",
+  3: "fill-[#f4c27f] dark:fill-[#df9a52]",
+  4: "fill-[#ff8652] dark:fill-[#ff7b45]",
+};
+
+const LEGEND_LEVEL_BG_CLASSES: Record<number, string> = {
+  0: "bg-[color-mix(in_srgb,var(--border-light)_82%,var(--background))] dark:bg-[color-mix(in_srgb,var(--border-light)_72%,var(--background))]",
+  1: "bg-[#c8e4d4] dark:bg-[#5b9785]",
+  2: "bg-[#7fd4c7] dark:bg-[#4fb7a5]",
+  3: "bg-[#f4c27f] dark:bg-[#df9a52]",
+  4: "bg-[#ff8652] dark:bg-[#ff7b45]",
+};
+
 // Cells are the expensive part of the tree (~370 nodes) and only change when
 // the source data or the date window change. Isolating them behind memo means
 // loading / reduced-motion state changes never re-render the grid.
@@ -260,7 +280,13 @@ const GraphCells = memo(function GraphCells({ cells }: { cells: CellData[] }) {
             y={cell.y}
             width={CELL_SIZE}
             height={CELL_SIZE}
-            className={`contribution-graph-cell contribution-level-${cell.level}`}
+            rx={CELL_RADIUS}
+            ry={CELL_RADIUS}
+            className={cn(
+              CELL_BASE_CLASS,
+              CELL_LEVEL_FILL_CLASSES[cell.level] ?? CELL_LEVEL_FILL_CLASSES[0],
+            )}
+            data-cg-cell="true"
             data-date={cell.date}
             data-count={cell.count}
             data-level={cell.level}
@@ -274,7 +300,9 @@ const GraphCells = memo(function GraphCells({ cells }: { cells: CellData[] }) {
             y={cell.y}
             width={CELL_SIZE}
             height={CELL_SIZE}
-            className="contribution-graph-cell contribution-level-0"
+            rx={CELL_RADIUS}
+            ry={CELL_RADIUS}
+            className={cn(CELL_BASE_CLASS, CELL_LEVEL_FILL_CLASSES[0])}
             aria-hidden="true"
           />
         ),
@@ -442,8 +470,7 @@ export function ContributionGraph({
 
       const target = event.target as SVGElement;
       const isCell =
-        target?.tagName === "rect" &&
-        target.classList.contains("contribution-graph-cell");
+        target?.tagName === "rect" && target.hasAttribute("data-cg-cell");
       const date = isCell ? target.getAttribute("data-date") : null;
 
       if (!date) {
@@ -472,10 +499,17 @@ export function ContributionGraph({
   );
 
   return (
-    <div className={`contribution-graph ${className}`.trim()}>
-      <div className="contribution-graph-scroll">
+    <div
+      className={cn(
+        "inline-block max-w-full text-[#57606a] dark:text-[#7d8590] font-sans text-[12px] leading-[1.4]",
+        className,
+      )}
+    >
+      <div className="relative overflow-x-auto overflow-y-hidden pb-[2px] [-webkit-overflow-scrolling:touch]">
         {isRemoteLoading && (
-          <div className="contribution-graph-loading">Syncing with GitHub…</div>
+          <div className="absolute top-0 right-[3px] text-[10px] text-[#8b949e] dark:text-[#6e7681]">
+            Syncing with GitHub…
+          </div>
         )}
 
         <svg
@@ -484,7 +518,7 @@ export function ContributionGraph({
           viewBox={`0 0 ${svgWidth} ${GRID_HEIGHT}`}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          style={{ display: "block", overflow: "visible" }}
+          className="block overflow-visible"
           role="grid"
           aria-readonly="true"
           aria-label={`Contribution activity for ${githubUsername}`}
@@ -494,7 +528,7 @@ export function ContributionGraph({
               key={`${header.month}-${header.startWeek}`}
               x={header.x}
               y="12"
-              className="contribution-graph-month-label"
+              className="fill-[#8b949e] dark:fill-[#6e7681] text-[9px] font-[inherit] select-none"
             >
               {header.month}
             </text>
@@ -505,7 +539,7 @@ export function ContributionGraph({
               key={entry.day}
               x="0"
               y={entry.y}
-              className="contribution-graph-day-label-svg"
+              className="fill-[#8b949e] dark:fill-[#6e7681] text-[9px] font-[inherit] select-none [dominant-baseline:middle]"
             >
               {entry.day}
             </text>
@@ -518,42 +552,40 @@ export function ContributionGraph({
       {showTooltips && (
         <div
           ref={tooltipRef}
-          className="contribution-graph-tooltip-wrapper"
-          style={{
-            position: "fixed",
-            left: 0,
-            top: 0,
-            zIndex: 50,
-            pointerEvents: "none",
-            opacity: 0,
-            visibility: "hidden",
-            transition: prefersReducedMotion ? "none" : "opacity 0.12s ease",
-          }}
+          className={cn(
+            "fixed left-0 top-0 z-50 pointer-events-none opacity-0 invisible will-change-transform",
+            prefersReducedMotion
+              ? "transition-none"
+              : "transition-opacity duration-120 ease-out motion-reduce:transition-none",
+          )}
         >
           <div
-            className={`contribution-graph-tooltip ${
-              prefersReducedMotion ? "is-static" : "is-animated"
-            }`}
+            className={cn(
+              "px-[10px] py-[6px] rounded-[6px] bg-[#24292f] dark:bg-[#2d333b] text-white dark:text-[#f0f6fc] text-[12px] leading-[1.45] whitespace-nowrap shadow-[0_1px_3px_rgba(0,0,0,0.24),0_6px_16px_rgba(0,0,0,0.16)]",
+              prefersReducedMotion
+                ? "transition-none"
+                : "transition-opacity duration-120 ease-out motion-reduce:transition-none",
+            )}
           >
-            <div
-              ref={tooltipCountRef}
-              className="contribution-graph-tooltip-count"
-            />
+            <div ref={tooltipCountRef} className="font-semibold" />
             <div
               ref={tooltipDateRef}
-              className="contribution-graph-tooltip-date"
+              className="text-[11px] text-white/70 dark:text-[#f0f6fc]/70"
             />
           </div>
         </div>
       )}
 
       {showLegend && (
-        <div className="contribution-graph-legend">
+        <div className="flex items-center gap-[6px] mt-2 text-[11px] text-[#8b949e] dark:text-[#6e7681]">
           <span>Less</span>
-          <div className="contribution-graph-legend-swatch-row">
+          <div className="flex gap-[3px]">
             {CONTRIBUTION_LEVELS.map((level) => (
               <div
-                className={`contribution-graph-cell contribution-level-${level}`}
+                className={cn(
+                  "w-[10px] h-[10px] rounded-[3px] border border-[rgba(27,31,35,0.06)] dark:border-[rgba(255,255,255,0.05)]",
+                  LEGEND_LEVEL_BG_CLASSES[level],
+                )}
                 key={level}
               />
             ))}
