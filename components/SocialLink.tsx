@@ -30,7 +30,7 @@ export const SocialLink: React.FC<SocialLinkProps> = ({
       href={processedHref}
       target="_blank"
       rel="noopener noreferrer"
-      className="social-link"
+      className="flex items-center gap-1 text-sm text-secondary-foreground transition-colors duration-200 hover:text-foreground hover:underline hover:underline-offset-4"
       aria-label={label}
     >
       <IconWrapper icon={icon} />

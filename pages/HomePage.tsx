@@ -8,6 +8,14 @@ import {
   Linkedin,
   BookOpen,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DATA } from "../data/data";
 import {
   ContributionGraph,
@@ -95,60 +103,80 @@ export const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="homepage-shell">
-      <div className="container homepage-container">
+    <div className="relative min-h-screen">
+      <div className="relative z-[1] max-w-[42rem] mx-auto px-6 py-16 min-h-screen">
         {/* HEADER */}
-        <header ref={headerRef} className="header sticky-header">
-          <div className="header-content">
-            <h1>{DATA.personal.name}</h1>
-            <p className="text-sm text-secondary mb-4">{DATA.personal.title}</p>
-            <div className="header-meta text-xs text-muted">
-              <MapPin size={14} style={{ color: "#3b82f6" }} />
+        <header
+          ref={headerRef}
+          className="group sticky top-0 z-50 bg-background/90 backdrop-blur-[10px] py-4 -mt-4 mb-8 flex flex-col-reverse sm:flex-row justify-between items-start gap-8 border-b border-transparent transition-[gap,padding,border-color,align-items,background-color] duration-300 ease-out [&.is-scrolled]:flex-row [&.is-scrolled]:items-center [&.is-scrolled]:gap-4 [&.is-scrolled]:py-2 [&.is-scrolled]:border-b-border-light"
+        >
+          <div>
+            <h1 className="text-[1.5rem] mb-2 tracking-[-0.025em] transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[1.1rem] group-[.is-scrolled]:mb-[0.1rem]">
+              {DATA.personal.name}
+            </h1>
+            <p className="text-sm text-secondary-foreground mb-4 transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[0.8rem] group-[.is-scrolled]:mb-[0.1rem]">
+              {DATA.personal.title}
+            </p>
+            <div className="flex items-center gap-1 mb-2 text-xs text-muted-foreground transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:mb-0 group-[.is-scrolled]:text-xs">
+              <MapPin size={14} className="text-[#3b82f6]" />
               {DATA.personal.location}
             </div>
-            <div className="building-status text-xs">
-              <span className="building-dot" />
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4 transition-[font-size,margin-bottom,opacity] duration-300 ease-out group-[.is-scrolled]:hidden">
+              <span className="w-2 h-2 rounded-full bg-[#38bdf8] animate-pulse-glow shrink-0" />
               <span>
                 Building{" "}
-                <span className="arthion-wrapper">
-                  <a
+                <HoverCard>
+                  <HoverCardTrigger
                     href={DATA.personal.currentlyBuilding.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="arthion-brand"
+                    className="bg-[linear-gradient(135deg,#4c2354_0%,#818cf8_50%,#61546d_100%)] bg-clip-text text-transparent font-bold tracking-[0.02em] cursor-pointer no-underline relative transition-opacity duration-200 ease-out hover:opacity-80 hover:underline hover:decoration-[#818cf8] hover:underline-offset-[3px]"
                   >
                     {DATA.personal.currentlyBuilding.name}
-                  </a>
-                  <span className="arthion-preview">
+                  </HoverCardTrigger>
+                  <HoverCardContent
+                    align="start"
+                    side="bottom"
+                    sideOffset={12}
+                    className="w-auto p-0 bg-transparent border-0 shadow-none ring-0"
+                  >
                     <img
                       src={DATA.personal.currentlyBuilding.previewImage}
                       alt={DATA.personal.currentlyBuilding.name}
+                      className="w-[280px] max-w-[80vw] rounded-lg border border-border shadow-[0_10px_40px_rgba(0,0,0,0.3)] bg-background"
                     />
-                  </span>
-                </span>
+                  </HoverCardContent>
+                </HoverCard>
               </span>
             </div>
           </div>
 
-          <div className="header-image">
+          <div className="relative inline-grid place-items-center shrink-0 rounded-full profile-aura-ring">
             <div
-              className={`profile-flip-container ${isImageLoaded && isVideoReady ? "flip-animation" : ""}`}
+              className={cn(
+                "relative w-24 h-24 sm:w-32 sm:h-32 flip-3d z-[1] transition-[width,height] duration-300 ease-out group-[.is-scrolled]:w-14 group-[.is-scrolled]:h-14",
+                isImageLoaded && isVideoReady && "animate-coin-flip",
+              )}
             >
               {/* Front Side - Profile Image */}
-              <div className="profile-flip-face profile-flip-front">
-                {!isImageLoaded && <div className="skeleton profile-img"></div>}
+              <div className="absolute w-full h-full flip-backface-hidden rounded-full overflow-hidden z-[2]">
+                {!isImageLoaded && (
+                  <Skeleton className="w-full h-full rounded-full animate-shimmer bg-transparent" />
+                )}
                 <img
                   src={DATA.personal.image}
                   alt={DATA.personal.name}
-                  className={`profile-img ${!isImageLoaded ? "hidden" : ""}`}
+                  className={cn(
+                    "w-full h-full object-cover border border-foreground rounded-full shrink-0 transition-[width,height] duration-300 ease-out dark:grayscale",
+                    !isImageLoaded && "hidden",
+                  )}
                   onLoad={() => setIsImageLoaded(true)}
-                  style={!isImageLoaded ? { display: "none" } : {}}
                 />
               </div>
               {/* Back Side - Video */}
-              <div className="profile-flip-face profile-flip-back">
+              <div className="absolute w-full h-full flip-backface-hidden flip-rotate-y-180 rounded-full overflow-hidden">
                 <video
-                  className="profile-video"
+                  className="w-full h-full object-cover rounded-full border border-foreground transition-[width,height] duration-300 ease-out"
                   src={DATA.personal.profileVideo}
                   autoPlay
                   muted
@@ -163,22 +191,23 @@ export const HomePage: React.FC = () => {
         </header>
 
         {/* BIO */}
-        <section className="section">
-          <p
-            className="text-sm leading-relaxed text-secondary"
-            style={{ maxWidth: "400px" }}
-          >
+        <section className="mb-12">
+          <p className="text-sm leading-relaxed text-secondary-foreground max-w-[400px]">
             {DATA.personal.bio}
           </p>
         </section>
 
         {/* SKILLS (Badges Style) */}
-        <section className="section">
-          <div className="skills-list">
+        <section className="mb-12">
+          <div className="flex flex-wrap gap-2 text-xs">
             {DATA.skills.map((skill) => (
-              <span key={skill} className="skill-badge">
+              <Badge
+                key={skill}
+                variant="outline"
+                className="rounded-none h-auto px-1.5 py-0.5 text-xs font-normal text-secondary-foreground border-border"
+              >
                 {skill}
-              </span>
+              </Badge>
             ))}
           </div>
         </section>
@@ -190,22 +219,27 @@ export const HomePage: React.FC = () => {
         <Education />
 
         {/* FEATURED PROJECTS */}
-        <section className="section">
+        <section className="mb-12">
           <SectionTitle>Featured Projects</SectionTitle>
-          <div className="featured-projects-grid">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
             {featuredProjects.map((project, index) => (
               <ProjectCard key={index} {...project} />
             ))}
           </div>
-          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+          <div className="flex gap-4 flex-wrap">
             <button
-              className="view-all-projects-btn"
+              type="button"
+              className="inline-flex items-center gap-2 px-6 py-3.5 bg-white/5 border border-border rounded-lg text-secondary-foreground font-mono text-[0.8rem] font-medium tracking-[0.05em] uppercase cursor-pointer transition-[background-color,border-color,color,box-shadow] duration-200 ease-out hover:bg-white/10 hover:border-[rgba(80,200,120,0.5)] hover:text-foreground hover:shadow-[0_0_15px_rgba(80,200,120,0.1)]"
               onClick={handleViewAllProjects}
             >
               View All Projects
               <ArrowRight size={16} />
             </button>
-            <button className="view-all-projects-btn" onClick={handleViewBlogs}>
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 px-6 py-3.5 bg-white/5 border border-border rounded-lg text-secondary-foreground font-mono text-[0.8rem] font-medium tracking-[0.05em] uppercase cursor-pointer transition-[background-color,border-color,color,box-shadow] duration-200 ease-out hover:bg-white/10 hover:border-[rgba(80,200,120,0.5)] hover:text-foreground hover:shadow-[0_0_15px_rgba(80,200,120,0.1)]"
+              onClick={handleViewBlogs}
+            >
               <BookOpen size={16} />
               Read Blog
             </button>
@@ -213,17 +247,17 @@ export const HomePage: React.FC = () => {
         </section>
 
         {/* CONTRIBUTION GRAPH */}
-        <section className="section contribution-section">
+        <section className="mb-12">
           <SectionTitle>Build Rhythm</SectionTitle>
           <ContributionGraph
-            className="contribution-graph-card"
+            className="relative overflow-hidden border border-[rgba(155,92,255,0.16)] dark:border-[rgba(255,126,76,0.18)] rounded-2xl p-4 bg-[radial-gradient(circle_at_top_left,rgba(255,111,55,0.16),transparent_32%),radial-gradient(circle_at_top_right,rgba(80,200,120,0.12),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,245,255,0.92))] dark:bg-[radial-gradient(circle_at_top_left,rgba(255,111,55,0.2),transparent_34%),radial-gradient(circle_at_top_right,rgba(81,170,180,0.16),transparent_30%),linear-gradient(180deg,rgba(17,16,24,0.98),rgba(12,10,16,0.95))] shadow-[0_18px_40px_rgba(35,20,58,0.08),inset_0_1px_0_rgba(255,255,255,0.72)] dark:shadow-[0_24px_50px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,214,179,0.08)]"
             data={contributionData}
           />
         </section>
 
         {/* FOOTER */}
-        <footer className="footer">
-          <div className="footer-links">
+        <footer className="mt-20 border-t border-border-light pt-8 pb-16">
+          <div className="flex flex-row flex-wrap items-center gap-4 sm:gap-8">
             <SocialLink
               href={`mailto:${DATA.personal.email}`}
               icon={Mail}
@@ -244,11 +278,13 @@ export const HomePage: React.FC = () => {
               icon={XIcon}
               label="X"
             />
-            <DigitalClock />
+            <div className="ml-auto">
+              <DigitalClock />
+            </div>
           </div>
-          <p className="text-xs text-muted mt-8">
+          <p className="mt-8 text-xs text-muted-foreground">
             © {new Date().getFullYear()} {DATA.personal.name}. Built with React,
-            TypeScript, and Plain CSS.
+            TypeScript, Tailwind CSS, and Base UI.
           </p>
         </footer>
       </div>

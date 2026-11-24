@@ -10,6 +10,9 @@ import {
 } from "lucide-react";
 import { BLOGS } from "../../data/blogs";
 import { MermaidDiagram } from "./MermaidDiagram";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 interface BlogDetailPageProps {
   slug: string;
@@ -44,7 +47,7 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
       try {
         const { BLOG_CONTENTS } = await import("../../data/blog-contents");
         setContent(BLOG_CONTENTS[slug] || null);
-      } catch (err) {
+      } catch (err: unknown) {
         // eslint-disable-next-line no-console
         console.error("Failed to load blog content:", err);
         setContent(null);
@@ -70,8 +73,8 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
   };
 
   // Simple markdown-like rendering for the content
-  const renderContent = (content: string) => {
-    const lines = content.trim().split("\n");
+  const renderContent = (rawContent: string) => {
+    const lines = rawContent.trim().split("\n");
     const elements: React.ReactNode[] = [];
     let inCodeBlock = false;
     let codeBlockContent: string[] = [];
@@ -82,7 +85,10 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
     const flushLists = () => {
       if (unorderedListItems.length > 0) {
         elements.push(
-          <ul key={`ul-${elements.length}`} className="blog-list">
+          <ul
+            key={`ul-${elements.length}`}
+            className="my-0 mb-4 ml-6 list-disc pl-1"
+          >
             {unorderedListItems}
           </ul>,
         );
@@ -93,7 +99,7 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
         elements.push(
           <ol
             key={`ol-${elements.length}`}
-            className="blog-list blog-list-ordered"
+            className="my-0 mb-4 ml-6 list-decimal pl-1"
           >
             {orderedListItems}
           </ol>,
@@ -118,8 +124,29 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
             );
           } else {
             elements.push(
-              <pre key={`code-${index}`} className="blog-code-block">
-                <code className={`language-${codeBlockLanguage}`}>{code}</code>
+              <pre
+                key={`code-${index}`}
+                className={cn(
+                  "my-4 overflow-x-auto rounded-lg border p-4",
+                  readingTheme === "default" &&
+                    "border-border bg-border-light text-foreground",
+                  readingTheme === "sepia" &&
+                    "border-[#5b4636]/20 bg-[#5b4636]/5 text-[#5b4636]",
+                  readingTheme === "high-contrast" &&
+                    "border-white bg-[#111111] text-white",
+                )}
+              >
+                <code
+                  className={cn(
+                    "font-mono text-[0.8rem] leading-relaxed whitespace-pre",
+                    readingTheme === "default" && "text-foreground",
+                    readingTheme === "sepia" && "text-[#5b4636]",
+                    readingTheme === "high-contrast" && "text-white",
+                    `language-${codeBlockLanguage}`,
+                  )}
+                >
+                  {code}
+                </code>
               </pre>,
             );
           }
@@ -145,7 +172,15 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
       if (line.startsWith("# ")) {
         flushLists();
         elements.push(
-          <h1 key={index} className="blog-content-h1">
+          <h1
+            key={index}
+            className={cn(
+              "mt-8 mb-4 text-[1.6em] font-bold tracking-tight first:mt-0",
+              readingTheme === "default" && "text-foreground",
+              readingTheme === "sepia" && "text-[#5b4636]",
+              readingTheme === "high-contrast" && "text-white",
+            )}
+          >
             {line.slice(2)}
           </h1>,
         );
@@ -156,7 +191,15 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
       if (line.startsWith("## ")) {
         flushLists();
         elements.push(
-          <h2 key={index} className="blog-content-h2">
+          <h2
+            key={index}
+            className={cn(
+              "mt-8 mb-3 text-[1.4em] font-bold tracking-tight",
+              readingTheme === "default" && "text-foreground",
+              readingTheme === "sepia" && "text-[#5b4636]",
+              readingTheme === "high-contrast" && "text-white",
+            )}
+          >
             {line.slice(3)}
           </h2>,
         );
@@ -167,7 +210,15 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
       if (line.startsWith("### ")) {
         flushLists();
         elements.push(
-          <h3 key={index} className="blog-content-h3">
+          <h3
+            key={index}
+            className={cn(
+              "mt-6 mb-2 text-[1.2em] font-bold tracking-tight",
+              readingTheme === "default" && "text-foreground",
+              readingTheme === "sepia" && "text-[#5b4636]",
+              readingTheme === "high-contrast" && "text-white",
+            )}
+          >
             {line.slice(4)}
           </h3>,
         );
@@ -178,7 +229,15 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
       if (line.startsWith("- ")) {
         orderedListItems = [];
         unorderedListItems.push(
-          <li key={index} className="blog-list-item">
+          <li
+            key={index}
+            className={cn(
+              "mb-2 text-[1em] leading-relaxed",
+              readingTheme === "default" && "text-secondary-foreground",
+              readingTheme === "sepia" && "text-[#5b4636]",
+              readingTheme === "high-contrast" && "text-white",
+            )}
+          >
             {renderInlineContent(line.slice(2))}
           </li>,
         );
@@ -190,7 +249,15 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
       if (orderedMatch) {
         unorderedListItems = [];
         orderedListItems.push(
-          <li key={index} className="blog-list-item">
+          <li
+            key={index}
+            className={cn(
+              "mb-2 text-[1em] leading-relaxed",
+              readingTheme === "default" && "text-secondary-foreground",
+              readingTheme === "sepia" && "text-[#5b4636]",
+              readingTheme === "high-contrast" && "text-white",
+            )}
+          >
             {renderInlineContent(orderedMatch[1])}
           </li>,
         );
@@ -200,7 +267,15 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
       // Regular paragraph
       flushLists();
       elements.push(
-        <p key={index} className="blog-content-p">
+        <p
+          key={index}
+          className={cn(
+            "mb-5 text-[1em] leading-[1.8]",
+            readingTheme === "default" && "text-secondary-foreground",
+            readingTheme === "sepia" && "text-[#5b4636]",
+            readingTheme === "high-contrast" && "text-white",
+          )}
+        >
           {renderInlineContent(line)}
         </p>,
       );
@@ -225,7 +300,17 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
       const token = match[0];
       if (token.startsWith("`") && token.endsWith("`")) {
         nodes.push(
-          <code key={`${match.index}-code`} className="blog-inline-code">
+          <code
+            key={`${match.index}-code`}
+            className={cn(
+              "rounded px-1.5 py-0.5 font-mono text-[0.85em]",
+              readingTheme === "default" && "bg-border-light text-foreground",
+              readingTheme === "sepia" &&
+                "border border-[#5b4636]/20 bg-[#5b4636]/5 text-[#5b4636]",
+              readingTheme === "high-contrast" &&
+                "border border-white bg-[#111111] text-white",
+            )}
+          >
             {token.slice(1, -1)}
           </code>,
         );
@@ -239,7 +324,14 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="blog-inline-link"
+              className={cn(
+                "underline underline-offset-2 transition-colors",
+                readingTheme === "default" &&
+                  "text-foreground hover:text-secondary-foreground",
+                readingTheme === "sepia" && "text-[#5b4636] hover:opacity-80",
+                readingTheme === "high-contrast" &&
+                  "text-white hover:opacity-80",
+              )}
             >
               {label}
             </a>,
@@ -267,32 +359,76 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
 
   if (!blog) {
     return (
-      <div className="container blog-detail-page">
-        <header className="blog-detail-header">
-          <button className="back-button" onClick={onBack}>
+      <div className="container pb-24">
+        <header className="mb-8 flex items-center justify-between">
+          <button
+            className="inline-flex cursor-pointer items-center gap-2 py-2 font-mono text-sm text-secondary-foreground transition-colors hover:text-foreground"
+            onClick={onBack}
+          >
             <ArrowLeft size={20} />
             <span>Back to Blogs</span>
           </button>
         </header>
-        <div className="blog-not-found">
-          <h1>Blog not found</h1>
-          <p>The blog post you're looking for doesn't exist.</p>
+        <div className="py-16 text-center">
+          <h1 className="mb-2 text-2xl font-bold">Blog not found</h1>
+          <p className="text-muted-foreground">
+            The blog post you're looking for doesn't exist.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`container blog-detail-page reading-theme-${readingTheme}`}>
-      <header className="blog-detail-header">
-        <button className="back-button" onClick={onBack}>
+    <div
+      className={cn(
+        "container pb-24 transition-colors duration-200",
+        readingTheme === "sepia" && "bg-[#f4ecd8] text-[#5b4636]",
+        readingTheme === "high-contrast" && "bg-black text-white",
+      )}
+    >
+      <header
+        className={cn(
+          "mb-8 flex items-center justify-between",
+          readingTheme === "sepia" && "border-[#5b4636]/20",
+          readingTheme === "high-contrast" && "border-white",
+        )}
+      >
+        <button
+          className={cn(
+            "inline-flex cursor-pointer items-center gap-2 py-2 font-mono text-sm transition-colors",
+            readingTheme === "default" &&
+              "text-secondary-foreground hover:text-foreground",
+            readingTheme === "sepia" &&
+              "text-[#5b4636]/80 hover:text-[#5b4636]",
+            readingTheme === "high-contrast" && "text-white hover:opacity-80",
+          )}
+          onClick={onBack}
+        >
           <ArrowLeft size={20} />
           <span>Back to Blogs</span>
         </button>
 
-        <div className="reading-settings-container">
+        <div className="relative">
           <button
-            className={`settings-toggle ${showSettings ? "active" : ""}`}
+            className={cn(
+              "flex cursor-pointer items-center justify-center rounded-lg p-2 transition-all duration-200",
+              readingTheme === "default" &&
+                "text-secondary-foreground hover:bg-border-light hover:text-foreground",
+              readingTheme === "default" &&
+                showSettings &&
+                "bg-border-light text-foreground",
+              readingTheme === "sepia" &&
+                "text-[#5b4636]/80 hover:bg-[#5b4636]/5 hover:text-[#5b4636]",
+              readingTheme === "sepia" &&
+                showSettings &&
+                "bg-[#5b4636]/5 text-[#5b4636]",
+              readingTheme === "high-contrast" &&
+                "text-white hover:bg-[#111111] hover:text-white",
+              readingTheme === "high-contrast" &&
+                showSettings &&
+                "bg-[#111111] text-white",
+            )}
             onClick={() => setShowSettings(!showSettings)}
             aria-label="Reading settings"
           >
@@ -300,61 +436,141 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
           </button>
 
           {showSettings && (
-            <div className="reading-settings-panel">
-              <div className="settings-section">
-                <span className="settings-label">Font Size</span>
-                <div className="settings-controls">
-                  <button onClick={() => handleFontSizeChange(-1)}>
+            <div
+              className={cn(
+                "absolute top-full right-0 z-50 mt-2 w-60 rounded-xl border p-5 shadow-xl backdrop-blur-md",
+                readingTheme === "default" && "border-border bg-background/95",
+                readingTheme === "sepia" &&
+                  "border-[#5b4636]/20 bg-[#f4ecd8]/95",
+                readingTheme === "high-contrast" &&
+                  "border-white bg-[#111111]/95 text-white",
+              )}
+            >
+              <div className="mb-5">
+                <span
+                  className={cn(
+                    "mb-3 block text-xs font-bold tracking-wider uppercase",
+                    readingTheme === "default" && "text-muted-foreground",
+                    readingTheme === "sepia" && "text-[#5b4636]/70",
+                    readingTheme === "high-contrast" && "text-white",
+                  )}
+                >
+                  Font Size
+                </span>
+                <div className="flex items-center gap-4">
+                  <button
+                    className={cn(
+                      "flex size-8 cursor-pointer items-center justify-center rounded-md border transition-all duration-200",
+                      readingTheme === "default" &&
+                        "border-border text-secondary-foreground hover:border-muted-foreground hover:text-foreground",
+                      readingTheme === "sepia" &&
+                        "border-[#5b4636]/20 text-[#5b4636] hover:border-[#5b4636]",
+                      readingTheme === "high-contrast" &&
+                        "border-white text-white hover:bg-[#222222]",
+                    )}
+                    onClick={() => handleFontSizeChange(-1)}
+                    aria-label="Decrease font size"
+                  >
                     <Minimize2 size={16} />
                   </button>
-                  <span className="font-size-value">{fontSize}px</span>
-                  <button onClick={() => handleFontSizeChange(1)}>
+                  <span className="min-w-[3ch] text-center text-sm font-medium">
+                    {fontSize}px
+                  </span>
+                  <button
+                    className={cn(
+                      "flex size-8 cursor-pointer items-center justify-center rounded-md border transition-all duration-200",
+                      readingTheme === "default" &&
+                        "border-border text-secondary-foreground hover:border-muted-foreground hover:text-foreground",
+                      readingTheme === "sepia" &&
+                        "border-[#5b4636]/20 text-[#5b4636] hover:border-[#5b4636]",
+                      readingTheme === "high-contrast" &&
+                        "border-white text-white hover:bg-[#222222]",
+                    )}
+                    onClick={() => handleFontSizeChange(1)}
+                    aria-label="Increase font size"
+                  >
                     <Maximize2 size={16} />
                   </button>
                 </div>
               </div>
 
-              <div className="settings-section">
-                <span className="settings-label">Font Style</span>
-                <div className="font-style-options">
-                  <button
-                    className={fontStyle === "mono" ? "active" : ""}
-                    onClick={() => setFontStyle("mono")}
-                  >
-                    Mono
-                  </button>
-                  <button
-                    className={fontStyle === "sans" ? "active" : ""}
-                    onClick={() => setFontStyle("sans")}
-                  >
-                    Sans
-                  </button>
-                  <button
-                    className={fontStyle === "serif" ? "active" : ""}
-                    onClick={() => setFontStyle("serif")}
-                  >
-                    Serif
-                  </button>
+              <div className="mb-5">
+                <span
+                  className={cn(
+                    "mb-3 block text-xs font-bold tracking-wider uppercase",
+                    readingTheme === "default" && "text-muted-foreground",
+                    readingTheme === "sepia" && "text-[#5b4636]/70",
+                    readingTheme === "high-contrast" && "text-white",
+                  )}
+                >
+                  Font Style
+                </span>
+                <div className="grid grid-cols-3 gap-2">
+                  {(["mono", "sans", "serif"] as const).map((style) => (
+                    <button
+                      key={style}
+                      className={cn(
+                        "cursor-pointer rounded-md border py-1 text-xs capitalize transition-all duration-200",
+                        fontStyle === style
+                          ? readingTheme === "default"
+                            ? "border-foreground bg-border-light font-bold text-foreground"
+                            : readingTheme === "sepia"
+                              ? "border-[#5b4636] bg-[#5b4636]/10 font-bold text-[#5b4636]"
+                              : "border-white bg-[#222222] font-bold text-white"
+                          : readingTheme === "default"
+                            ? "border-border text-secondary-foreground hover:border-muted-foreground"
+                            : readingTheme === "sepia"
+                              ? "border-[#5b4636]/20 text-[#5b4636]/80 hover:border-[#5b4636]"
+                              : "border-white/50 text-white/80 hover:border-white",
+                      )}
+                      onClick={() => setFontStyle(style)}
+                    >
+                      {style}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              <div className="settings-section">
-                <span className="settings-label">Reading Theme</span>
-                <div className="reading-theme-options">
+              <div>
+                <span
+                  className={cn(
+                    "mb-3 block text-xs font-bold tracking-wider uppercase",
+                    readingTheme === "default" && "text-muted-foreground",
+                    readingTheme === "sepia" && "text-[#5b4636]/70",
+                    readingTheme === "high-contrast" && "text-white",
+                  )}
+                >
+                  Reading Theme
+                </span>
+                <div className="flex gap-3">
                   <button
-                    className={`theme-opt-default ${readingTheme === "default" ? "active" : ""}`}
+                    className={cn(
+                      "size-8 cursor-pointer rounded-full border-2 border-[#e5e7eb] bg-white transition-transform duration-200 dark:border-[#334155] dark:bg-[#0f172a]",
+                      readingTheme === "default" &&
+                        "scale-115 border-foreground dark:border-white",
+                    )}
                     onClick={() => setReadingTheme("default")}
                     title="Default"
+                    aria-label="Default reading theme"
                   />
                   <button
-                    className={`theme-opt-sepia ${readingTheme === "sepia" ? "active" : ""}`}
+                    className={cn(
+                      "size-8 cursor-pointer rounded-full border-2 border-transparent bg-[#f4ecd8] transition-transform duration-200",
+                      readingTheme === "sepia" && "scale-115 border-[#5b4636]",
+                    )}
                     onClick={() => setReadingTheme("sepia")}
                     title="Sepia"
+                    aria-label="Sepia reading theme"
                   />
                   <button
-                    className={`theme-opt-contrast ${readingTheme === "high-contrast" ? "active" : ""}`}
+                    className={cn(
+                      "size-8 cursor-pointer rounded-full border-2 border-white bg-black transition-transform duration-200",
+                      readingTheme === "high-contrast" &&
+                        "scale-115 border-white ring-2 ring-white/50",
+                    )}
                     onClick={() => setReadingTheme("high-contrast")}
                     title="High Contrast"
+                    aria-label="High contrast reading theme"
                   />
                 </div>
               </div>
@@ -363,72 +579,118 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
         </div>
       </header>
 
-      <article className={`blog-article font-style-${fontStyle}`}>
+      <article
+        className={cn(
+          "max-w-full",
+          fontStyle === "mono" && "font-mono",
+          fontStyle === "sans" &&
+            "font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif]",
+          fontStyle === "serif" &&
+            "font-[Georgia,Cambria,'Times_New_Roman',Times,serif]",
+        )}
+      >
         {blog.image && (
-          <div className="blog-article-image-wrapper">
+          <div className="relative mb-8 aspect-16/9 w-full overflow-hidden rounded-xl bg-border-light">
             {!isImageLoaded && (
-              <div className="skeleton blog-article-skeleton" />
+              <Skeleton className="size-full rounded-xl animate-shimmer" />
             )}
             <img
               src={blog.image}
               alt={blog.title}
-              className={`blog-article-image ${!isImageLoaded ? "hidden" : ""}`}
+              className={`size-full rounded-xl object-cover dark:brightness-90 ${
+                !isImageLoaded ? "hidden" : ""
+              }`}
               onLoad={() => setIsImageLoaded(true)}
-              style={!isImageLoaded ? { display: "none" } : {}}
             />
           </div>
         )}
 
-        <div className="blog-article-header">
-          <h1 className="blog-article-title">{blog.title}</h1>
+        <div
+          className={cn(
+            "mb-8 border-b pb-6",
+            readingTheme === "default" && "border-border",
+            readingTheme === "sepia" && "border-[#5b4636]/20",
+            readingTheme === "high-contrast" && "border-white",
+          )}
+        >
+          <h1
+            className={cn(
+              "mb-4 text-3xl font-bold leading-tight tracking-tight sm:text-4xl",
+              readingTheme === "default" && "text-foreground",
+              readingTheme === "sepia" && "text-[#5b4636]",
+              readingTheme === "high-contrast" && "text-white",
+            )}
+          >
+            {blog.title}
+          </h1>
 
-          <div className="blog-article-meta">
-            <span className="blog-article-meta-item">
+          <div className="mb-4 flex items-center gap-6">
+            <span
+              className={cn(
+                "flex items-center gap-1.5 text-sm",
+                readingTheme === "default" && "text-muted-foreground",
+                readingTheme === "sepia" && "text-[#5b4636]/70",
+                readingTheme === "high-contrast" && "text-white",
+              )}
+            >
               <Calendar size={14} />
               {formatDate(blog.date)}
             </span>
-            <span className="blog-article-meta-item">
+            <span
+              className={cn(
+                "flex items-center gap-1.5 text-sm",
+                readingTheme === "default" && "text-muted-foreground",
+                readingTheme === "sepia" && "text-[#5b4636]/70",
+                readingTheme === "high-contrast" && "text-white",
+              )}
+            >
               <Clock size={14} />
               {blog.readTime}
             </span>
           </div>
 
-          <div className="blog-article-tags">
+          <div className="flex flex-wrap gap-2">
             {blog.tags.map((tag) => (
-              <span key={tag} className="blog-article-tag">
+              <Badge
+                key={tag}
+                variant="outline"
+                className={cn(
+                  "gap-1 rounded px-2 py-1 text-xs font-normal",
+                  readingTheme === "default" &&
+                    "border-border text-secondary-foreground",
+                  readingTheme === "sepia" &&
+                    "border-[#5b4636]/30 text-[#5b4636]",
+                  readingTheme === "high-contrast" && "border-white text-white",
+                )}
+              >
                 <Tag size={10} />
                 {tag}
-              </span>
+              </Badge>
             ))}
           </div>
         </div>
 
-        <div
-          className="blog-article-content"
-          style={{ fontSize: `${fontSize}px` }}
-        >
+        <div className="leading-[1.8]" style={{ fontSize: `${fontSize}px` }}>
           {isLoading ? (
-            <div className="blog-content-loading">
-              <div className="skeleton blog-content-skeleton" />
-              <div className="skeleton blog-content-skeleton" />
-              <div
-                className="skeleton blog-content-skeleton"
-                style={{ width: "80%" }}
-              />
-              <div
-                className="skeleton blog-content-skeleton"
-                style={{ width: "90%", marginTop: "2rem" }}
-              />
-              <div className="skeleton blog-content-skeleton" />
-              <div
-                className="skeleton blog-content-skeleton"
-                style={{ width: "70%" }}
-              />
+            <div className="mt-4 flex flex-col gap-5">
+              <Skeleton className="h-4 w-full animate-shimmer" />
+              <Skeleton className="h-4 w-full animate-shimmer" />
+              <Skeleton className="h-4 w-[80%] animate-shimmer" />
+              <Skeleton className="mt-8 h-4 w-[90%] animate-shimmer" />
+              <Skeleton className="h-4 w-full animate-shimmer" />
+              <Skeleton className="h-4 w-[70%] animate-shimmer" />
             </div>
           ) : content ? (
             renderContent(content)
           ) : (
-            <div className="blog-no-content">
+            <div
+              className={cn(
+                "py-12 text-center",
+                readingTheme === "default" && "text-muted-foreground",
+                readingTheme === "sepia" && "text-[#5b4636]/70",
+                readingTheme === "high-contrast" && "text-white",
+              )}
+            >
               <p>Content could not be loaded. Please try again later.</p>
             </div>
           )}

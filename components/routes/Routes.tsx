@@ -9,8 +9,8 @@ const BlogDetailPage = lazy(() => import("../../pages/BlogDetailPage"));
 
 // Simple loading fallback
 const PageLoader = () => (
-  <div className="page-loader">
-    <div className="loader-spinner"></div>
+  <div className="flex justify-center items-center min-h-screen bg-background">
+    <div className="w-8 h-8 border-2 border-border border-t-foreground rounded-full animate-spin" />
   </div>
 );
 

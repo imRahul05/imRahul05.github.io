@@ -27,60 +27,68 @@ const EducationItem: React.FC<EducationItemProps> = ({
 
   return (
     <div
-      className="education-item"
+      className="flex gap-4 mb-6 last:mb-0 items-start cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => setIsOpen(!isOpen)}
-      style={{ cursor: "pointer" }}
     >
       {image && (
-        <div className="education-icon">
+        <div className="shrink-0 w-12 h-12 rounded-full overflow-hidden bg-border-light border border-border">
           {!isImageLoaded && (
-            <div className="skeleton education-icon-skeleton" />
+            <div className="w-full h-full rounded-full animate-shimmer" />
           )}
           <img
             src={image}
             alt={institution}
-            className={`education-icon-img ${!isImageLoaded ? "hidden" : ""}`}
+            className={`w-full h-full object-cover transition-[filter] duration-300 ease-in-out dark:grayscale ${
+              !isImageLoaded ? "hidden" : ""
+            }`}
             onLoad={() => setIsImageLoaded(true)}
-            style={!isImageLoaded ? { display: "none" } : {}}
           />
         </div>
       )}
-      <div className="education-content">
-        <div className="education-header">
-          <div className="education-title-row">
-            <h3 className="education-institution">{institution}</h3>
+      <div className="flex-1 min-w-0">
+        <div className="mb-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-bold text-foreground m-0">
+              {institution}
+            </h3>
             <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="education-toggle-btn"
-              style={{
-                opacity: isHovered || isOpen ? 1 : 0,
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsOpen(!isOpen);
               }}
+              className={`bg-transparent border-0 cursor-pointer p-0 flex items-center transition-opacity duration-200 ease-in-out ${
+                isHovered || isOpen ? "opacity-100" : "opacity-0"
+              }`}
               aria-label={isOpen ? "Collapse details" : "Expand details"}
             >
               <ChevronDown
                 size={14}
-                className="text-muted"
-                style={{
-                  transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                  transition: "transform 0.2s ease-in-out",
-                }}
+                className={`text-muted-foreground transition-transform duration-200 ease-in-out ${
+                  isOpen ? "rotate-180" : "rotate-0"
+                }`}
               />
             </button>
           </div>
-          <p className="education-degree">{degree}</p>
-          <span className="education-period">{period}</span>
+          <p className="text-[0.8rem] text-secondary-foreground my-1">
+            {degree}
+          </p>
+          <span className="text-xs text-muted-foreground">{period}</span>
         </div>
         {isOpen && (
-          <div className="education-details">
-            <p className="education-description">
+          <div className="mt-2">
+            <p className="text-[0.8rem] text-secondary-foreground leading-relaxed mt-2">
               <TypewriterText text={description} speed={5} />
             </p>
             {tags && tags.length > 0 && (
-              <div className="education-tags">
+              <div className="flex flex-wrap gap-2 mt-3">
                 {tags.map((tag, index) => (
-                  <span key={index} className="education-tag">
+                  <span
+                    key={index}
+                    className="text-[0.7rem] text-secondary-foreground bg-transparent border border-border px-2 py-[0.2rem] rounded transition-colors duration-200 ease-in-out hover:border-muted-foreground hover:text-foreground"
+                  >
                     {tag}
                   </span>
                 ))}
@@ -95,9 +103,9 @@ const EducationItem: React.FC<EducationItemProps> = ({
 
 export const Education: React.FC = () => {
   return (
-    <section className="section">
+    <section className="mb-12">
       <SectionTitle>Education</SectionTitle>
-      <div className="section-content">
+      <div>
         {DATA.education.map((edu, index) => (
           <EducationItem
             key={index}

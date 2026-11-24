@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { TypewriterText } from "./TypewriterText";
 
 interface EntryItemProps {
@@ -16,46 +17,39 @@ export const EntryItem: React.FC<EntryItemProps> = ({
   description,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div
-      className="entry"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="entry-header">
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+    <div className="group mb-8 last:mb-0">
+      <div className="flex flex-col mb-1 sm:flex-row sm:justify-between sm:items-baseline">
+        <div className="flex items-center gap-2">
           <h3 className="font-bold text-sm">{title}</h3>
           <button
+            type="button"
             onClick={() => setIsOpen(!isOpen)}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-              display: "flex",
-              alignItems: "center",
-              opacity: isHovered || isOpen ? 1 : 0,
-              transition: "opacity 0.2s ease-in-out",
-            }}
+            className={cn(
+              "bg-transparent border-0 cursor-pointer p-0 flex items-center transition-opacity duration-200 ease-in-out",
+              isOpen
+                ? "opacity-100"
+                : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
+            )}
             aria-label={isOpen ? "Collapse details" : "Expand details"}
           >
             <ChevronDown
               size={14}
-              className="text-muted"
-              style={{
-                transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 0.2s ease-in-out",
-              }}
+              className={cn(
+                "text-muted-foreground transition-transform duration-200 ease-in-out",
+                isOpen ? "rotate-180" : "rotate-0",
+              )}
             />
           </button>
         </div>
-        <span className="text-xs text-muted font-mono">{meta}</span>
+        <span className="text-xs text-muted-foreground font-mono">{meta}</span>
       </div>
-      <div className="entry-role text-sm">{subtitle}</div>
+      <div className="font-medium text-secondary-foreground mb-2 text-sm">
+        {subtitle}
+      </div>
       {isOpen && (
-        <p className="text-sm text-secondary leading-relaxed">
+        <p className="text-sm text-secondary-foreground leading-relaxed">
           <TypewriterText text={description} speed={5} />
         </p>
       )}

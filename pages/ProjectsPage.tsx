@@ -45,31 +45,36 @@ export const ProjectsPage: React.FC = () => {
   );
 
   return (
-    <div className="container projects-page">
-      <header className="projects-page-header">
+    <div className="mx-auto min-h-screen max-w-2xl px-6 pt-16 pb-24 font-mono">
+      <header className="mb-8 flex flex-col gap-4 border-b border-border pb-4">
         <button
-          className="back-button"
+          type="button"
+          className="inline-flex cursor-pointer items-center gap-2 self-start py-2 font-mono text-sm text-secondary-foreground transition-colors duration-200 hover:text-foreground"
           onClick={handleBackClick}
           aria-label="Go back to home"
         >
           <ArrowLeft size={20} />
           <span>Back</span>
         </button>
-        <h1>All Projects</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          All Projects
+        </h1>
       </header>
 
-      <section className="section">
-        <div className="projects-grid">
+      <section className="mb-12">
+        <div className="flex flex-col gap-6">
           {pinnedTopProjects.map((project) => (
             <ProjectItem key={project!.name} {...project!} />
           ))}
 
           {pinnedTopProjects.length > 0 && smallProjects.length > 0 && (
-            <hr className="projects-divider" />
+            <hr className="my-1 w-full border-0 border-t border-border" />
           )}
 
           {smallProjects.length > 0 && (
-            <div className="projects-section-label">Small Projects</div>
+            <div className="mt-1 text-xs font-normal tracking-[0.08em] uppercase text-muted-foreground">
+              Small Projects
+            </div>
           )}
 
           {smallProjects.map((project) => (

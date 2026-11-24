@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { DATA } from "../../data/data";
 import { playMouseClickSound } from "../utils/mouseClickSound";
-import "../styles/FloatingDock.scss";
+import { cn } from "@/lib/utils";
 
 // Safe interface for view transitions
 interface TransitionDocument extends Omit<Document, "startViewTransition"> {
@@ -281,27 +281,29 @@ export const FloatingDock: React.FC = () => {
 
   return (
     <div
-      className={`floating-dock-wrapper ${isDimmed ? "is-dimmed" : ""} ${
-        isShrunk ? "is-shrunk" : ""
-      }`}
+      className={cn(
+        "pointer-events-auto fixed bottom-4 left-1/2 z-[1000] flex origin-bottom -translate-x-1/2 scale-100 items-center justify-center opacity-100 transition-[transform,opacity] duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] select-none sm:bottom-6",
+        isShrunk && "scale-[0.82] opacity-80 hover:scale-100 hover:opacity-100",
+        isDimmed && "opacity-45 hover:opacity-100",
+      )}
     >
       <div
         ref={containerRef}
-        className="floating-dock-container"
+        className="relative flex items-center gap-1 rounded-[14px] border-[1.5px] border-white/65 bg-white/45 p-[5px] shadow-[0_12px_36px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)] backdrop-blur-[28px] backdrop-saturate-[190%] transition-all duration-300 ease-in-out sm:gap-2 sm:rounded-2xl sm:p-1.5 dark:border-white/12 dark:bg-[rgba(16,16,20,0.45)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.4),0_4px_16px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.08)]"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         {/* Dynamic sliding active capsule background */}
         <div
-          className="dock-active-indicator"
+          className="pointer-events-none absolute top-[5px] left-[5px] z-[1] h-8 w-[38px] rounded-lg bg-black/6 shadow-[inset_0_1px_0_rgba(0,0,0,0.02)] transition-transform duration-[380ms] ease-[cubic-bezier(0.25,1.2,0.5,1.1)] sm:top-1.5 sm:left-1.5 sm:h-9 sm:w-11 sm:rounded-[10px] dark:bg-white/11 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
           style={{
             transform: `translate3d(${translationOffset}px, 0, 0)`,
           }}
         />
 
         {/* Foreground navigation items */}
-        <div className="dock-foreground-nav">
+        <div className="relative z-[2] flex items-center gap-1 sm:gap-2">
           {navItems.map((item, index) => {
             const Icon = item.icon;
 
@@ -321,14 +323,17 @@ export const FloatingDock: React.FC = () => {
               <button
                 key={item.label}
                 onClick={() => handleItemClick(item)}
-                className={`dock-action-btn ${
-                  isCurrentlyActive ? "is-active-route" : ""
-                }`}
+                className={cn(
+                  "group relative flex h-8 w-[38px] cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent text-[#8e8e93] transition-[transform,color] duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.2)] outline-none hover:-translate-y-0.5 hover:scale-[1.06] hover:text-foreground active:scale-[0.94] sm:h-9 sm:w-11 sm:rounded-[10px] [&_svg]:h-[18px] [&_svg]:w-[18px] [&_svg]:transition-[stroke-width] [&_svg]:duration-200 sm:[&_svg]:h-5 sm:[&_svg]:w-5",
+                  isCurrentlyActive && "text-accent",
+                )}
                 aria-label={item.label}
                 type="button"
               >
-                <span className="dock-btn-tooltip">{item.label}</span>
-                <div className="dock-icon-wrapper">
+                <span className="pointer-events-none invisible absolute bottom-[calc(100%+12px)] left-1/2 z-[1010] -translate-x-1/2 translate-y-1 rounded-md border border-white/10 bg-[rgba(26,21,35,0.9)] px-2.5 py-1.5 font-mono text-[0.7rem] tracking-[0.02em] whitespace-nowrap text-white opacity-0 shadow-[0_4px_12px_rgba(0,0,0,0.2)] backdrop-blur-[4px] transition-all duration-200 ease-in-out group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-[5px] after:border-solid after:border-transparent after:border-t-[rgba(26,21,35,0.9)] after:content-[''] dark:border-black/10 dark:bg-[rgba(250,250,249,0.94)] dark:text-[#101014] dark:after:border-t-[rgba(250,250,249,0.94)]">
+                  {item.label}
+                </span>
+                <div className="flex items-center justify-center transition-transform duration-200 ease-in-out">
                   <Icon size={20} strokeWidth={isCurrentlyActive ? 2.5 : 2} />
                 </div>
               </button>

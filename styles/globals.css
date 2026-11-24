@@ -1,0 +1,232 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --font-mono-stack:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+
+  /* Default (Lilac) Theme */
+  --background: #fdfbff;
+  --foreground: #1a1523;
+  --card: #fdfbff;
+  --card-foreground: #1a1523;
+  --popover: #fdfbff;
+  --popover-foreground: #1a1523;
+  --primary: #1a1523;
+  --primary-foreground: #fdfbff;
+  --secondary: #eee8ff;
+  --secondary-foreground: #5e4b8b;
+  --muted: #eee8ff;
+  --muted-foreground: #8f7ab8;
+  --accent: #9b5cff;
+  --accent-foreground: #fdfbff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #d7c9ff;
+  --border-light: #eee8ff;
+  --input: #d7c9ff;
+  --ring: #9b5cff;
+  --hover-ripple: rgba(155, 92, 255, 0.2);
+  --radius: 0.5rem;
+}
+
+[data-theme="dark"],
+.dark {
+  --background: #101014;
+  --foreground: #fafaf9;
+  --card: #101014;
+  --card-foreground: #fafaf9;
+  --popover: #101014;
+  --popover-foreground: #fafaf9;
+  --primary: #fafaf9;
+  --primary-foreground: #101014;
+  --secondary: #292524;
+  --secondary-foreground: #d6d3d1;
+  --muted: #292524;
+  --muted-foreground: #a8a29e;
+  --accent: #fafaf9;
+  --accent-foreground: #101014;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #44403c;
+  --border-light: #292524;
+  --input: #44403c;
+  --ring: #fafaf9;
+  --hover-ripple: rgba(255, 255, 255, 0.15);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-border-light: var(--border-light);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-mono: var(--font-mono-stack);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply m-0 p-0 bg-background text-foreground font-mono antialiased leading-[1.6];
+  }
+}
+
+/* Keyframes for bespoke portfolio animations */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 4px 2px rgba(56, 189, 248, 0.4);
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 10px 5px rgba(56, 189, 248, 0.6);
+    transform: scale(1.15);
+  }
+}
+
+@keyframes aura-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes coinFlip {
+  0% {
+    transform: rotateY(0deg);
+  }
+  10% {
+    transform: rotateY(180deg);
+  }
+  85% {
+    transform: rotateY(180deg);
+  }
+  95% {
+    transform: rotateY(360deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Profile animated aura ring */
+.profile-aura-ring::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg,
+    var(--accent),
+    var(--muted-foreground),
+    var(--border),
+    var(--accent)
+  );
+  animation: aura-spin 4s linear infinite;
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 4px),
+    #000 0
+  );
+  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
+  pointer-events: none;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 10px var(--hover-ripple));
+}
+
+/* 3D coin-flip helpers */
+.flip-3d {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.flip-backface-hidden {
+  backface-visibility: hidden;
+}
+
+.flip-rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.animate-coin-flip {
+  animation: coinFlip 7s ease-in-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--border-light) 25%,
+    var(--border) 50%,
+    var(--border-light) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.animate-clock-blink {
+  animation: blink 1s ease-in-out infinite;
+}
+
+/* View Transition API for Theme Toggle */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+}

@@ -16,13 +16,20 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@base-ui/react": "^1.9.0",
+    "@tailwindcss/vite": "^4.3.5",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cn": "^0.5.2",
     "lucide-react": "^0.555.0",
     "mermaid": "^11.14.0",
     "ogl": "^1.0.11",
     "posthog-js": "^1.364.7",
     "react": "^19.2.5",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.14.0"
+    "react-router-dom": "^7.14.0",
+    "tailwind-merge": "^3.7.1",
+    "tailwindcss": "^4.3.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
@@ -38,7 +45,6 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "gh-pages": "^6.3.0",
     "prettier": "^3.8.1",
-    "sass": "^1.99.0",
     "shadcn": "^4.1.2",
     "sharp": "^0.34.5",
     "typescript": "~5.8.3",

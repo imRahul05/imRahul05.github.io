@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { BlogDetailPage as BlogDetailContent } from "../components/blog/BlogDetailPage";
 
-const BlogDetailPage: React.FC = () => {
+export const BlogDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
 

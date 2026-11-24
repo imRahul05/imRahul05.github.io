@@ -2,16 +2,10 @@ import React, { useEffect, useState } from "react";
 import { X, Phone } from "lucide-react";
 
 export function ElevenLabsAgent() {
-  const [dismissed, setDismissed] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const isMobile = window.matchMedia("(max-width: 768px)").matches;
-    if (isMobile) {
-      setDismissed(true);
-    }
-  }, []);
+  const [dismissed, setDismissed] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 768px)").matches;
+  });
 
   useEffect(() => {
     if (dismissed) return;
@@ -29,26 +23,10 @@ export function ElevenLabsAgent() {
   if (dismissed) {
     return (
       <button
+        type="button"
         onClick={() => setDismissed(false)}
         aria-label="Talk to AI"
-        style={{
-          position: "fixed",
-          bottom: "20px",
-          right: "20px",
-          zIndex: 10000,
-          width: "48px",
-          height: "48px",
-          borderRadius: "50%",
-          border: "1px solid var(--border-color)",
-          backgroundColor: "var(--text-primary)",
-          color: "var(--bg-color)",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 0,
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-        }}
+        className="fixed right-5 bottom-5 z-[10000] flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-border bg-foreground p-0 text-background shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
       >
         <Phone size={20} />
       </button>
@@ -64,26 +42,10 @@ export function ElevenLabsAgent() {
       />
 
       <button
+        type="button"
         onClick={() => setDismissed(true)}
         aria-label="Close AI agent"
-        style={{
-          position: "fixed",
-          bottom: "68px",
-          right: "8px",
-          zIndex: 10000,
-          width: "28px",
-          height: "28px",
-          borderRadius: "50%",
-          border: "1px solid var(--border-color)",
-          backgroundColor: "var(--bg-color)",
-          color: "var(--text-primary)",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 0,
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-        }}
+        className="fixed right-2 bottom-[68px] z-[10000] flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-border bg-background p-0 text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
       >
         <X size={14} />
       </button>

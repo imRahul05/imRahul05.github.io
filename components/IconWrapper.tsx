@@ -6,5 +6,5 @@ interface IconWrapperProps {
 }
 
 export const IconWrapper: React.FC<IconWrapperProps> = ({ icon: Icon }) => (
-  <Icon className="icon-inline" />
+  <Icon className="w-[1em] h-[1em] inline-block align-text-bottom" />
 );

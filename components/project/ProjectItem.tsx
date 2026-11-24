@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { TypewriterText } from "../TypewriterText";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface ProjectItemProps {
   name: string;
@@ -18,15 +20,12 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
   tag,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   const toggleOpen = () => setIsOpen((v) => !v);
 
   return (
     <div
-      className="entry"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="group cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-ring"
       onClick={toggleOpen}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -36,25 +35,12 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
       }}
       role="button"
       tabIndex={0}
-      style={{ cursor: "pointer" }}
     >
-      <div
-        className="project-title-row mb-1"
-        style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-      >
+      <div className="mb-1 flex items-center gap-2">
         {link ? (
           <a
             href={link}
-            className="entry-title font-bold text-sm"
-            style={{
-              color: "inherit",
-              textDecoration: "underline",
-              textDecorationColor: isHovered
-                ? "var(--text-primary)"
-                : "var(--border-color)",
-              textUnderlineOffset: "4px",
-              transition: "text-decoration-color 0.2s",
-            }}
+            className="text-sm font-bold text-foreground underline decoration-border underline-offset-4 transition-[text-decoration-color] duration-200 group-hover:decoration-foreground hover:decoration-foreground"
             onClick={(e) => e.stopPropagation()}
             target="_blank"
             rel="noopener noreferrer"
@@ -62,48 +48,52 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
             {name}
           </a>
         ) : (
-          <span className="entry-title font-bold text-sm">{name}</span>
+          <span className="text-sm font-bold text-foreground">{name}</span>
         )}
 
-        {tag && <span className="project-tag">{tag}</span>}
+        {tag && (
+          <Badge
+            variant="outline"
+            className="h-auto rounded border-border bg-transparent px-2 py-0.5 text-[0.7rem] font-normal text-secondary-foreground whitespace-nowrap"
+          >
+            {tag}
+          </Badge>
+        )}
+
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             toggleOpen();
           }}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            padding: 0,
-            display: "flex",
-            alignItems: "center",
-            opacity: isHovered || isOpen ? 1 : 0,
-            transition: "opacity 0.2s ease-in-out",
-          }}
+          className={cn(
+            "flex cursor-pointer items-center border-none bg-transparent p-0 transition-opacity duration-200",
+            isOpen
+              ? "opacity-100"
+              : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
+          )}
           aria-label={isOpen ? "Collapse details" : "Expand details"}
         >
           <ChevronDown
             size={14}
-            className="text-muted"
-            style={{
-              transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-              transition: "transform 0.2s ease-in-out",
-            }}
+            className={cn(
+              "text-muted-foreground transition-transform duration-200 ease-in-out",
+              isOpen && "rotate-180",
+            )}
           />
         </button>
       </div>
 
-      <div className="tech-stack">
+      <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
         {tech.map((t) => (
-          <span key={t} className="tech-item">
+          <span key={t} className="before:content-['['] after:content-[']']">
             {t}
           </span>
         ))}
       </div>
 
       {isOpen && (
-        <p className="text-sm text-secondary leading-relaxed mb-2">
+        <p className="mt-2 mb-2 text-sm leading-relaxed text-secondary-foreground">
           <TypewriterText text={description} speed={5} />
         </p>
       )}
