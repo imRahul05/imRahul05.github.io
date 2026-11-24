@@ -235,6 +235,24 @@
   }
 }
 
+@keyframes role-word-in {
+  0% {
+    opacity: 0;
+    transform: translateY(70%) rotateX(-45deg);
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg);
+    filter: blur(0);
+  }
+}
+
+.animate-role-word {
+  display: inline-block;
+  animation: role-word-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* Profile precision CAD dashed ring */
 .profile-aura-ring::before {
   content: "";

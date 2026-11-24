@@ -28,11 +28,15 @@ import { Experience } from "../components/experience/Experience";
 import { SocialLink } from "../components/SocialLink";
 import { DigitalClock } from "../components/DigitalClock";
 import { XIcon } from "../components/XIcon";
+import { AnimatedRoleTitle } from "../components/AnimatedRoleTitle";
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
+  const [hasFlippedManually, setHasFlippedManually] = useState(false);
+  const [isShowingVideo, setIsShowingVideo] = useState(false);
+  const profileVideoRef = useRef<HTMLVideoElement | null>(null);
   const contributionData = React.useMemo(() => generateContributionData(), []);
 
   const headerRef = useRef<HTMLElement | null>(null);
@@ -149,6 +153,23 @@ export const HomePage: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
+  const handleProfileToggle = () => {
+    setHasFlippedManually(true);
+    setIsShowingVideo((prev) => {
+      const next = !prev;
+      const videoEl = profileVideoRef.current;
+      if (videoEl) {
+        if (next) {
+          videoEl.currentTime = 0;
+          videoEl.play().catch(() => undefined);
+        } else {
+          videoEl.pause();
+        }
+      }
+      return next;
+    });
+  };
+
   return (
     <div className="relative min-h-screen [overflow-anchor:none]">
       <div className="relative z-[1] max-w-[42rem] mx-auto px-6 py-16 min-h-screen">
@@ -161,9 +182,7 @@ export const HomePage: React.FC = () => {
             <h1 className="font-sans text-[1.75rem] font-medium mb-1.5 tracking-[-0.04em] leading-[1.1] transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[1.15rem] group-[.is-scrolled]:mb-[0.1rem]">
               {DATA.personal.name}
             </h1>
-            <p className="font-mono text-[0.75rem] uppercase tracking-[0.07em] text-muted-foreground mb-3.5 transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[0.68rem] group-[.is-scrolled]:mb-[0.15rem]">
-              {DATA.personal.title}
-            </p>
+            <AnimatedRoleTitle className="mb-3.5 group-[.is-scrolled]:text-[0.68rem] group-[.is-scrolled]:mb-[0.15rem]" />
             <div className="flex items-center gap-1.5 mb-2 font-mono text-[0.72rem] text-muted-foreground transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:mb-0 group-[.is-scrolled]:text-[0.68rem]">
               <MapPin size={13} className="text-accent" />
               {DATA.personal.location}
@@ -198,11 +217,29 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="relative inline-grid place-items-center shrink-0 rounded-full profile-aura-ring">
+          <button
+            type="button"
+            onClick={handleProfileToggle}
+            aria-label={
+              isShowingVideo
+                ? "Switch profile avatar to photo"
+                : "Switch profile avatar to video"
+            }
+            title={
+              isShowingVideo
+                ? "Click to show photo"
+                : "Click to play profile video"
+            }
+            className="relative inline-grid place-items-center shrink-0 cursor-pointer rounded-full border-0 bg-transparent p-0 outline-none profile-aura-ring focus-visible:ring-2 focus-visible:ring-accent"
+          >
             <div
               className={cn(
-                "relative w-24 h-24 sm:w-32 sm:h-32 flip-3d z-[1] transition-[width,height] duration-300 ease-out group-[.is-scrolled]:w-14 group-[.is-scrolled]:h-14",
-                isImageLoaded && isVideoReady && "animate-coin-flip",
+                "relative w-24 h-24 sm:w-32 sm:h-32 flip-3d z-[1] transition-[width,height,transform] duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-[.is-scrolled]:w-14 group-[.is-scrolled]:h-14",
+                !hasFlippedManually &&
+                  isImageLoaded &&
+                  isVideoReady &&
+                  "animate-coin-flip",
+                hasFlippedManually && isShowingVideo && "flip-rotate-y-180",
               )}
             >
               {/* Front Side - Profile Image */}
@@ -223,6 +260,7 @@ export const HomePage: React.FC = () => {
               {/* Back Side - Video */}
               <div className="absolute w-full h-full flip-backface-hidden flip-rotate-y-180 rounded-full overflow-hidden">
                 <video
+                  ref={profileVideoRef}
                   className="w-full h-full object-cover rounded-full border border-foreground transition-[width,height] duration-300 ease-out"
                   src={DATA.personal.profileVideo}
                   autoPlay
@@ -234,7 +272,7 @@ export const HomePage: React.FC = () => {
                 />
               </div>
             </div>
-          </div>
+          </button>
         </header>
         <div
           ref={spacerRef}
