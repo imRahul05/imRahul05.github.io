@@ -5,6 +5,7 @@ export interface ProjectData {
   tech: string[];
   link?: string;
   sourceUrl?: string;
+  blogSlug?: string;
   image?: string;
   video?: string;
   tag?: string;
@@ -109,6 +110,7 @@ export const DATA = {
       ],
       link: "https://rhl-cli.vercel.app",
       sourceUrl: "https://github.com/imRahul05/rhl-ai",
+      blogSlug: "rhl-ai-agentic-tooling-monorepo",
       image: "/projects/rhl-ai.webp",
       video: "",
     },
@@ -132,6 +134,7 @@ export const DATA = {
       ],
       link: "https://asha-saathi-mocha.vercel.app/",
       sourceUrl: "https://github.com/imRahul05/asha-saathi",
+      blogSlug: "asha-saathi-voice-ai-architecture",
       image: "/projects/asha-saathi.webp",
       video: "",
     },
@@ -156,6 +159,7 @@ export const DATA = {
       ],
       link: "https://benefitlens.vercel.app",
       sourceUrl: "https://github.com/imRahul05/benefitlens",
+      blogSlug: "benefitlens-rag-document-intelligence",
       image:
         "https://res.cloudinary.com/dw8r5ivmx/image/upload/v1782806846/Screenshot_2026-06-30_at_1.36.19_PM_fee2ax.png",
       video: "",

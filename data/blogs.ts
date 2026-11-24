@@ -11,6 +11,33 @@ export interface Blog {
 
 export const BLOGS: Blog[] = [
   {
+    slug: "asha-saathi-voice-ai-architecture",
+    title: "ASHA Saathi: Deterministic Voice AI Architecture for Healthcare",
+    excerpt:
+      "How ASHA Saathi pairs Agora's real-time voice pipeline with an MCP server and deterministic ICMR clinical rules so AI handles conversation while unit-tested TypeScript decides risk.",
+    date: "2026-11-24",
+    readTime: "3 min read",
+    tags: ["Voice AI", "MCP", "Next.js", "Healthcare"],
+  },
+  {
+    slug: "rhl-ai-agentic-tooling-monorepo",
+    title: "RHL AI: Separating Agent Skills from Executable CLI Packages",
+    excerpt:
+      "Inside the RHL AI monorepo: keeping executable CLI and scaffolding packages cleanly separated from reusable agent skills and starter templates.",
+    date: "2026-11-18",
+    readTime: "3 min read",
+    tags: ["AI Tooling", "Monorepo", "TypeScript", "CLI"],
+  },
+  {
+    slug: "benefitlens-rag-document-intelligence",
+    title: "BenefitLens: Citation-Grounded RAG for Benefits Documents",
+    excerpt:
+      "How BenefitLens transforms dense insurance policies and benefits documents into citation-grounded answers using LlamaParse, PostgreSQL, and OpenAI File Search.",
+    date: "2026-06-30",
+    readTime: "3 min read",
+    tags: ["RAG", "Next.js", "LlamaParse", "OpenAI"],
+  },
+  {
     slug: "reducing-frontend-api-boilerplate-openapi-orval",
     title: "Reducing Frontend API Boilerplate with OpenAPI + Orval",
     excerpt:

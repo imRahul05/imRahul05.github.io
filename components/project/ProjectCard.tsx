@@ -1,5 +1,13 @@
 import React, { useState, useRef, useCallback } from "react";
-import { Play, X, ExternalLink, Github, Terminal } from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  Play,
+  X,
+  ExternalLink,
+  Github,
+  Terminal,
+  BookOpen,
+} from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -23,6 +31,7 @@ interface ProjectCardProps {
   tech: string[];
   link?: string;
   sourceUrl?: string;
+  blogSlug?: string;
   image?: string;
   video?: string;
   tag?: string;
@@ -39,6 +48,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   tech,
   link,
   sourceUrl,
+  blogSlug,
   image,
   video,
   tag,
@@ -232,6 +242,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 <Github size={13} />
                 Source
               </a>
+            )}
+            {blogSlug && (
+              <Link
+                to={`/blogs/${blogSlug}`}
+                onClick={() => window.scrollTo(0, 0)}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-transparent px-3 py-1.5 font-mono text-[0.72rem] font-medium text-secondary-foreground transition-colors duration-200 hover:border-accent/60 hover:bg-border-light hover:text-foreground"
+              >
+                <BookOpen size={13} />
+                Blog
+              </Link>
             )}
             {video && (
               <button

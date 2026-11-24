@@ -1,4 +1,181 @@
 export const BLOG_CONTENTS: Record<string, string> = {
+  "asha-saathi-voice-ai-architecture": `
+Built for **Build with Agora, Bengaluru (Track 5: Voice AI for Bharat)**, **ASHA Saathi** is a multilingual voice assistant in Hindi, Kannada, and English designed for frontline ASHA health workers. Instead of navigating complex mobile forms during home visits, workers speak naturally to log antenatal care (ANC) vitals and escalate high-risk cases.
+
+## Voice-to-Tool Architecture
+
+ASHA Saathi connects low-latency browser audio to a Next.js backend on Vercel through **Model Context Protocol (MCP)** tools. The voice layer handles speech and dialogue, while every clinical calculation and database write runs through \`/api/mcp\`.
+
+\`\`\`mermaid
+flowchart LR
+    A["Browser (Mic and Speaker)"] --> B["Agora RTC"]
+    B --> C["Agora Conversational AI (Deepgram STT + GPT-4o-mini + Murf Falcon TTS)"]
+    C -->|"Tool Calls over MCP"| D["Next.js / Vercel (/api/mcp)"]
+    D --> E["Neon Postgres"]
+    D --> F["ICMR Rules (lib/rules/anc.v1.ts)"]
+
+    classDef teal fill:#0d9488,stroke:#0f766e,color:#ffffff,stroke-width:2px
+    classDef indigo fill:#4f46e5,stroke:#4338ca,color:#ffffff,stroke-width:2px
+    classDef amber fill:#f59e0b,stroke:#d97706,color:#0f172a,stroke-width:2px
+    classDef emerald fill:#10b981,stroke:#059669,color:#0f172a,stroke-width:2px
+    classDef violet fill:#8b5cf6,stroke:#7c3aed,color:#ffffff,stroke-width:2px
+
+    class A,B teal
+    class C indigo
+    class D amber
+    class E emerald
+    class F violet
+\`\`\`
+
+- **Voice & Dialogue:** Agora RTC, Agora Conversational AI, Deepgram STT, GPT-4o-mini, and Murf Falcon TTS.
+- **Backend & Data:** Next.js on Vercel (\`/api/mcp\`), Zod schema validation, and Neon Postgres.
+
+## Deterministic Risk & Two-Step Alerts
+
+A core design rule in ASHA Saathi is that **the LLM never decides clinical risk**. Every incoming payload is validated with **Zod** and evaluated by deterministic, unit-tested TypeScript rules in \`lib/rules/anc.v1.ts\` based on ICMR guidance—such as flagging \`BP >= 140/90\`.
+
+\`\`\`mermaid
+flowchart TD
+    A["Voice Input Vitals"] --> B["Zod Input Validation"]
+    B --> C["Deterministic Rules (BP >= 140/90)"]
+    C --> D["draftAlert Tool"]
+    D -->|"Spoken Confirmation"| E["Atomic sendAlert Tool"]
+    E --> F["Telegram"]
+    F -->|"Fallback"| G["WhatsApp"]
+    G -->|"Fallback"| H["SMS"]
+
+    classDef indigo fill:#4f46e5,stroke:#4338ca,color:#ffffff,stroke-width:2px
+    classDef amber fill:#f59e0b,stroke:#d97706,color:#0f172a,stroke-width:2px
+    classDef coral fill:#f43f5e,stroke:#e11d48,color:#ffffff,stroke-width:2px
+    classDef teal fill:#0d9488,stroke:#0f766e,color:#ffffff,stroke-width:2px
+    classDef emerald fill:#10b981,stroke:#059669,color:#0f172a,stroke-width:2px
+
+    class A,B indigo
+    class C amber
+    class D,E coral
+    class F,G,H teal
+\`\`\`
+
+When a high-risk reading is detected, doctor notifications follow a two-step safeguard: \`draftAlert\` summarizes the case for the health worker, waits for explicit spoken confirmation, and only then executes an atomic \`sendAlert\` across a **Telegram -> WhatsApp -> SMS** fallback chain.
+`,
+  "rhl-ai-agentic-tooling-monorepo": `
+Developer tooling repositories often blur the line between runtime CLI code, starter templates, and AI prompts. **RHL AI** solves this with a structured monorepo that strictly separates executable npm packages from reusable agent skills and project templates.
+
+## Monorepo Architecture
+
+The workspace is orchestrated by **Turborepo** and **pnpm workspaces**, enforced with **strict TypeScript**, and versioned independently using **Changesets**.
+
+\`\`\`mermaid
+flowchart TD
+    Root["RHL AI Monorepo (Turborepo + pnpm + Changesets)"] --> Pkg["Executable Packages (packages/@rhl-ai/*)"]
+    Root --> Skills["AI Knowledge Artifacts (skills/*/SKILL.md)"]
+    Root --> Tpl["Starter Templates (templates/*)"]
+
+    Pkg --> P1["cli"]
+    Pkg --> P2["skills"]
+    Pkg --> P3["scaffold"]
+    Pkg --> P4["utils"]
+
+    Skills --> S1["code-reviewer"]
+    Skills --> S2["pr-description-writer"]
+
+    Tpl --> T1["nextjs"]
+    Tpl --> T2["react"]
+    Tpl --> T3["node"]
+
+    classDef indigo fill:#4f46e5,stroke:#4338ca,color:#ffffff,stroke-width:2px
+    classDef teal fill:#0d9488,stroke:#0f766e,color:#ffffff,stroke-width:2px
+    classDef violet fill:#8b5cf6,stroke:#7c3aed,color:#ffffff,stroke-width:2px
+    classDef amber fill:#f59e0b,stroke:#d97706,color:#0f172a,stroke-width:2px
+    classDef emerald fill:#10b981,stroke:#059669,color:#0f172a,stroke-width:2px
+
+    class Root indigo
+    class Pkg,P1,P2,P3,P4 teal
+    class Skills,S1,S2 violet
+    class Tpl,T1,T2,T3 amber
+\`\`\`
+
+- **Executable Packages:** \`packages/@rhl-ai/cli\`, \`skills\`, \`scaffold\`, and \`utils\` contain all compiled TypeScript runtime logic.
+- **Agent Skills:** \`skills/*/SKILL.md\` (including \`code-reviewer\` and \`pr-description-writer\`) live as plain, portable Markdown artifacts rather than coupled package code.
+- **Starter Templates:** \`templates/nextjs\`, \`templates/react\`, and \`templates/node\` hold clean baseline setups.
+
+## Scaffolding & Data Flow
+
+Running \`npx @rhl-ai/cli\` gives developers a fast path to both project bootstrapping and agent skill installation without pulling unnecessary build dependencies.
+
+\`\`\`mermaid
+flowchart LR
+    Dev["Developer Terminal"] -->|"npx @rhl-ai/cli"| CLI["@rhl-ai/cli"]
+    CLI --> Scaf["@rhl-ai/scaffold + @rhl-ai/utils"]
+    CLI --> SkillPkg["@rhl-ai/skills"]
+    Scaf --> OutApp["Production Starter (Next.js / React / Node)"]
+    SkillPkg --> OutSkill["Installed SKILL.md Workflows"]
+
+    classDef indigo fill:#4f46e5,stroke:#4338ca,color:#ffffff,stroke-width:2px
+    classDef teal fill:#0d9488,stroke:#0f766e,color:#ffffff,stroke-width:2px
+    classDef amber fill:#f59e0b,stroke:#d97706,color:#0f172a,stroke-width:2px
+    classDef emerald fill:#10b981,stroke:#059669,color:#0f172a,stroke-width:2px
+
+    class Dev indigo
+    class CLI,Scaf,SkillPkg teal
+    class OutApp amber
+    class OutSkill emerald
+\`\`\`
+
+Because Changesets tracks packages independently, updating a \`SKILL.md\` prompt or tweaking \`templates/nextjs\` never forces an unrelated release across the rest of the toolchain.
+`,
+  "benefitlens-rag-document-intelligence": `
+Insurance policies and employee benefits packets bury crucial coverage rules inside multi-column PDFs, DOCX files, and scanned images. **BenefitLens** turns those dense files into structured, searchable knowledge where every answer links back to exact source text.
+
+## Document Ingestion Pipeline
+
+Files enter through a **Next.js** drag-and-drop uploader backed by **TanStack Query** long-polling logs so users see real-time parsing progress. Next.js API routes hand the document to **LlamaParse** for high-fidelity Markdown and table extraction before a sliding-window chunker splits it into **1,000-character chunks with 200-character overlap**.
+
+\`\`\`mermaid
+flowchart LR
+    UI["Next.js Uploader (TanStack Query Logs)"] --> API["Next.js API Routes"]
+    API --> LP["LlamaParse (Markdown + Tables)"]
+    LP --> Chunker["Sliding-Window Chunker (1,000 chars / 200 overlap)"]
+    Chunker --> DB["PostgreSQL via Prisma (Cache + Chunk Refs)"]
+    Chunker --> VS["OpenAI Vector Store (File Batches API)"]
+
+    classDef indigo fill:#4f46e5,stroke:#4338ca,color:#ffffff,stroke-width:2px
+    classDef teal fill:#0d9488,stroke:#0f766e,color:#ffffff,stroke-width:2px
+    classDef amber fill:#f59e0b,stroke:#d97706,color:#0f172a,stroke-width:2px
+    classDef emerald fill:#10b981,stroke:#059669,color:#0f172a,stroke-width:2px
+    classDef violet fill:#8b5cf6,stroke:#7c3aed,color:#ffffff,stroke-width:2px
+
+    class UI,API indigo
+    class LP,Chunker amber
+    class DB emerald
+    class VS violet
+\`\`\`
+
+- **Dual Storage:** **PostgreSQL via Prisma** caches parsed metadata and exact chunk references, while **OpenAI Vector Store** (via the **File Batches API**) indexes embeddings for semantic retrieval.
+
+## Citation-Grounded RAG Chat
+
+When a user asks a benefits question, **OpenAI File Search** retrieves matching passages from the Vector Store and synthesizes a concise answer.
+
+\`\`\`mermaid
+flowchart LR
+    Q["User Question"] --> RAG["OpenAI File Search RAG"]
+    RAG --> Match["Resolve Chunk IDs in PostgreSQL"]
+    Match --> Ans["Answer Linked to Exact Source Chunks"]
+
+    classDef teal fill:#0d9488,stroke:#0f766e,color:#ffffff,stroke-width:2px
+    classDef violet fill:#8b5cf6,stroke:#7c3aed,color:#ffffff,stroke-width:2px
+    classDef coral fill:#f43f5e,stroke:#e11d48,color:#ffffff,stroke-width:2px
+    classDef emerald fill:#10b981,stroke:#059669,color:#0f172a,stroke-width:2px
+
+    class Q teal
+    class RAG violet
+    class Match emerald
+    class Ans coral
+\`\`\`
+
+Instead of unverified summaries, the UI resolves each returned reference against PostgreSQL and renders answers directly linked back to the underlying policy chunks.
+`,
   "reducing-frontend-api-boilerplate-openapi-orval": `
 
 Recently, while working across both backend and frontend stacks (NestJS, Next.js, and TypeScript), I explored OpenAPI and Orval more deeply. After using it on a real project, I realized how much repetitive work we still do manually—even with AI assistance.

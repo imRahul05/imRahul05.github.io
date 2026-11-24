@@ -42,8 +42,9 @@ export const FloatingDock: React.FC = () => {
   const [isShrunk, setIsShrunk] = useState<boolean>(false);
   const lastScrollYRef = useRef<number>(0);
 
-  // Touch glide state
+  // Touch glide & pointer hover glide state
   const [glideIndex, setGlideIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   // Dimming and transition state
   const [isDimmed, setIsDimmed] = useState<boolean>(false);
@@ -208,16 +209,21 @@ export const FloatingDock: React.FC = () => {
 
   const activeIndex = getActiveIndicatorIndex();
 
-  // Dynamic layout measurements to translate the indicator background pill
+  // Dynamic layout measurements to translate the circular Liquid Glass lens
   const getTranslationOffset = useCallback((): number => {
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 640;
-    const buttonWidth = isMobile ? 38 : 44;
+    const buttonWidth = isMobile ? 36 : 40;
     const gap = isMobile ? 4 : 8;
 
-    // Slide indicators to the glided item if user is touching/dragging
-    const showIndex = glideIndex !== null ? glideIndex : activeIndex;
+    // Slide circular lens to glided item (touch) -> hovered item (pointer) -> active route
+    const showIndex =
+      glideIndex !== null
+        ? glideIndex
+        : hoveredIndex !== null
+          ? hoveredIndex
+          : activeIndex;
     return showIndex * (buttonWidth + gap);
-  }, [activeIndex, glideIndex]);
+  }, [activeIndex, glideIndex, hoveredIndex]);
 
   const [translationOffset, setTranslationOffset] = useState<number>(0);
 
@@ -249,7 +255,7 @@ export const FloatingDock: React.FC = () => {
     const padding = isMobile ? 5 : 6;
     const relativeX = clientX - rect.left - padding;
 
-    const buttonWidth = isMobile ? 38 : 44;
+    const buttonWidth = isMobile ? 36 : 40;
     const gap = isMobile ? 4 : 8;
     const step = buttonWidth + gap;
 
@@ -279,26 +285,33 @@ export const FloatingDock: React.FC = () => {
     setGlideIndex(null);
   };
 
+  const isLensGliding = glideIndex !== null || hoveredIndex !== null;
+
   return (
     <div
       className={cn(
         "pointer-events-auto fixed bottom-4 left-1/2 z-[1000] flex origin-bottom -translate-x-1/2 scale-100 items-center justify-center opacity-100 transition-[transform,opacity] duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] select-none sm:bottom-6",
-        isShrunk && "scale-[0.82] opacity-80 hover:scale-100 hover:opacity-100",
+        isShrunk && "scale-[0.84] opacity-80 hover:scale-100 hover:opacity-100",
         isDimmed && "opacity-45 hover:opacity-100",
       )}
     >
       <div
         ref={containerRef}
-        className="relative flex items-center gap-1 rounded-[14px] border-[1.5px] border-white/65 bg-white/45 p-[5px] shadow-[0_12px_36px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)] backdrop-blur-[28px] backdrop-saturate-[190%] transition-all duration-300 ease-in-out sm:gap-2 sm:rounded-2xl sm:p-1.5 dark:border-white/12 dark:bg-[rgba(16,16,20,0.45)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.4),0_4px_16px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.08)]"
+        className="relative flex items-center gap-1 rounded-full border border-white/75 bg-white/30 p-[5px] shadow-[0_12px_36px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.05),inset_0_1.5px_1px_rgba(255,255,255,0.88),inset_0_-1px_1px_rgba(0,0,0,0.06)] backdrop-blur-[32px] backdrop-saturate-[220%] transition-all duration-300 ease-in-out before:pointer-events-none before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-b before:from-white/40 before:via-white/5 before:to-transparent sm:gap-2 sm:p-1.5 dark:border-white/20 dark:bg-[rgba(22,22,28,0.42)] dark:shadow-[0_16px_42px_rgba(0,0,0,0.5),0_2px_10px_rgba(0,0,0,0.28),inset_0_1px_1px_rgba(255,255,255,0.22),inset_0_-1px_1px_rgba(0,0,0,0.35)] dark:before:from-white/12 dark:before:via-white/[0.02] dark:before:to-transparent"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onMouseLeave={() => setHoveredIndex(null)}
       >
-        {/* Dynamic sliding active capsule background */}
+        {/* Apple Liquid Glass sliding circular lens */}
         <div
-          className="pointer-events-none absolute top-[5px] left-[5px] z-[1] h-8 w-[38px] rounded-lg bg-black/6 shadow-[inset_0_1px_0_rgba(0,0,0,0.02)] transition-transform duration-[380ms] ease-[cubic-bezier(0.25,1.2,0.5,1.1)] sm:top-1.5 sm:left-1.5 sm:h-9 sm:w-11 sm:rounded-[10px] dark:bg-white/11 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+          className={cn(
+            "pointer-events-none absolute top-[5px] left-[5px] z-[1] h-9 w-9 rounded-full border border-white/90 bg-white/70 shadow-[0_3px_12px_rgba(155,92,255,0.18),0_1px_3px_rgba(0,0,0,0.08),inset_0_1.5px_2px_rgba(255,255,255,1),inset_0_-1px_2px_rgba(155,92,255,0.12)] backdrop-blur-md transition-[transform,box-shadow,background-color] duration-[420ms] ease-[cubic-bezier(0.32,0.72,0,1)] sm:top-1.5 sm:left-1.5 sm:h-10 sm:w-10 dark:border-white/28 dark:bg-white/[0.16] dark:shadow-[0_3px_14px_rgba(0,0,0,0.42),inset_0_1.5px_1.5px_rgba(255,255,255,0.35),inset_0_-1px_2px_rgba(0,0,0,0.3)]",
+            isLensGliding &&
+              "bg-white/82 shadow-[0_5px_18px_rgba(155,92,255,0.24),0_1px_4px_rgba(0,0,0,0.1),inset_0_2px_2px_rgba(255,255,255,1)] dark:bg-white/[0.22]",
+          )}
           style={{
-            transform: `translate3d(${translationOffset}px, 0, 0)`,
+            transform: `translate3d(${translationOffset}px, 0, 0) scale(${isLensGliding ? 1.07 : 1})`,
           }}
         />
 
@@ -315,17 +328,26 @@ export const FloatingDock: React.FC = () => {
                 ? location.pathname === "/"
                 : location.pathname.startsWith(item.path));
 
-            // Visual active check overrides when user is glided on touch
+            // Visual active check follows sliding glass lens (touch glide -> pointer hover -> active route)
             const isCurrentlyActive =
-              glideIndex !== null ? glideIndex === index : isActive;
+              glideIndex !== null
+                ? glideIndex === index
+                : hoveredIndex !== null
+                  ? hoveredIndex === index
+                  : isActive;
 
             return (
               <button
                 key={item.label}
                 onClick={() => handleItemClick(item)}
+                onMouseEnter={() => {
+                  resetDimTimer();
+                  setHoveredIndex(index);
+                }}
                 className={cn(
-                  "group relative flex h-8 w-[38px] cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent text-[#8e8e93] transition-[transform,color] duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.2)] outline-none hover:-translate-y-0.5 hover:scale-[1.06] hover:text-foreground active:scale-[0.94] sm:h-9 sm:w-11 sm:rounded-[10px] [&_svg]:h-[18px] [&_svg]:w-[18px] [&_svg]:transition-[stroke-width] [&_svg]:duration-200 sm:[&_svg]:h-5 sm:[&_svg]:w-5",
-                  isCurrentlyActive && "text-accent",
+                  "group relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-[#6e6a7c] transition-[transform,color] duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.2)] outline-none active:scale-[0.92] sm:h-10 sm:w-10 dark:text-[#a8a29e] [&_svg]:h-[18px] [&_svg]:w-[18px] [&_svg]:transition-[stroke-width,transform] [&_svg]:duration-200 sm:[&_svg]:h-5 sm:[&_svg]:w-5",
+                  isCurrentlyActive &&
+                    "scale-[1.06] text-accent dark:text-foreground",
                 )}
                 aria-label={item.label}
                 type="button"
@@ -334,7 +356,7 @@ export const FloatingDock: React.FC = () => {
                   {item.label}
                 </span>
                 <div className="flex items-center justify-center transition-transform duration-200 ease-in-out">
-                  <Icon size={20} strokeWidth={isCurrentlyActive ? 2.5 : 2} />
+                  <Icon size={20} strokeWidth={isCurrentlyActive ? 2.4 : 1.9} />
                 </div>
               </button>
             );
