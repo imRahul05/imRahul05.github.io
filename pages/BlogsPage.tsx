@@ -35,7 +35,7 @@ export const BlogsPage: React.FC = () => {
       </header>
 
       <section>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-6 sm:grid-cols-2">
           {BLOGS.map((blog) => (
             <BlogCard key={blog.slug} blog={blog} onReadMore={handleReadMore} />
           ))}
