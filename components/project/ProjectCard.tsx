@@ -5,8 +5,6 @@ import {
   DialogClose,
   DialogContent,
   DialogHeader,
-  DialogOverlay,
-  DialogPortal,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -152,12 +150,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       {/* Fullscreen Video Modal using Base UI Dialog */}
       {video && (
         <Dialog open={isVideoModalOpen} onOpenChange={handleOpenChange}>
-          <DialogPortal>
-            <DialogOverlay className="z-50 bg-black/90 backdrop-blur-none" />
-          </DialogPortal>
           <DialogContent
             showCloseButton={false}
-            className="relative z-50 max-h-[90vh] w-full max-w-[90vw] gap-0 border-0 bg-transparent p-0 shadow-none ring-0 outline-none sm:max-w-[90vw]"
+            className="fixed top-1/2 left-1/2 z-[1000] max-h-[90vh] w-[90vw] max-w-5xl -translate-x-1/2 -translate-y-1/2 gap-0 border-0 bg-transparent p-0 shadow-none ring-0 outline-none sm:max-w-5xl"
           >
             <DialogHeader className="sr-only">
               <DialogTitle>{name} video player</DialogTitle>

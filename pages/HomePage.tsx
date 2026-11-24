@@ -256,7 +256,7 @@ export const HomePage: React.FC = () => {
         </section>
 
         {/* FOOTER */}
-        <footer className="mt-20 pt-8 border-t border-border-light">
+        <footer className="mt-20 border-t border-border-light pt-8 pb-16">
           <div className="flex flex-row flex-wrap items-center gap-4 sm:gap-8">
             <SocialLink
               href={`mailto:${DATA.personal.email}`}
@@ -282,9 +282,9 @@ export const HomePage: React.FC = () => {
               <DigitalClock />
             </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-8">
+          <p className="mt-8 text-xs text-muted-foreground">
             © {new Date().getFullYear()} {DATA.personal.name}. Built with React,
-            TypeScript, and Plain CSS.
+            TypeScript, Tailwind CSS, and Base UI.
           </p>
         </footer>
       </div>
