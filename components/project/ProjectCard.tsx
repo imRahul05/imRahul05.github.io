@@ -9,6 +9,11 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
@@ -42,10 +47,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 }) => {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [isTechExpanded, setIsTechExpanded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const visibleTech = tech.slice(0, MAX_VISIBLE_TECH);
-  const remainingTechCount = Math.max(0, tech.length - MAX_VISIBLE_TECH);
+  const visibleTech = isTechExpanded ? tech : tech.slice(0, MAX_VISIBLE_TECH);
+  const hiddenTech = tech.slice(MAX_VISIBLE_TECH);
+  const remainingTechCount = hiddenTech.length;
 
   const handlePlayClick = useCallback(
     (e: React.MouseEvent) => {
@@ -176,13 +183,29 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 {t}
               </Badge>
             ))}
-            {remainingTechCount > 0 && (
-              <Badge
-                variant="outline"
-                className="h-auto rounded border-border-light bg-border-light/60 px-2 py-0.5 text-[0.68rem] font-normal text-muted-foreground"
+            {remainingTechCount > 0 && !isTechExpanded && (
+              <Tooltip>
+                <TooltipTrigger
+                  type="button"
+                  onClick={() => setIsTechExpanded(true)}
+                  aria-label={`Show ${remainingTechCount} more technologies: ${hiddenTech.join(", ")}`}
+                  className="inline-flex h-auto cursor-pointer items-center rounded border border-border-light bg-border-light/60 px-2 py-0.5 font-mono text-[0.68rem] font-normal text-muted-foreground transition-colors hover:border-border hover:bg-border-light hover:text-foreground"
+                >
+                  +{remainingTechCount}
+                </TooltipTrigger>
+                <TooltipContent side="top" className="font-mono text-[0.7rem]">
+                  <span>{hiddenTech.join(" · ")}</span>
+                </TooltipContent>
+              </Tooltip>
+            )}
+            {remainingTechCount > 0 && isTechExpanded && (
+              <button
+                type="button"
+                onClick={() => setIsTechExpanded(false)}
+                className="inline-flex h-auto cursor-pointer items-center rounded border border-border-light bg-transparent px-2 py-0.5 font-mono text-[0.68rem] font-normal text-muted-foreground transition-colors hover:border-border hover:text-foreground"
               >
-                +{remainingTechCount}
-              </Badge>
+                Show less
+              </button>
             )}
           </div>
 
