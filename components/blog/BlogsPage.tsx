@@ -24,7 +24,7 @@ export const BlogsPage: React.FC<BlogsPageProps> = ({
   );
 
   return (
-    <div className="container pb-24">
+    <div className="mx-auto min-h-screen max-w-4xl px-6 pt-14 pb-28 font-mono">
       <header className="mb-8 flex flex-col gap-2 border-b border-border pb-4">
         <button
           className="inline-flex cursor-pointer items-center gap-2 self-start py-2 font-mono text-sm text-secondary-foreground transition-colors hover:text-foreground"

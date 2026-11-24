@@ -61,7 +61,7 @@ export const MermaidDiagram: React.FC<Props> = ({ chart }) => {
   }, [chart]);
 
   const containerClasses =
-    "my-8 flex justify-center overflow-x-auto rounded-lg border border-border bg-background p-6 [&_svg]:h-auto [&_svg]:max-w-full";
+    "my-8 flex justify-start sm:justify-center overflow-x-auto rounded-lg border border-border bg-background p-4 sm:p-6 [&_svg]:h-auto [&_svg]:min-w-[300px] [&_svg]:max-w-none sm:[&_svg]:max-w-full";
 
   if (error) {
     return (
