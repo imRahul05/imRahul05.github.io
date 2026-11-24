@@ -25,53 +25,54 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({
 
   return (
     <div
-      className="experience-item"
+      className="flex gap-4 mb-6 last:mb-0 items-start cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => setIsOpen(!isOpen)}
-      style={{ cursor: "pointer" }}
     >
       {image && (
-        <div className="experience-icon">
+        <div className="shrink-0 w-12 h-12 rounded-full overflow-hidden bg-border-light border border-border">
           {!isImageLoaded && (
-            <div className="skeleton experience-icon-skeleton" />
+            <div className="w-full h-full rounded-full animate-shimmer" />
           )}
           <img
             src={image}
             alt={company}
-            className={`experience-icon-img ${!isImageLoaded ? "hidden" : ""}`}
+            className={`w-full h-full object-cover transition-[filter] duration-300 ease-in-out dark:grayscale ${
+              !isImageLoaded ? "hidden" : ""
+            }`}
             onLoad={() => setIsImageLoaded(true)}
-            style={!isImageLoaded ? { display: "none" } : {}}
           />
         </div>
       )}
-      <div className="experience-content">
-        <div className="experience-header">
-          <div className="experience-title-row">
-            <h3 className="experience-company">{company}</h3>
+      <div className="flex-1 min-w-0">
+        <div className="mb-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-bold text-foreground m-0">{company}</h3>
             <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="experience-toggle-btn"
-              style={{
-                opacity: isHovered || isOpen ? 1 : 0,
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsOpen(!isOpen);
               }}
+              className={`bg-transparent border-0 cursor-pointer p-0 flex items-center transition-opacity duration-200 ease-in-out ${
+                isHovered || isOpen ? "opacity-100" : "opacity-0"
+              }`}
               aria-label={isOpen ? "Collapse details" : "Expand details"}
             >
               <ChevronDown
                 size={14}
-                className="text-muted"
-                style={{
-                  transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                  transition: "transform 0.2s ease-in-out",
-                }}
+                className={`text-muted-foreground transition-transform duration-200 ease-in-out ${
+                  isOpen ? "rotate-180" : "rotate-0"
+                }`}
               />
             </button>
           </div>
-          <p className="experience-role">{role}</p>
-          <span className="experience-period">{period}</span>
+          <p className="text-[0.8rem] text-secondary-foreground my-1">{role}</p>
+          <span className="text-xs text-muted-foreground">{period}</span>
         </div>
         {isOpen && (
-          <p className="experience-description">
+          <p className="text-[0.8rem] text-secondary-foreground leading-relaxed mt-2">
             <TypewriterText text={description} speed={5} />
           </p>
         )}
@@ -82,9 +83,9 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({
 
 export const Experience: React.FC = () => {
   return (
-    <section className="section">
+    <section className="mb-12">
       <SectionTitle>Experience</SectionTitle>
-      <div className="section-content">
+      <div>
         {DATA.experience.map((job, index) => (
           <ExperienceItem
             key={index}
