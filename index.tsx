@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
-import "./styles.scss";
+import "./styles/globals.css";
 
 // Dynamically import PostHog to reduce initial bundle size
 
