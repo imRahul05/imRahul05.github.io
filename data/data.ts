@@ -1,3 +1,19 @@
+export interface ProjectData {
+  name: string;
+  period?: string;
+  description: string;
+  tech: string[];
+  link?: string;
+  sourceUrl?: string;
+  blogSlug?: string;
+  image?: string;
+  video?: string;
+  tag?: string;
+  featured?: boolean;
+  previewCommand?: string;
+  previewTagline?: string;
+}
+
 export const DATA = {
   personal: {
     name: "Rahul Kumar",
@@ -76,10 +92,58 @@ export const DATA = {
   ],
   projects: [
     {
-      name: "BenefitLens",
-      period: "",
+      name: "RHL AI",
+      period: "September 2026 - Present",
+      tag: "AI Tooling & CLI Monorepo",
+      featured: true,
+      previewCommand: "npx @rhl-ai/cli init",
+      previewTagline: "Agent Skills · @rhl-ai/* Packages · Scaffolds",
       description:
-        "An AI-powered document intelligence platform that transforms complex insurance and employee benefits documents into searchable, structured knowledge. It leverages LlamaParse, vector embeddings, and Retrieval-Augmented Generation (RAG) to enable accurate semantic search, intelligent document exploration, and AI-assisted question answering across enterprise benefit documents.", // :contentReference[oaicite:0]{index=0}
+        "Central developer and AI tooling monorepo unifying reusable agent skills, compiled @rhl-ai/* npm packages, and project scaffolds — built with a strict separation between executable tooling and prompt/knowledge artifacts.",
+      tech: [
+        "TypeScript",
+        "Turborepo",
+        "pnpm",
+        "CLI",
+        "AI Skills",
+        "Changesets",
+      ],
+      link: "https://rhl-cli.vercel.app",
+      sourceUrl: "https://github.com/imRahul05/rhl-ai",
+      blogSlug: "rhl-ai-agentic-tooling-monorepo",
+      image: "/projects/rhl-ai.webp",
+      video: "",
+    },
+    {
+      name: "ASHA Saathi",
+      period: "November 2026",
+      tag: "Build with Agora · Voice AI for Bharat",
+      featured: true,
+      previewCommand: "agora-rtc -> mcp -> neon-pg",
+      previewTagline: "Hindi · Kannada · English Clinical Voice AI",
+      description:
+        "Multilingual voice assistant for ASHA health workers in India. Records maternal home visits via Agora Conversational AI and Murf Falcon TTS, flags danger signs with deterministic clinical rules over MCP, and dispatches confirmed WhatsApp/SMS doctor alerts.",
+      tech: [
+        "Next.js",
+        "TypeScript",
+        "Agora AI",
+        "Murf TTS",
+        "MCP",
+        "Neon Postgres",
+        "Zod",
+      ],
+      link: "https://asha-saathi-mocha.vercel.app/",
+      sourceUrl: "https://github.com/imRahul05/asha-saathi",
+      blogSlug: "asha-saathi-voice-ai-architecture",
+      image: "/projects/asha-saathi.webp",
+      video: "",
+    },
+    {
+      name: "BenefitLens",
+      period: "2026",
+      featured: true,
+      description:
+        "An AI-powered document intelligence platform that transforms complex insurance and employee benefits documents into searchable, structured knowledge. It leverages LlamaParse, vector embeddings, and Retrieval-Augmented Generation (RAG) to enable accurate semantic search, intelligent document exploration, and AI-assisted question answering across enterprise benefit documents.",
       tech: [
         "Next.js",
         "React",
@@ -95,6 +159,7 @@ export const DATA = {
       ],
       link: "https://benefitlens.vercel.app",
       sourceUrl: "https://github.com/imRahul05/benefitlens",
+      blogSlug: "benefitlens-rag-document-intelligence",
       image:
         "https://res.cloudinary.com/dw8r5ivmx/image/upload/v1782806846/Screenshot_2026-06-30_at_1.36.19_PM_fee2ax.png",
       video: "",
@@ -102,7 +167,7 @@ export const DATA = {
     {
       name: "MarkDown Previewer",
       period: "February 2026 - Present",
-      description: "AA markdown editor with live preview and instant sharing.",
+      description: "A markdown editor with live preview and instant sharing.",
       tech: ["React", "Web", "JS"],
       link: "https://markdownpreciew.vercel.app",
       sourceUrl: "",
@@ -112,6 +177,7 @@ export const DATA = {
     {
       name: "FinSage AI",
       period: "November 2024 - December 2024",
+      featured: true,
       description:
         "A better way to manage your finances. Take control of your financial journey with our comprehensive suite of tools.",
       tech: ["React", "Web", "JS", "FireBase"],

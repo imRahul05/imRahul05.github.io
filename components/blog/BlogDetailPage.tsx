@@ -264,6 +264,28 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
         return;
       }
 
+      // Blockquote
+      if (line.startsWith("> ")) {
+        flushLists();
+        elements.push(
+          <blockquote
+            key={index}
+            className={cn(
+              "my-6 rounded-r-lg border-l-4 py-3 pr-4 pl-4 italic leading-[1.8]",
+              readingTheme === "default" &&
+                "border-accent bg-border-light/50 text-foreground",
+              readingTheme === "sepia" &&
+                "border-[#5b4636]/50 bg-[#5b4636]/5 text-[#5b4636]",
+              readingTheme === "high-contrast" &&
+                "border-white bg-[#111111] text-white",
+            )}
+          >
+            {renderInlineContent(line.slice(2))}
+          </blockquote>,
+        );
+        return;
+      }
+
       // Regular paragraph
       flushLists();
       elements.push(
@@ -359,7 +381,7 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
 
   if (!blog) {
     return (
-      <div className="container pb-24">
+      <div className="mx-auto min-h-screen max-w-3xl px-6 pt-14 pb-28 font-mono">
         <header className="mb-8 flex items-center justify-between">
           <button
             className="inline-flex cursor-pointer items-center gap-2 py-2 font-mono text-sm text-secondary-foreground transition-colors hover:text-foreground"
@@ -382,320 +404,325 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
   return (
     <div
       className={cn(
-        "container pb-24 transition-colors duration-200",
+        "min-h-screen w-full transition-colors duration-200",
         readingTheme === "sepia" && "bg-[#f4ecd8] text-[#5b4636]",
         readingTheme === "high-contrast" && "bg-black text-white",
       )}
     >
-      <header
-        className={cn(
-          "mb-8 flex items-center justify-between",
-          readingTheme === "sepia" && "border-[#5b4636]/20",
-          readingTheme === "high-contrast" && "border-white",
-        )}
-      >
-        <button
+      <div className="mx-auto max-w-3xl px-6 pt-14 pb-28">
+        <header
           className={cn(
-            "inline-flex cursor-pointer items-center gap-2 py-2 font-mono text-sm transition-colors",
-            readingTheme === "default" &&
-              "text-secondary-foreground hover:text-foreground",
-            readingTheme === "sepia" &&
-              "text-[#5b4636]/80 hover:text-[#5b4636]",
-            readingTheme === "high-contrast" && "text-white hover:opacity-80",
-          )}
-          onClick={onBack}
-        >
-          <ArrowLeft size={20} />
-          <span>Back to Blogs</span>
-        </button>
-
-        <div className="relative">
-          <button
-            className={cn(
-              "flex cursor-pointer items-center justify-center rounded-lg p-2 transition-all duration-200",
-              readingTheme === "default" &&
-                "text-secondary-foreground hover:bg-border-light hover:text-foreground",
-              readingTheme === "default" &&
-                showSettings &&
-                "bg-border-light text-foreground",
-              readingTheme === "sepia" &&
-                "text-[#5b4636]/80 hover:bg-[#5b4636]/5 hover:text-[#5b4636]",
-              readingTheme === "sepia" &&
-                showSettings &&
-                "bg-[#5b4636]/5 text-[#5b4636]",
-              readingTheme === "high-contrast" &&
-                "text-white hover:bg-[#111111] hover:text-white",
-              readingTheme === "high-contrast" &&
-                showSettings &&
-                "bg-[#111111] text-white",
-            )}
-            onClick={() => setShowSettings(!showSettings)}
-            aria-label="Reading settings"
-          >
-            <Settings size={20} />
-          </button>
-
-          {showSettings && (
-            <div
-              className={cn(
-                "absolute top-full right-0 z-50 mt-2 w-60 rounded-xl border p-5 shadow-xl backdrop-blur-md",
-                readingTheme === "default" && "border-border bg-background/95",
-                readingTheme === "sepia" &&
-                  "border-[#5b4636]/20 bg-[#f4ecd8]/95",
-                readingTheme === "high-contrast" &&
-                  "border-white bg-[#111111]/95 text-white",
-              )}
-            >
-              <div className="mb-5">
-                <span
-                  className={cn(
-                    "mb-3 block text-xs font-bold tracking-wider uppercase",
-                    readingTheme === "default" && "text-muted-foreground",
-                    readingTheme === "sepia" && "text-[#5b4636]/70",
-                    readingTheme === "high-contrast" && "text-white",
-                  )}
-                >
-                  Font Size
-                </span>
-                <div className="flex items-center gap-4">
-                  <button
-                    className={cn(
-                      "flex size-8 cursor-pointer items-center justify-center rounded-md border transition-all duration-200",
-                      readingTheme === "default" &&
-                        "border-border text-secondary-foreground hover:border-muted-foreground hover:text-foreground",
-                      readingTheme === "sepia" &&
-                        "border-[#5b4636]/20 text-[#5b4636] hover:border-[#5b4636]",
-                      readingTheme === "high-contrast" &&
-                        "border-white text-white hover:bg-[#222222]",
-                    )}
-                    onClick={() => handleFontSizeChange(-1)}
-                    aria-label="Decrease font size"
-                  >
-                    <Minimize2 size={16} />
-                  </button>
-                  <span className="min-w-[3ch] text-center text-sm font-medium">
-                    {fontSize}px
-                  </span>
-                  <button
-                    className={cn(
-                      "flex size-8 cursor-pointer items-center justify-center rounded-md border transition-all duration-200",
-                      readingTheme === "default" &&
-                        "border-border text-secondary-foreground hover:border-muted-foreground hover:text-foreground",
-                      readingTheme === "sepia" &&
-                        "border-[#5b4636]/20 text-[#5b4636] hover:border-[#5b4636]",
-                      readingTheme === "high-contrast" &&
-                        "border-white text-white hover:bg-[#222222]",
-                    )}
-                    onClick={() => handleFontSizeChange(1)}
-                    aria-label="Increase font size"
-                  >
-                    <Maximize2 size={16} />
-                  </button>
-                </div>
-              </div>
-
-              <div className="mb-5">
-                <span
-                  className={cn(
-                    "mb-3 block text-xs font-bold tracking-wider uppercase",
-                    readingTheme === "default" && "text-muted-foreground",
-                    readingTheme === "sepia" && "text-[#5b4636]/70",
-                    readingTheme === "high-contrast" && "text-white",
-                  )}
-                >
-                  Font Style
-                </span>
-                <div className="grid grid-cols-3 gap-2">
-                  {(["mono", "sans", "serif"] as const).map((style) => (
-                    <button
-                      key={style}
-                      className={cn(
-                        "cursor-pointer rounded-md border py-1 text-xs capitalize transition-all duration-200",
-                        fontStyle === style
-                          ? readingTheme === "default"
-                            ? "border-foreground bg-border-light font-bold text-foreground"
-                            : readingTheme === "sepia"
-                              ? "border-[#5b4636] bg-[#5b4636]/10 font-bold text-[#5b4636]"
-                              : "border-white bg-[#222222] font-bold text-white"
-                          : readingTheme === "default"
-                            ? "border-border text-secondary-foreground hover:border-muted-foreground"
-                            : readingTheme === "sepia"
-                              ? "border-[#5b4636]/20 text-[#5b4636]/80 hover:border-[#5b4636]"
-                              : "border-white/50 text-white/80 hover:border-white",
-                      )}
-                      onClick={() => setFontStyle(style)}
-                    >
-                      {style}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <span
-                  className={cn(
-                    "mb-3 block text-xs font-bold tracking-wider uppercase",
-                    readingTheme === "default" && "text-muted-foreground",
-                    readingTheme === "sepia" && "text-[#5b4636]/70",
-                    readingTheme === "high-contrast" && "text-white",
-                  )}
-                >
-                  Reading Theme
-                </span>
-                <div className="flex gap-3">
-                  <button
-                    className={cn(
-                      "size-8 cursor-pointer rounded-full border-2 border-[#e5e7eb] bg-white transition-transform duration-200 dark:border-[#334155] dark:bg-[#0f172a]",
-                      readingTheme === "default" &&
-                        "scale-115 border-foreground dark:border-white",
-                    )}
-                    onClick={() => setReadingTheme("default")}
-                    title="Default"
-                    aria-label="Default reading theme"
-                  />
-                  <button
-                    className={cn(
-                      "size-8 cursor-pointer rounded-full border-2 border-transparent bg-[#f4ecd8] transition-transform duration-200",
-                      readingTheme === "sepia" && "scale-115 border-[#5b4636]",
-                    )}
-                    onClick={() => setReadingTheme("sepia")}
-                    title="Sepia"
-                    aria-label="Sepia reading theme"
-                  />
-                  <button
-                    className={cn(
-                      "size-8 cursor-pointer rounded-full border-2 border-white bg-black transition-transform duration-200",
-                      readingTheme === "high-contrast" &&
-                        "scale-115 border-white ring-2 ring-white/50",
-                    )}
-                    onClick={() => setReadingTheme("high-contrast")}
-                    title="High Contrast"
-                    aria-label="High contrast reading theme"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </header>
-
-      <article
-        className={cn(
-          "max-w-full",
-          fontStyle === "mono" && "font-mono",
-          fontStyle === "sans" &&
-            "font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif]",
-          fontStyle === "serif" &&
-            "font-[Georgia,Cambria,'Times_New_Roman',Times,serif]",
-        )}
-      >
-        {blog.image && (
-          <div className="relative mb-8 aspect-16/9 w-full overflow-hidden rounded-xl bg-border-light">
-            {!isImageLoaded && (
-              <Skeleton className="size-full rounded-xl animate-shimmer" />
-            )}
-            <img
-              src={blog.image}
-              alt={blog.title}
-              className={`size-full rounded-xl object-cover dark:brightness-90 ${
-                !isImageLoaded ? "hidden" : ""
-              }`}
-              onLoad={() => setIsImageLoaded(true)}
-            />
-          </div>
-        )}
-
-        <div
-          className={cn(
-            "mb-8 border-b pb-6",
-            readingTheme === "default" && "border-border",
+            "mb-8 flex items-center justify-between",
             readingTheme === "sepia" && "border-[#5b4636]/20",
             readingTheme === "high-contrast" && "border-white",
           )}
         >
-          <h1
+          <button
             className={cn(
-              "mb-4 text-3xl font-bold leading-tight tracking-tight sm:text-4xl",
-              readingTheme === "default" && "text-foreground",
-              readingTheme === "sepia" && "text-[#5b4636]",
-              readingTheme === "high-contrast" && "text-white",
+              "inline-flex cursor-pointer items-center gap-2 py-2 font-mono text-sm transition-colors",
+              readingTheme === "default" &&
+                "text-secondary-foreground hover:text-foreground",
+              readingTheme === "sepia" &&
+                "text-[#5b4636]/80 hover:text-[#5b4636]",
+              readingTheme === "high-contrast" && "text-white hover:opacity-80",
             )}
+            onClick={onBack}
           >
-            {blog.title}
-          </h1>
+            <ArrowLeft size={20} />
+            <span>Back to Blogs</span>
+          </button>
 
-          <div className="mb-4 flex items-center gap-6">
-            <span
+          <div className="relative">
+            <button
               className={cn(
-                "flex items-center gap-1.5 text-sm",
-                readingTheme === "default" && "text-muted-foreground",
-                readingTheme === "sepia" && "text-[#5b4636]/70",
-                readingTheme === "high-contrast" && "text-white",
+                "flex cursor-pointer items-center justify-center rounded-lg p-2 transition-all duration-200",
+                readingTheme === "default" &&
+                  "text-secondary-foreground hover:bg-border-light hover:text-foreground",
+                readingTheme === "default" &&
+                  showSettings &&
+                  "bg-border-light text-foreground",
+                readingTheme === "sepia" &&
+                  "text-[#5b4636]/80 hover:bg-[#5b4636]/5 hover:text-[#5b4636]",
+                readingTheme === "sepia" &&
+                  showSettings &&
+                  "bg-[#5b4636]/5 text-[#5b4636]",
+                readingTheme === "high-contrast" &&
+                  "text-white hover:bg-[#111111] hover:text-white",
+                readingTheme === "high-contrast" &&
+                  showSettings &&
+                  "bg-[#111111] text-white",
               )}
+              onClick={() => setShowSettings(!showSettings)}
+              aria-label="Reading settings"
             >
-              <Calendar size={14} />
-              {formatDate(blog.date)}
-            </span>
-            <span
-              className={cn(
-                "flex items-center gap-1.5 text-sm",
-                readingTheme === "default" && "text-muted-foreground",
-                readingTheme === "sepia" && "text-[#5b4636]/70",
-                readingTheme === "high-contrast" && "text-white",
-              )}
-            >
-              <Clock size={14} />
-              {blog.readTime}
-            </span>
-          </div>
+              <Settings size={20} />
+            </button>
 
-          <div className="flex flex-wrap gap-2">
-            {blog.tags.map((tag) => (
-              <Badge
-                key={tag}
-                variant="outline"
+            {showSettings && (
+              <div
                 className={cn(
-                  "gap-1 rounded px-2 py-1 text-xs font-normal",
+                  "absolute top-full right-0 z-50 mt-2 w-60 rounded-xl border p-5 shadow-xl backdrop-blur-md",
                   readingTheme === "default" &&
-                    "border-border text-secondary-foreground",
+                    "border-border bg-background/95",
                   readingTheme === "sepia" &&
-                    "border-[#5b4636]/30 text-[#5b4636]",
-                  readingTheme === "high-contrast" && "border-white text-white",
+                    "border-[#5b4636]/20 bg-[#f4ecd8]/95",
+                  readingTheme === "high-contrast" &&
+                    "border-white bg-[#111111]/95 text-white",
                 )}
               >
-                <Tag size={10} />
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        </div>
+                <div className="mb-5">
+                  <span
+                    className={cn(
+                      "mb-3 block text-xs font-bold tracking-wider uppercase",
+                      readingTheme === "default" && "text-muted-foreground",
+                      readingTheme === "sepia" && "text-[#5b4636]/70",
+                      readingTheme === "high-contrast" && "text-white",
+                    )}
+                  >
+                    Font Size
+                  </span>
+                  <div className="flex items-center gap-4">
+                    <button
+                      className={cn(
+                        "flex size-8 cursor-pointer items-center justify-center rounded-md border transition-all duration-200",
+                        readingTheme === "default" &&
+                          "border-border text-secondary-foreground hover:border-muted-foreground hover:text-foreground",
+                        readingTheme === "sepia" &&
+                          "border-[#5b4636]/20 text-[#5b4636] hover:border-[#5b4636]",
+                        readingTheme === "high-contrast" &&
+                          "border-white text-white hover:bg-[#222222]",
+                      )}
+                      onClick={() => handleFontSizeChange(-1)}
+                      aria-label="Decrease font size"
+                    >
+                      <Minimize2 size={16} />
+                    </button>
+                    <span className="min-w-[3ch] text-center text-sm font-medium">
+                      {fontSize}px
+                    </span>
+                    <button
+                      className={cn(
+                        "flex size-8 cursor-pointer items-center justify-center rounded-md border transition-all duration-200",
+                        readingTheme === "default" &&
+                          "border-border text-secondary-foreground hover:border-muted-foreground hover:text-foreground",
+                        readingTheme === "sepia" &&
+                          "border-[#5b4636]/20 text-[#5b4636] hover:border-[#5b4636]",
+                        readingTheme === "high-contrast" &&
+                          "border-white text-white hover:bg-[#222222]",
+                      )}
+                      onClick={() => handleFontSizeChange(1)}
+                      aria-label="Increase font size"
+                    >
+                      <Maximize2 size={16} />
+                    </button>
+                  </div>
+                </div>
 
-        <div className="leading-[1.8]" style={{ fontSize: `${fontSize}px` }}>
-          {isLoading ? (
-            <div className="mt-4 flex flex-col gap-5">
-              <Skeleton className="h-4 w-full animate-shimmer" />
-              <Skeleton className="h-4 w-full animate-shimmer" />
-              <Skeleton className="h-4 w-[80%] animate-shimmer" />
-              <Skeleton className="mt-8 h-4 w-[90%] animate-shimmer" />
-              <Skeleton className="h-4 w-full animate-shimmer" />
-              <Skeleton className="h-4 w-[70%] animate-shimmer" />
+                <div className="mb-5">
+                  <span
+                    className={cn(
+                      "mb-3 block text-xs font-bold tracking-wider uppercase",
+                      readingTheme === "default" && "text-muted-foreground",
+                      readingTheme === "sepia" && "text-[#5b4636]/70",
+                      readingTheme === "high-contrast" && "text-white",
+                    )}
+                  >
+                    Font Style
+                  </span>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(["mono", "sans", "serif"] as const).map((style) => (
+                      <button
+                        key={style}
+                        className={cn(
+                          "cursor-pointer rounded-md border py-1 text-xs capitalize transition-all duration-200",
+                          fontStyle === style
+                            ? readingTheme === "default"
+                              ? "border-foreground bg-border-light font-bold text-foreground"
+                              : readingTheme === "sepia"
+                                ? "border-[#5b4636] bg-[#5b4636]/10 font-bold text-[#5b4636]"
+                                : "border-white bg-[#222222] font-bold text-white"
+                            : readingTheme === "default"
+                              ? "border-border text-secondary-foreground hover:border-muted-foreground"
+                              : readingTheme === "sepia"
+                                ? "border-[#5b4636]/20 text-[#5b4636]/80 hover:border-[#5b4636]"
+                                : "border-white/50 text-white/80 hover:border-white",
+                        )}
+                        onClick={() => setFontStyle(style)}
+                      >
+                        {style}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <span
+                    className={cn(
+                      "mb-3 block text-xs font-bold tracking-wider uppercase",
+                      readingTheme === "default" && "text-muted-foreground",
+                      readingTheme === "sepia" && "text-[#5b4636]/70",
+                      readingTheme === "high-contrast" && "text-white",
+                    )}
+                  >
+                    Reading Theme
+                  </span>
+                  <div className="flex gap-3">
+                    <button
+                      className={cn(
+                        "size-8 cursor-pointer rounded-full border-2 border-[#e5e7eb] bg-white transition-transform duration-200 dark:border-[#334155] dark:bg-[#0f172a]",
+                        readingTheme === "default" &&
+                          "scale-115 border-foreground dark:border-white",
+                      )}
+                      onClick={() => setReadingTheme("default")}
+                      title="Default"
+                      aria-label="Default reading theme"
+                    />
+                    <button
+                      className={cn(
+                        "size-8 cursor-pointer rounded-full border-2 border-transparent bg-[#f4ecd8] transition-transform duration-200",
+                        readingTheme === "sepia" &&
+                          "scale-115 border-[#5b4636]",
+                      )}
+                      onClick={() => setReadingTheme("sepia")}
+                      title="Sepia"
+                      aria-label="Sepia reading theme"
+                    />
+                    <button
+                      className={cn(
+                        "size-8 cursor-pointer rounded-full border-2 border-white bg-black transition-transform duration-200",
+                        readingTheme === "high-contrast" &&
+                          "scale-115 border-white ring-2 ring-white/50",
+                      )}
+                      onClick={() => setReadingTheme("high-contrast")}
+                      title="High Contrast"
+                      aria-label="High contrast reading theme"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </header>
+
+        <article
+          className={cn(
+            "max-w-full",
+            fontStyle === "mono" && "font-mono",
+            fontStyle === "sans" &&
+              "font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif]",
+            fontStyle === "serif" &&
+              "font-[Georgia,Cambria,'Times_New_Roman',Times,serif]",
+          )}
+        >
+          {blog.image && (
+            <div className="relative mb-8 w-full overflow-hidden rounded-xl border border-border-light bg-border-light/40">
+              {!isImageLoaded && (
+                <Skeleton className="aspect-16/9 w-full rounded-xl animate-shimmer" />
+              )}
+              <img
+                src={blog.image}
+                alt={blog.title}
+                className={`h-auto max-h-[520px] w-full rounded-xl object-contain dark:brightness-95 ${
+                  !isImageLoaded ? "hidden" : ""
+                }`}
+                onLoad={() => setIsImageLoaded(true)}
+              />
             </div>
-          ) : content ? (
-            renderContent(content)
-          ) : (
-            <div
+          )}
+
+          <div
+            className={cn(
+              "mb-8 border-b pb-6",
+              readingTheme === "default" && "border-border",
+              readingTheme === "sepia" && "border-[#5b4636]/20",
+              readingTheme === "high-contrast" && "border-white",
+            )}
+          >
+            <h1
               className={cn(
-                "py-12 text-center",
-                readingTheme === "default" && "text-muted-foreground",
-                readingTheme === "sepia" && "text-[#5b4636]/70",
+                "mb-4 text-3xl font-bold leading-tight tracking-tight sm:text-4xl",
+                readingTheme === "default" && "text-foreground",
+                readingTheme === "sepia" && "text-[#5b4636]",
                 readingTheme === "high-contrast" && "text-white",
               )}
             >
-              <p>Content could not be loaded. Please try again later.</p>
+              {blog.title}
+            </h1>
+
+            <div className="mb-4 flex items-center gap-6">
+              <span
+                className={cn(
+                  "flex items-center gap-1.5 text-sm",
+                  readingTheme === "default" && "text-muted-foreground",
+                  readingTheme === "sepia" && "text-[#5b4636]/70",
+                  readingTheme === "high-contrast" && "text-white",
+                )}
+              >
+                <Calendar size={14} />
+                {formatDate(blog.date)}
+              </span>
+              <span
+                className={cn(
+                  "flex items-center gap-1.5 text-sm",
+                  readingTheme === "default" && "text-muted-foreground",
+                  readingTheme === "sepia" && "text-[#5b4636]/70",
+                  readingTheme === "high-contrast" && "text-white",
+                )}
+              >
+                <Clock size={14} />
+                {blog.readTime}
+              </span>
             </div>
-          )}
-        </div>
-      </article>
+
+            <div className="flex flex-wrap gap-2">
+              {blog.tags.map((tag) => (
+                <Badge
+                  key={tag}
+                  variant="outline"
+                  className={cn(
+                    "gap-1 rounded px-2 py-1 text-xs font-normal",
+                    readingTheme === "default" &&
+                      "border-border text-secondary-foreground",
+                    readingTheme === "sepia" &&
+                      "border-[#5b4636]/30 text-[#5b4636]",
+                    readingTheme === "high-contrast" &&
+                      "border-white text-white",
+                  )}
+                >
+                  <Tag size={10} />
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div className="leading-[1.8]" style={{ fontSize: `${fontSize}px` }}>
+            {isLoading ? (
+              <div className="mt-4 flex flex-col gap-5">
+                <Skeleton className="h-4 w-full animate-shimmer" />
+                <Skeleton className="h-4 w-full animate-shimmer" />
+                <Skeleton className="h-4 w-[80%] animate-shimmer" />
+                <Skeleton className="mt-8 h-4 w-[90%] animate-shimmer" />
+                <Skeleton className="h-4 w-full animate-shimmer" />
+                <Skeleton className="h-4 w-[70%] animate-shimmer" />
+              </div>
+            ) : content ? (
+              renderContent(content)
+            ) : (
+              <div
+                className={cn(
+                  "py-12 text-center",
+                  readingTheme === "default" && "text-muted-foreground",
+                  readingTheme === "sepia" && "text-[#5b4636]/70",
+                  readingTheme === "high-contrast" && "text-white",
+                )}
+              >
+                <p>Content could not be loaded. Please try again later.</p>
+              </div>
+            )}
+          </div>
+        </article>
+      </div>
     </div>
   );
 };

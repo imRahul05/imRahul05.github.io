@@ -18,8 +18,8 @@ export const BlogsPage: React.FC = () => {
   };
 
   return (
-    <div className="container pb-24">
-      <header className="mb-8 flex flex-col gap-2 border-b border-border pb-4">
+    <div className="mx-auto min-h-screen max-w-4xl px-6 pt-14 pb-28 font-mono">
+      <header className="mb-8 flex flex-col gap-2 border-b border-border pb-6">
         <button
           className="inline-flex cursor-pointer items-center gap-2 self-start py-2 font-mono text-sm text-secondary-foreground transition-colors hover:text-foreground"
           onClick={handleBackClick}
@@ -35,7 +35,7 @@ export const BlogsPage: React.FC = () => {
       </header>
 
       <section>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-6 sm:grid-cols-2">
           {BLOGS.map((blog) => (
             <BlogCard key={blog.slug} blog={blog} onReadMore={handleReadMore} />
           ))}
