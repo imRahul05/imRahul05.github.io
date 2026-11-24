@@ -72,14 +72,14 @@ const EducationItem: React.FC<EducationItemProps> = ({
               />
             </button>
           </div>
-          <p className="text-[0.8rem] text-secondary-foreground my-1">
+          <p className="my-1 text-[0.875rem] text-secondary-foreground">
             {degree}
           </p>
           <span className="text-xs text-muted-foreground">{period}</span>
         </div>
         {isOpen && (
           <div className="mt-2">
-            <p className="text-[0.8rem] text-secondary-foreground leading-relaxed mt-2">
+            <p className="mt-2 text-[0.875rem] leading-[1.7] text-secondary-foreground">
               <TypewriterText text={description} speed={5} />
             </p>
             {tags && tags.length > 0 && (
@@ -104,7 +104,7 @@ const EducationItem: React.FC<EducationItemProps> = ({
 export const Education: React.FC = () => {
   return (
     <section className="mb-12">
-      <SectionTitle>Education</SectionTitle>
+      <SectionTitle index="02">Education</SectionTitle>
       <div>
         {DATA.education.map((edu, index) => (
           <EducationItem

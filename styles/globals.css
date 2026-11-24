@@ -3,58 +3,63 @@
 @custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
 
 :root {
+  --font-sans-stack:
+    "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono-stack:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-    "Courier New", monospace;
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
 
-  /* Default (Lilac) Theme */
-  --background: #fdfbff;
-  --foreground: #1a1523;
-  --card: #fdfbff;
-  --card-foreground: #1a1523;
-  --popover: #fdfbff;
-  --popover-foreground: #1a1523;
-  --primary: #1a1523;
-  --primary-foreground: #fdfbff;
-  --secondary: #eee8ff;
-  --secondary-foreground: #5e4b8b;
-  --muted: #eee8ff;
-  --muted-foreground: #8f7ab8;
-  --accent: #9b5cff;
-  --accent-foreground: #fdfbff;
-  --destructive: #ef4444;
+  /* Light Mode — ui-sdk.dev Blueprint Precision */
+  --background: #f8f8f8;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #0a0a0a;
+  --primary-foreground: #ffffff;
+  --secondary: #f2f2f2;
+  --secondary-foreground: #3a3a3a;
+  --muted: #f2f2f2;
+  --muted-foreground: #6f6f6f;
+  --accent: #006bff;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: #d7c9ff;
-  --border-light: #eee8ff;
-  --input: #d7c9ff;
-  --ring: #9b5cff;
-  --hover-ripple: rgba(155, 92, 255, 0.2);
-  --radius: 0.5rem;
+  --border: #c8c8c8;
+  --border-light: #e5e5e5;
+  --input: #c8c8c8;
+  --ring: #006bff;
+  --hover-ripple: rgba(0, 107, 255, 0.14);
+  --cad-grid: rgba(10, 10, 10, 0.045);
+  --radius: 0px;
 }
 
 [data-theme="dark"],
 .dark {
-  --background: #101014;
-  --foreground: #fafaf9;
-  --card: #101014;
-  --card-foreground: #fafaf9;
-  --popover: #101014;
-  --popover-foreground: #fafaf9;
-  --primary: #fafaf9;
-  --primary-foreground: #101014;
-  --secondary: #292524;
-  --secondary-foreground: #d6d3d1;
-  --muted: #292524;
-  --muted-foreground: #a8a29e;
-  --accent: #fafaf9;
-  --accent-foreground: #101014;
+  /* Dark Mode — ui-sdk.dev Deep Architectural Monochrome */
+  --background: #101010;
+  --foreground: #fafafa;
+  --card: #0a0a0a;
+  --card-foreground: #fafafa;
+  --popover: #0a0a0a;
+  --popover-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #0a0a0a;
+  --secondary: #1b1b1b;
+  --secondary-foreground: #cfcfcf;
+  --muted: #1b1b1b;
+  --muted-foreground: #9a9a9a;
+  --accent: #5fa1f3;
+  --accent-foreground: #0a0a0a;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #44403c;
-  --border-light: #292524;
-  --input: #44403c;
-  --ring: #fafaf9;
-  --hover-ripple: rgba(255, 255, 255, 0.15);
+  --border: #303030;
+  --border-light: #202020;
+  --input: #303030;
+  --ring: #5fa1f3;
+  --hover-ripple: rgba(95, 161, 243, 0.16);
+  --cad-grid: rgba(255, 255, 255, 0.045);
 }
 
 @theme inline {
@@ -78,11 +83,12 @@
   --color-border-light: var(--border-light);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --font-sans: var(--font-sans-stack);
   --font-mono: var(--font-mono-stack);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
 }
 
 @layer base {
@@ -91,8 +97,83 @@
   }
 
   body {
-    @apply m-0 p-0 bg-background text-foreground font-mono antialiased leading-[1.6];
+    @apply m-0 p-0 bg-background text-foreground font-sans antialiased leading-[1.6];
+    /* Ultra-subtle CAD dot matrix (4.5% opacity like ui-sdk.dev) */
+    background-image: radial-gradient(var(--cad-grid) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
+}
+
+/* ================================================== */
+/* ui-sdk.dev Inspired CAD / Blueprint Surface System */
+/* ================================================== */
+
+/* Sharp 1px flat architectural frame with zero drop-shadow */
+.cad-card {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background-color: var(--card);
+  transition: border-color 0.2s ease;
+}
+
+.cad-card:hover {
+  border-color: var(--foreground);
+}
+
+/* Subtle 45deg CAD diagonal hatching texture for blueprint headers */
+.cad-hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 6px,
+    var(--cad-grid) 6px,
+    var(--cad-grid) 7px
+  );
+}
+
+/* Sharp 1px interactive button (inverts cleanly on hover) */
+.cad-btn {
+  border: 1px solid var(--border);
+  border-radius: 0;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.cad-btn:hover {
+  border-color: var(--foreground);
+  background-color: var(--foreground);
+  color: var(--background);
+}
+
+/* Blueprint blue secondary CTA button */
+.cad-btn-blue {
+  border: 1px solid var(--accent);
+  border-radius: 0;
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+  transition: opacity 0.16s ease;
+}
+
+.cad-btn-blue:hover {
+  opacity: 0.88;
+}
+
+/* Sharp mono micro-chip */
+.cad-chip {
+  border: 1px solid var(--border);
+  border-radius: 0;
+  font-family: var(--font-mono-stack);
+  transition:
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.cad-chip:hover {
+  border-color: var(--foreground);
+  color: var(--foreground);
 }
 
 /* Keyframes for bespoke portfolio animations */
@@ -100,13 +181,13 @@
   0%,
   100% {
     opacity: 1;
-    box-shadow: 0 0 4px 2px rgba(56, 189, 248, 0.4);
+    box-shadow: 0 0 0 2px var(--hover-ripple);
     transform: scale(1);
   }
 
   50% {
     opacity: 0.6;
-    box-shadow: 0 0 10px 5px rgba(56, 189, 248, 0.6);
+    box-shadow: 0 0 0 5px var(--hover-ripple);
     transform: scale(1.15);
   }
 }
@@ -154,29 +235,34 @@
   }
 }
 
-/* Profile animated aura ring */
+@keyframes role-word-in {
+  0% {
+    opacity: 0;
+    transform: translateY(70%) rotateX(-45deg);
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg);
+    filter: blur(0);
+  }
+}
+
+.animate-role-word {
+  display: inline-block;
+  animation: role-word-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Profile precision CAD dashed ring */
 .profile-aura-ring::before {
   content: "";
   position: absolute;
-  inset: -4px;
+  inset: -5px;
   border-radius: inherit;
-  background: conic-gradient(
-    from 0deg,
-    var(--accent),
-    var(--muted-foreground),
-    var(--border),
-    var(--accent)
-  );
-  animation: aura-spin 4s linear infinite;
-  -webkit-mask: radial-gradient(
-    farthest-side,
-    transparent calc(100% - 4px),
-    #000 0
-  );
-  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
+  border: 1px dashed var(--accent);
+  animation: aura-spin 20s linear infinite;
   pointer-events: none;
-  opacity: 0.9;
-  filter: drop-shadow(0 0 10px var(--hover-ripple));
+  opacity: 0.85;
 }
 
 /* 3D coin-flip helpers */

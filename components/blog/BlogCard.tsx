@@ -39,7 +39,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog, onReadMore }) => {
 
   return (
     <article
-      className="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-background transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-muted-foreground"
+      className="cad-card group relative flex h-full cursor-pointer flex-col overflow-hidden"
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       role="button"
@@ -78,7 +78,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog, onReadMore }) => {
           {blog.title}
         </h3>
 
-        <p className="mb-4 line-clamp-3 text-[0.8rem] leading-relaxed text-secondary-foreground">
+        <p className="mb-4 line-clamp-3 text-[0.875rem] leading-[1.7] text-secondary-foreground">
           {blog.excerpt}
         </p>
 

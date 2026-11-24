@@ -28,11 +28,15 @@ import { Experience } from "../components/experience/Experience";
 import { SocialLink } from "../components/SocialLink";
 import { DigitalClock } from "../components/DigitalClock";
 import { XIcon } from "../components/XIcon";
+import { AnimatedRoleTitle } from "../components/AnimatedRoleTitle";
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
+  const [hasFlippedManually, setHasFlippedManually] = useState(false);
+  const [isShowingVideo, setIsShowingVideo] = useState(false);
+  const profileVideoRef = useRef<HTMLVideoElement | null>(null);
   const contributionData = React.useMemo(() => generateContributionData(), []);
 
   const headerRef = useRef<HTMLElement | null>(null);
@@ -149,27 +153,42 @@ export const HomePage: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
+  const handleProfileToggle = () => {
+    setHasFlippedManually(true);
+    setIsShowingVideo((prev) => {
+      const next = !prev;
+      const videoEl = profileVideoRef.current;
+      if (videoEl) {
+        if (next) {
+          videoEl.currentTime = 0;
+          videoEl.play().catch(() => undefined);
+        } else {
+          videoEl.pause();
+        }
+      }
+      return next;
+    });
+  };
+
   return (
     <div className="relative min-h-screen [overflow-anchor:none]">
       <div className="relative z-[1] max-w-[42rem] mx-auto px-6 py-16 min-h-screen">
         {/* HEADER */}
         <header
           ref={headerRef}
-          className="group sticky top-0 z-50 bg-background/90 backdrop-blur-[10px] py-4 -mt-4 mb-8 flex flex-row justify-between items-start gap-6 sm:gap-8 border-b border-transparent transition-[gap,padding,border-color,background-color] duration-300 ease-out [&.is-scrolled]:items-center [&.is-scrolled]:gap-4 [&.is-scrolled]:py-2 [&.is-scrolled]:border-b-border-light"
+          className="group sticky top-0 z-50 bg-background/92 backdrop-blur-[12px] py-4 -mt-4 mb-8 flex flex-row justify-between items-start gap-6 sm:gap-8 border-b border-transparent transition-[gap,padding,border-color,background-color] duration-300 ease-out [&.is-scrolled]:items-center [&.is-scrolled]:gap-4 [&.is-scrolled]:py-2.5 [&.is-scrolled]:border-b-border"
         >
           <div>
-            <h1 className="text-[1.5rem] mb-2 tracking-[-0.025em] transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[1.1rem] group-[.is-scrolled]:mb-[0.1rem]">
+            <h1 className="font-sans text-[1.75rem] font-medium mb-1.5 tracking-[-0.04em] leading-[1.1] transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[1.15rem] group-[.is-scrolled]:mb-[0.1rem]">
               {DATA.personal.name}
             </h1>
-            <p className="text-sm text-secondary-foreground mb-4 transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[0.8rem] group-[.is-scrolled]:mb-[0.1rem]">
-              {DATA.personal.title}
-            </p>
-            <div className="flex items-center gap-1 mb-2 text-xs text-muted-foreground transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:mb-0 group-[.is-scrolled]:text-xs">
-              <MapPin size={14} className="text-[#3b82f6]" />
+            <AnimatedRoleTitle className="mb-3.5 group-[.is-scrolled]:text-[0.68rem] group-[.is-scrolled]:mb-[0.15rem]" />
+            <div className="flex items-center gap-1.5 mb-2 font-mono text-[0.72rem] text-muted-foreground transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:mb-0 group-[.is-scrolled]:text-[0.68rem]">
+              <MapPin size={13} className="text-accent" />
               {DATA.personal.location}
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4 transition-[font-size,margin-bottom,opacity] duration-300 ease-out group-[.is-scrolled]:hidden">
-              <span className="w-2 h-2 rounded-full bg-[#38bdf8] animate-pulse-glow shrink-0" />
+            <div className="flex items-center gap-2 font-mono text-[0.72rem] text-muted-foreground mb-4 transition-[font-size,margin-bottom,opacity] duration-300 ease-out group-[.is-scrolled]:hidden">
+              <span className="w-2 h-2 bg-accent animate-pulse-glow shrink-0" />
               <span>
                 Building{" "}
                 <HoverCard>
@@ -177,7 +196,7 @@ export const HomePage: React.FC = () => {
                     href={DATA.personal.currentlyBuilding.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-[linear-gradient(135deg,#4c2354_0%,#818cf8_50%,#61546d_100%)] bg-clip-text text-transparent font-bold tracking-[0.02em] cursor-pointer no-underline relative transition-opacity duration-200 ease-out hover:opacity-80 hover:underline hover:decoration-[#818cf8] hover:underline-offset-[3px]"
+                    className="text-foreground font-medium tracking-[0.01em] cursor-pointer underline decoration-accent decoration-1 underline-offset-[4px] relative transition-colors duration-200 ease-out hover:text-accent"
                   >
                     {DATA.personal.currentlyBuilding.name}
                   </HoverCardTrigger>
@@ -190,7 +209,7 @@ export const HomePage: React.FC = () => {
                     <img
                       src={DATA.personal.currentlyBuilding.previewImage}
                       alt={DATA.personal.currentlyBuilding.name}
-                      className="w-[280px] max-w-[80vw] rounded-lg border border-border shadow-[0_10px_40px_rgba(0,0,0,0.3)] bg-background"
+                      className="w-[280px] max-w-[80vw] border border-border bg-card"
                     />
                   </HoverCardContent>
                 </HoverCard>
@@ -198,11 +217,29 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="relative inline-grid place-items-center shrink-0 rounded-full profile-aura-ring">
+          <button
+            type="button"
+            onClick={handleProfileToggle}
+            aria-label={
+              isShowingVideo
+                ? "Switch profile avatar to photo"
+                : "Switch profile avatar to video"
+            }
+            title={
+              isShowingVideo
+                ? "Click to show photo"
+                : "Click to play profile video"
+            }
+            className="relative inline-grid place-items-center shrink-0 cursor-pointer rounded-full border-0 bg-transparent p-0 outline-none profile-aura-ring focus-visible:ring-2 focus-visible:ring-accent"
+          >
             <div
               className={cn(
-                "relative w-24 h-24 sm:w-32 sm:h-32 flip-3d z-[1] transition-[width,height] duration-300 ease-out group-[.is-scrolled]:w-14 group-[.is-scrolled]:h-14",
-                isImageLoaded && isVideoReady && "animate-coin-flip",
+                "relative w-24 h-24 sm:w-32 sm:h-32 flip-3d z-[1] transition-[width,height,transform] duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-[.is-scrolled]:w-14 group-[.is-scrolled]:h-14",
+                !hasFlippedManually &&
+                  isImageLoaded &&
+                  isVideoReady &&
+                  "animate-coin-flip",
+                hasFlippedManually && isShowingVideo && "flip-rotate-y-180",
               )}
             >
               {/* Front Side - Profile Image */}
@@ -223,6 +260,7 @@ export const HomePage: React.FC = () => {
               {/* Back Side - Video */}
               <div className="absolute w-full h-full flip-backface-hidden flip-rotate-y-180 rounded-full overflow-hidden">
                 <video
+                  ref={profileVideoRef}
                   className="w-full h-full object-cover rounded-full border border-foreground transition-[width,height] duration-300 ease-out"
                   src={DATA.personal.profileVideo}
                   autoPlay
@@ -234,7 +272,7 @@ export const HomePage: React.FC = () => {
                 />
               </div>
             </div>
-          </div>
+          </button>
         </header>
         <div
           ref={spacerRef}
@@ -244,19 +282,19 @@ export const HomePage: React.FC = () => {
 
         {/* BIO */}
         <section className="mb-12">
-          <p className="text-sm leading-relaxed text-secondary-foreground max-w-[400px]">
+          <p className="max-w-[540px] text-[0.95rem] leading-[1.75] text-secondary-foreground">
             {DATA.personal.bio}
           </p>
         </section>
 
-        {/* SKILLS (Badges Style) */}
+        {/* SKILLS (CAD Micro-Chips) */}
         <section className="mb-12">
-          <div className="flex flex-wrap gap-2 text-xs">
+          <div className="flex flex-wrap gap-1.5 text-xs">
             {DATA.skills.map((skill) => (
               <Badge
                 key={skill}
                 variant="outline"
-                className="rounded-none h-auto px-1.5 py-0.5 text-xs font-normal text-secondary-foreground border-border"
+                className="cad-chip h-auto bg-card px-2.5 py-1 text-[0.72rem] font-normal text-secondary-foreground"
               >
                 {skill}
               </Badge>
@@ -272,43 +310,43 @@ export const HomePage: React.FC = () => {
 
         {/* FEATURED PROJECTS */}
         <section className="mb-12">
-          <SectionTitle>Featured Projects</SectionTitle>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+          <SectionTitle index="03">Featured Projects</SectionTitle>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             {featuredProjects.map((project) => (
               <ProjectCard key={project.name} {...project} />
             ))}
           </div>
-          <div className="flex gap-4 flex-wrap">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
-              className="inline-flex items-center gap-2 px-6 py-3.5 bg-white/5 border border-border rounded-lg text-secondary-foreground font-mono text-[0.8rem] font-medium tracking-[0.05em] uppercase cursor-pointer transition-[background-color,border-color,color,box-shadow] duration-200 ease-out hover:bg-white/10 hover:border-[rgba(80,200,120,0.5)] hover:text-foreground hover:shadow-[0_0_15px_rgba(80,200,120,0.1)]"
+              className="cad-btn inline-flex items-center justify-between px-5 py-3.5 bg-foreground text-background font-mono text-[0.75rem] font-medium tracking-[0.06em] uppercase cursor-pointer hover:opacity-88"
               onClick={handleViewAllProjects}
             >
-              View All Projects ({DATA.projects.length})
-              <ArrowRight size={16} />
+              <span>View All Projects ({DATA.projects.length})</span>
+              <ArrowRight size={15} />
             </button>
             <button
               type="button"
-              className="inline-flex items-center gap-2 px-6 py-3.5 bg-white/5 border border-border rounded-lg text-secondary-foreground font-mono text-[0.8rem] font-medium tracking-[0.05em] uppercase cursor-pointer transition-[background-color,border-color,color,box-shadow] duration-200 ease-out hover:bg-white/10 hover:border-[rgba(80,200,120,0.5)] hover:text-foreground hover:shadow-[0_0_15px_rgba(80,200,120,0.1)]"
+              className="cad-btn-blue inline-flex items-center justify-between px-5 py-3.5 font-mono text-[0.75rem] font-medium tracking-[0.06em] uppercase cursor-pointer"
               onClick={handleViewBlogs}
             >
-              <BookOpen size={16} />
-              Read Blog
+              <span>Read Architecture Blogs</span>
+              <BookOpen size={15} />
             </button>
           </div>
         </section>
 
         {/* CONTRIBUTION GRAPH */}
         <section className="mb-12">
-          <SectionTitle>Build Rhythm</SectionTitle>
+          <SectionTitle index="04">Build Rhythm</SectionTitle>
           <ContributionGraph
-            className="relative overflow-hidden border border-[rgba(155,92,255,0.16)] dark:border-[rgba(255,126,76,0.18)] rounded-2xl p-4 bg-[radial-gradient(circle_at_top_left,rgba(255,111,55,0.16),transparent_32%),radial-gradient(circle_at_top_right,rgba(80,200,120,0.12),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,245,255,0.92))] dark:bg-[radial-gradient(circle_at_top_left,rgba(255,111,55,0.2),transparent_34%),radial-gradient(circle_at_top_right,rgba(81,170,180,0.16),transparent_30%),linear-gradient(180deg,rgba(17,16,24,0.98),rgba(12,10,16,0.95))] shadow-[0_18px_40px_rgba(35,20,58,0.08),inset_0_1px_0_rgba(255,255,255,0.72)] dark:shadow-[0_24px_50px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,214,179,0.08)]"
+            className="cad-card relative overflow-hidden p-4"
             data={contributionData}
           />
         </section>
 
         {/* FOOTER */}
-        <footer className="mt-20 border-t border-border-light pt-8 pb-16">
+        <footer className="mt-20 border-t border-border pt-8 pb-16">
           <div className="flex flex-row flex-wrap items-center gap-4 sm:gap-8">
             <SocialLink
               href={`mailto:${DATA.personal.email}`}
