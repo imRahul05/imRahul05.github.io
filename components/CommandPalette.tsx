@@ -332,8 +332,11 @@ export const CommandPalette: React.FC = () => {
       );
     } else if (e.key === "Enter") {
       e.preventDefault();
+      e.stopPropagation();
       const selected = flatVisibleItems[safeActiveIndex];
-      if (selected) selected.action();
+      if (selected) {
+        requestAnimationFrame(() => selected.action());
+      }
     }
   };
 
@@ -342,7 +345,10 @@ export const CommandPalette: React.FC = () => {
       {/* Subtle Liquid Glass ⌘K Trigger Pill (Desktop Top-Right) */}
       <button
         type="button"
-        onClick={() => handleOpenChange(true)}
+        onClick={(e) => {
+          e.currentTarget.blur();
+          handleOpenChange(true);
+        }}
         aria-label="Open command palette (Command + K)"
         className="fixed top-5 right-5 z-[900] hidden cursor-pointer items-center gap-1.5 rounded-full border border-white/75 bg-white/35 px-3 py-1.5 font-mono text-[0.7rem] text-secondary-foreground shadow-[0_6px_20px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.85)] backdrop-blur-2xl backdrop-saturate-[200%] transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/50 hover:text-foreground hover:shadow-[0_10px_28px_var(--hover-ripple)] sm:inline-flex dark:border-white/18 dark:bg-[rgba(22,22,28,0.48)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.2)]"
       >
