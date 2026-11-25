@@ -253,8 +253,10 @@ export const FloatingDock: React.FC = () => {
   const gap = isMobile ? 4 : 8;
   const translationOffset = displayIndex * (buttonWidth + gap);
 
-  // Touch Glide Gesture Logic
-  const getTouchItemIndex = (
+  // Unified Pointer Glide (works for mobile touch swipe AND desktop drag)
+  const activePointerIdRef = useRef<number | null>(null);
+
+  const getItemIndexAtPoint = (
     clientX: number,
     clientY: number,
   ): number | null => {
@@ -276,36 +278,59 @@ export const FloatingDock: React.FC = () => {
     return null;
   };
 
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
     resetDimTimer();
-    const index = getTouchItemIndex(e.touches[0].clientX, e.touches[0].clientY);
+    const index = getItemIndexAtPoint(e.clientX, e.clientY);
+    activePointerIdRef.current = e.pointerId;
     touchStartIndexRef.current = index;
     didTouchGlideRef.current = false;
-    setHoveredIndex(null);
+    if (e.pointerType !== "mouse") {
+      setHoveredIndex(null);
+    }
     setGlideIndex(index);
+    e.currentTarget.setPointerCapture(e.pointerId);
   };
 
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== e.pointerId) return;
     resetDimTimer();
-    const index = getTouchItemIndex(e.touches[0].clientX, e.touches[0].clientY);
+    const index = getItemIndexAtPoint(e.clientX, e.clientY);
     if (index !== touchStartIndexRef.current) {
       didTouchGlideRef.current = true;
     }
     setGlideIndex(index);
   };
 
-  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== e.pointerId) return;
     resetDimTimer();
-    if (glideIndex !== null) {
-      // Prevent synthetic delayed click on the original touch-start button after a swipe
-      if (didTouchGlideRef.current) {
-        e.preventDefault();
-      }
-      handleItemSelect(navItems[glideIndex], glideIndex);
-    }
-    setGlideIndex(null);
+    const targetIndex = glideIndex;
+    const didGlide = didTouchGlideRef.current;
+
+    activePointerIdRef.current = null;
     touchStartIndexRef.current = null;
     didTouchGlideRef.current = false;
+
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+
+    if (targetIndex !== null && didGlide) {
+      handleItemSelect(navItems[targetIndex], targetIndex);
+    }
+    setGlideIndex(null);
+    if (e.pointerType !== "mouse") {
+      setHoveredIndex(null);
+    }
+  };
+
+  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== e.pointerId) return;
+    activePointerIdRef.current = null;
+    touchStartIndexRef.current = null;
+    didTouchGlideRef.current = false;
+    setGlideIndex(null);
   };
 
   const isLensGliding = glideIndex !== null || hoveredIndex !== null;
@@ -321,9 +346,10 @@ export const FloatingDock: React.FC = () => {
       <div
         ref={containerRef}
         className="relative flex touch-none items-center gap-1 rounded-full border border-border bg-card/75 p-[5px] shadow-[0_12px_36px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur-[32px] backdrop-saturate-[220%] transition-[border-color,background-color,box-shadow] duration-300 ease-in-out sm:gap-2 sm:p-1.5 dark:border-white/18 dark:bg-[#0a0a0a]/75 dark:shadow-[0_16px_42px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.16)]"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
         onPointerLeave={(e) => {
           if (e.pointerType === "mouse") {
             setHoveredIndex(null);
