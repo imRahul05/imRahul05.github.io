@@ -28,7 +28,7 @@ function extractBlogs(content) {
           slug,
           title,
           excerpt: excerpt ? excerpt.replace(/\n/g, " ").trim() : "",
-          image: image || "https://imrahul.me/rahul-profile.webp",
+          image: image || "https://imrahul.me/og-card.png",
         });
       }
     }
@@ -88,12 +88,27 @@ async function generate() {
         value: blog.title,
       },
       {
+        name: 'meta[name="twitter:title"]',
+        attr: "content",
+        value: blog.title,
+      },
+      {
         name: 'meta[property="twitter:description"]',
         attr: "content",
         value: blog.excerpt,
       },
       {
+        name: 'meta[name="twitter:description"]',
+        attr: "content",
+        value: blog.excerpt,
+      },
+      {
         name: 'meta[property="twitter:image"]',
+        attr: "content",
+        value: blog.image,
+      },
+      {
+        name: 'meta[name="twitter:image"]',
         attr: "content",
         value: blog.image,
       },
