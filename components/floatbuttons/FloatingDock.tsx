@@ -249,9 +249,9 @@ export const FloatingDock: React.FC = () => {
           ? resolvedPendingIndex
           : activeIndex;
 
-  const buttonWidth = isMobile ? 36 : 40;
-  const gap = isMobile ? 4 : 8;
-  const translationOffset = displayIndex * (buttonWidth + gap);
+  const buttonWidth = 40;
+  const gap = 8;
+  const desktopTranslationOffset = displayIndex * (buttonWidth + gap);
 
   // Unified Pointer Glide (works for mobile touch swipe AND desktop drag, never blocks clicks)
   const activePointerIdRef = useRef<number | null>(null);
@@ -268,9 +268,10 @@ export const FloatingDock: React.FC = () => {
       return null;
     }
 
-    const padding = isMobile ? 5 : 6;
+    const padding = 6;
+    const innerWidth = Math.max(1, rect.width - padding * 2);
     const relativeX = clientX - rect.left - padding;
-    const step = buttonWidth + gap;
+    const step = isMobile ? innerWidth / navItems.length : buttonWidth + gap;
 
     const index = Math.floor(relativeX / step);
     if (index >= 0 && index < navItems.length) {
@@ -345,14 +346,14 @@ export const FloatingDock: React.FC = () => {
   return (
     <div
       className={cn(
-        "pointer-events-auto fixed bottom-4 left-1/2 z-[1000] flex origin-bottom -translate-x-1/2 scale-100 items-center justify-center opacity-100 transition-[scale,transform,opacity] duration-[380ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[scale,opacity] select-none sm:bottom-6",
-        isShrunk && "scale-[0.84] opacity-80 hover:scale-100 hover:opacity-100",
+        "pointer-events-auto fixed bottom-4 left-1/2 z-[1000] flex w-[calc(100vw-2rem)] max-w-[380px] origin-bottom -translate-x-1/2 scale-100 items-center justify-center opacity-100 transition-[scale,transform,opacity] duration-[380ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[scale,opacity] select-none sm:bottom-6 sm:w-auto sm:max-w-none",
+        isShrunk && "scale-[0.86] opacity-80 hover:scale-100 hover:opacity-100",
         isDimmed && "opacity-45 hover:opacity-100",
       )}
     >
       <div
         ref={containerRef}
-        className="relative flex touch-none items-center gap-1 rounded-full border border-border bg-card/75 p-[5px] shadow-[0_12px_36px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur-[32px] backdrop-saturate-[220%] transition-[border-color,background-color,box-shadow] duration-300 ease-in-out sm:gap-2 sm:p-1.5 dark:border-white/18 dark:bg-[#0a0a0a]/75 dark:shadow-[0_16px_42px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.16)]"
+        className="relative flex w-full touch-none items-center rounded-full border border-border bg-card/75 p-1.5 shadow-[0_12px_36px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur-[32px] backdrop-saturate-[220%] transition-[border-color,background-color,box-shadow] duration-300 ease-in-out sm:w-auto sm:gap-2 dark:border-white/18 dark:bg-[#0a0a0a]/75 dark:shadow-[0_16px_42px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.16)]"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -364,18 +365,34 @@ export const FloatingDock: React.FC = () => {
         }}
       >
         {/* Apple Liquid Glass sliding circular lens */}
-        <div
-          className={cn(
-            "pointer-events-none absolute top-[5px] left-[5px] z-[1] h-9 w-9 rounded-full border border-foreground/20 bg-foreground/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.85)] backdrop-blur-md transition-[transform,box-shadow,background-color,border-color] duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform sm:top-1.5 sm:left-1.5 sm:h-10 sm:w-10 dark:border-white/25 dark:bg-white/[0.14] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.28)]",
-            isLensGliding && "border-accent/50 bg-accent/15",
-          )}
-          style={{
-            transform: `translate3d(${translationOffset}px, 0, 0) scale(${isLensGliding ? 1.07 : 1})`,
-          }}
-        />
+        {isMobile ? (
+          <div
+            className="pointer-events-none absolute top-1.5 bottom-1.5 left-1.5 z-[1] flex w-[calc((100%-12px)/5)] items-center justify-center transition-transform duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
+            style={{
+              transform: `translate3d(${displayIndex * 100}%, 0, 0)`,
+            }}
+          >
+            <div
+              className={cn(
+                "h-11 w-11 rounded-full border border-foreground/20 bg-foreground/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.85)] backdrop-blur-md transition-[transform,background-color,border-color] duration-200 dark:border-white/25 dark:bg-white/[0.14] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.28)]",
+                isLensGliding && "scale-[1.07] border-accent/50 bg-accent/15",
+              )}
+            />
+          </div>
+        ) : (
+          <div
+            className={cn(
+              "pointer-events-none absolute top-1.5 left-1.5 z-[1] h-10 w-10 rounded-full border border-foreground/20 bg-foreground/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.85)] backdrop-blur-md transition-[transform,box-shadow,background-color,border-color] duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform dark:border-white/25 dark:bg-white/[0.14] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.28)]",
+              isLensGliding && "border-accent/50 bg-accent/15",
+            )}
+            style={{
+              transform: `translate3d(${desktopTranslationOffset}px, 0, 0) scale(${isLensGliding ? 1.07 : 1})`,
+            }}
+          />
+        )}
 
         {/* Foreground navigation items */}
-        <div className="relative z-[2] flex items-center gap-1 sm:gap-2">
+        <div className="relative z-[2] grid w-full grid-cols-5 items-center sm:flex sm:w-auto sm:gap-2">
           {navItems.map((item, index) => {
             const Icon = item.icon;
             const isCurrentlyActive = displayIndex === index;
@@ -391,7 +408,7 @@ export const FloatingDock: React.FC = () => {
                   }
                 }}
                 className={cn(
-                  "group relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-[#6e6a7c] transition-[scale,transform,color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] outline-none active:scale-[0.92] sm:h-10 sm:w-10 dark:text-[#a8a29e] [&_svg]:h-[18px] [&_svg]:w-[18px] [&_svg]:transition-[stroke-width,transform] [&_svg]:duration-200 sm:[&_svg]:h-5 sm:[&_svg]:w-5",
+                  "group relative flex h-11 w-full cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-[#6e6a7c] transition-[scale,transform,color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] outline-none active:scale-[0.92] sm:h-10 sm:w-10 dark:text-[#a8a29e] [&_svg]:h-5 [&_svg]:w-5 [&_svg]:transition-[stroke-width,transform] [&_svg]:duration-200",
                   isCurrentlyActive &&
                     "scale-[1.06] text-accent dark:text-foreground",
                 )}
