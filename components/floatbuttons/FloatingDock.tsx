@@ -34,17 +34,28 @@ const THEMES = [
   { name: "dark", icon: Moon },
 ] as const;
 
+const SCROLL_DIRECTION_THRESHOLD = 18;
+
 export const FloatingDock: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Scroll shrink state
+  // Scroll shrink state with direction accumulator to prevent jitter
   const [isShrunk, setIsShrunk] = useState<boolean>(false);
   const lastScrollYRef = useRef<number>(0);
+  const scrollDeltaRef = useRef<number>(0);
 
-  // Touch glide & pointer hover glide state
+  // Touch glide, pointer hover, and pending route index (prevents to-and-fro bounce)
   const [glideIndex, setGlideIndex] = useState<number | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [pendingIndex, setPendingIndex] = useState<number | null>(null);
+  const didTouchGlideRef = useRef<boolean>(false);
+  const touchStartIndexRef = useRef<number | null>(null);
+
+  // Responsive breakpoint (only updates on crossing 640px)
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== "undefined" ? window.innerWidth <= 640 : false,
+  );
 
   // Dimming and transition state
   const [isDimmed, setIsDimmed] = useState<boolean>(false);
@@ -68,6 +79,14 @@ export const FloatingDock: React.FC = () => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [currentThemeIndex]);
 
+  // Track responsive breakpoint cleanly via matchMedia
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const handleChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handleChange);
+    return () => mq.removeEventListener("change", handleChange);
+  }, []);
+
   // Handle auto-dimming of the menu when idle
   const resetDimTimer = useCallback(() => {
     if (dimTimerRef.current) {
@@ -80,22 +99,40 @@ export const FloatingDock: React.FC = () => {
     }, 4000);
   }, []);
 
-  // Listen to window scrolling to shrink the menu on scroll down
+  // Smooth scroll shrink/expand with accumulated delta deadzone
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      const delta = currentScrollY - lastScrollYRef.current;
+      lastScrollYRef.current = currentScrollY;
 
-      // Shrink when scrolling down beyond a small threshold
-      if (currentScrollY > lastScrollYRef.current && currentScrollY > 60) {
-        setIsShrunk(true);
-      } else if (
-        currentScrollY < lastScrollYRef.current ||
-        currentScrollY <= 15
-      ) {
+      // Always expand near the top
+      if (currentScrollY <= 24) {
+        scrollDeltaRef.current = 0;
         setIsShrunk(false);
+        return;
       }
 
-      lastScrollYRef.current = currentScrollY;
+      // Reset accumulator on direction change
+      if (
+        (delta > 0 && scrollDeltaRef.current < 0) ||
+        (delta < 0 && scrollDeltaRef.current > 0)
+      ) {
+        scrollDeltaRef.current = 0;
+      }
+
+      scrollDeltaRef.current += delta;
+
+      if (
+        scrollDeltaRef.current > SCROLL_DIRECTION_THRESHOLD &&
+        currentScrollY > 72
+      ) {
+        setIsShrunk(true);
+        scrollDeltaRef.current = 0;
+      } else if (scrollDeltaRef.current < -SCROLL_DIRECTION_THRESHOLD) {
+        setIsShrunk(false);
+        scrollDeltaRef.current = 0;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -104,8 +141,8 @@ export const FloatingDock: React.FC = () => {
 
   // Set up and clean up the dimming timer and general activity listeners
   useEffect(() => {
-    resetDimTimer();
     const handleActivity = () => resetDimTimer();
+    dimTimerRef.current = setTimeout(() => setIsDimmed(true), 4000);
 
     window.addEventListener("scroll", handleActivity, { passive: true });
     window.addEventListener("mousemove", handleActivity, { passive: true });
@@ -138,46 +175,19 @@ export const FloatingDock: React.FC = () => {
       });
     }).ready;
 
-    if (isNextDark) {
-      // Circle clip-path reveal expanding downwards
-      document.documentElement.animate(
-        {
-          clipPath: ["inset(0 0 100% 0)", "inset(0 0 0 0)"],
-        },
-        {
-          duration: 700,
-          easing: "ease-in-out",
-          pseudoElement: "::view-transition-new(root)",
-        },
-      );
-    } else {
-      // Circle clip-path reveal expanding upwards
-      document.documentElement.animate(
-        {
-          clipPath: ["inset(100% 0 0 0)", "inset(0 0 0 0)"],
-        },
-        {
-          duration: 700,
-          easing: "ease-in-out",
-          pseudoElement: "::view-transition-new(root)",
-        },
-      );
-    }
+    document.documentElement.animate(
+      {
+        clipPath: isNextDark
+          ? ["inset(0 0 100% 0)", "inset(0 0 0 0)"]
+          : ["inset(100% 0 0 0)", "inset(0 0 0 0)"],
+      },
+      {
+        duration: 700,
+        easing: "ease-in-out",
+        pseudoElement: "::view-transition-new(root)",
+      },
+    );
   }, [currentThemeIndex]);
-
-  // Click action for items
-  const handleItemClick = (item: NavItem) => {
-    resetDimTimer();
-
-    if (item.isThemeToggle) {
-      toggleTheme();
-    } else if (item.isExternal) {
-      window.open(item.path, "_blank", "noopener,noreferrer");
-    } else {
-      navigate(item.path);
-      window.scrollTo(0, 0);
-    }
-  };
 
   // Build the list of navigation items
   const navItems: NavItem[] = [
@@ -199,89 +209,135 @@ export const FloatingDock: React.FC = () => {
   ];
 
   // Calculate the active index for the indicator position (Home: 0, Projects: 1, Blogs: 2)
-  const getActiveIndicatorIndex = (): number => {
+  const activeIndex = (() => {
     const path = location.pathname;
     if (path === "/") return 0;
     if (path === "/projects") return 1;
     if (path.startsWith("/blogs")) return 2;
-    return 0; // Default fallback to Home
+    return 0;
+  })();
+
+  // Click / selection action for items
+  const handleItemSelect = (item: NavItem, index: number) => {
+    resetDimTimer();
+
+    if (item.isThemeToggle) {
+      setPendingIndex(null);
+      void toggleTheme();
+    } else if (item.isExternal) {
+      setPendingIndex(null);
+      window.open(item.path, "_blank", "noopener,noreferrer");
+    } else {
+      // Lock lens on destination index immediately so lazy route transition never bounces back
+      setPendingIndex(index);
+      navigate(item.path);
+      window.scrollTo(0, 0);
+    }
   };
 
-  const activeIndex = getActiveIndicatorIndex();
+  // Clear pending lock automatically once router reaches the destination
+  const resolvedPendingIndex =
+    pendingIndex !== null && pendingIndex !== activeIndex ? pendingIndex : null;
 
-  // Dynamic layout measurements to translate the circular Liquid Glass lens
-  const getTranslationOffset = useCallback((): number => {
-    const isMobile = typeof window !== "undefined" && window.innerWidth <= 640;
-    const buttonWidth = isMobile ? 36 : 40;
-    const gap = isMobile ? 4 : 8;
-
-    // Slide circular lens to glided item (touch) -> hovered item (pointer) -> active route
-    const showIndex =
-      glideIndex !== null
-        ? glideIndex
-        : hoveredIndex !== null
-          ? hoveredIndex
+  // Derive lens index & translation directly in render (zero effect lag, zero to-and-fro bounce)
+  const displayIndex =
+    glideIndex !== null
+      ? glideIndex
+      : hoveredIndex !== null
+        ? hoveredIndex
+        : resolvedPendingIndex !== null
+          ? resolvedPendingIndex
           : activeIndex;
-    return showIndex * (buttonWidth + gap);
-  }, [activeIndex, glideIndex, hoveredIndex]);
 
-  const [translationOffset, setTranslationOffset] = useState<number>(0);
+  const buttonWidth = 40;
+  const gap = 8;
+  const desktopTranslationOffset = displayIndex * (buttonWidth + gap);
 
-  useEffect(() => {
-    setTranslationOffset(getTranslationOffset());
-  }, [getTranslationOffset]);
+  // Unified Pointer Glide (works for mobile touch swipe AND desktop drag, never blocks clicks)
+  const activePointerIdRef = useRef<number | null>(null);
+  const pointerStartXRef = useRef<number>(0);
 
-  // Re-calculate on window resize
-  useEffect(() => {
-    const handleResize = () => {
-      setTranslationOffset(getTranslationOffset());
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [getTranslationOffset]);
-
-  // Touch Glide Gesture Logic
-  const updateTouchActiveItem = (clientX: number, clientY: number) => {
-    if (!containerRef.current) return;
+  const getItemIndexAtPoint = (
+    clientX: number,
+    clientY: number,
+  ): number | null => {
+    if (!containerRef.current) return null;
     const rect = containerRef.current.getBoundingClientRect();
 
-    // Prevent snapping outside vertically bounds
     if (clientY < rect.top - 60 || clientY > rect.bottom + 60) {
-      setGlideIndex(null);
-      return;
+      return null;
     }
 
-    const isMobile = typeof window !== "undefined" && window.innerWidth <= 640;
-    const padding = isMobile ? 5 : 6;
+    const padding = 6;
+    const innerWidth = Math.max(1, rect.width - padding * 2);
     const relativeX = clientX - rect.left - padding;
-
-    const buttonWidth = isMobile ? 36 : 40;
-    const gap = isMobile ? 4 : 8;
-    const step = buttonWidth + gap;
+    const step = isMobile ? innerWidth / navItems.length : buttonWidth + gap;
 
     const index = Math.floor(relativeX / step);
     if (index >= 0 && index < navItems.length) {
-      setGlideIndex(index);
-    } else {
-      setGlideIndex(null);
+      return index;
+    }
+    return null;
+  };
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    resetDimTimer();
+    const index = getItemIndexAtPoint(e.clientX, e.clientY);
+    activePointerIdRef.current = e.pointerId;
+    pointerStartXRef.current = e.clientX;
+    touchStartIndexRef.current = index;
+    didTouchGlideRef.current = false;
+    if (e.pointerType !== "mouse") {
+      setHoveredIndex(null);
+    }
+    // Do NOT call setPointerCapture on pointerdown — that steals click from child buttons!
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== e.pointerId) return;
+    const movedDistance = Math.abs(e.clientX - pointerStartXRef.current);
+
+    // Only enter swipe/glide mode after intentional drag (> 8px)
+    if (!didTouchGlideRef.current) {
+      if (movedDistance < 8) return;
+      didTouchGlideRef.current = true;
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
+
+    resetDimTimer();
+    const index = getItemIndexAtPoint(e.clientX, e.clientY);
+    setGlideIndex(index);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== e.pointerId) return;
+    resetDimTimer();
+    const targetIndex = glideIndex;
+    const didGlide = didTouchGlideRef.current;
+
+    activePointerIdRef.current = null;
+    touchStartIndexRef.current = null;
+    didTouchGlideRef.current = false;
+
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+
+    if (didGlide && targetIndex !== null) {
+      handleItemSelect(navItems[targetIndex], targetIndex);
+    }
+    setGlideIndex(null);
+    if (e.pointerType !== "mouse") {
+      setHoveredIndex(null);
     }
   };
 
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    resetDimTimer();
-    updateTouchActiveItem(e.touches[0].clientX, e.touches[0].clientY);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    resetDimTimer();
-    updateTouchActiveItem(e.touches[0].clientX, e.touches[0].clientY);
-  };
-
-  const handleTouchEnd = () => {
-    resetDimTimer();
-    if (glideIndex !== null) {
-      handleItemClick(navItems[glideIndex]);
-    }
+  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== e.pointerId) return;
+    activePointerIdRef.current = null;
+    touchStartIndexRef.current = null;
+    didTouchGlideRef.current = false;
     setGlideIndex(null);
   };
 
@@ -290,61 +346,69 @@ export const FloatingDock: React.FC = () => {
   return (
     <div
       className={cn(
-        "pointer-events-auto fixed bottom-4 left-1/2 z-[1000] flex origin-bottom -translate-x-1/2 scale-100 items-center justify-center opacity-100 transition-[transform,opacity] duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] select-none sm:bottom-6",
-        isShrunk && "scale-[0.84] opacity-80 hover:scale-100 hover:opacity-100",
+        "pointer-events-auto fixed bottom-4 left-1/2 z-[1000] flex w-[calc(100vw-2rem)] max-w-[380px] origin-bottom -translate-x-1/2 scale-100 items-center justify-center opacity-100 transition-[scale,transform,opacity] duration-[380ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[scale,opacity] select-none sm:bottom-6 sm:w-auto sm:max-w-none",
+        isShrunk && "scale-[0.86] opacity-80 hover:scale-100 hover:opacity-100",
         isDimmed && "opacity-45 hover:opacity-100",
       )}
     >
       <div
         ref={containerRef}
-        className="relative flex items-center gap-1 rounded-full border border-border bg-card/75 p-[5px] shadow-[0_12px_36px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur-[32px] backdrop-saturate-[220%] transition-all duration-300 ease-in-out sm:gap-2 sm:p-1.5 dark:border-white/18 dark:bg-[#0a0a0a]/75 dark:shadow-[0_16px_42px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.16)]"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onMouseLeave={() => setHoveredIndex(null)}
+        className="relative flex w-full touch-none items-center rounded-full border border-border bg-card/75 p-1.5 shadow-[0_12px_36px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur-[32px] backdrop-saturate-[220%] transition-[border-color,background-color,box-shadow] duration-300 ease-in-out sm:w-auto sm:gap-2 dark:border-white/18 dark:bg-[#0a0a0a]/75 dark:shadow-[0_16px_42px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.16)]"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
+        onPointerLeave={(e) => {
+          if (e.pointerType === "mouse") {
+            setHoveredIndex(null);
+          }
+        }}
       >
         {/* Apple Liquid Glass sliding circular lens */}
-        <div
-          className={cn(
-            "pointer-events-none absolute top-[5px] left-[5px] z-[1] h-9 w-9 rounded-full border border-foreground/20 bg-foreground/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.85)] backdrop-blur-md transition-[transform,box-shadow,background-color] duration-[420ms] ease-[cubic-bezier(0.32,0.72,0,1)] sm:top-1.5 sm:left-1.5 sm:h-10 sm:w-10 dark:border-white/25 dark:bg-white/[0.14] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.28)]",
-            isLensGliding && "border-accent/50 bg-accent/15",
-          )}
-          style={{
-            transform: `translate3d(${translationOffset}px, 0, 0) scale(${isLensGliding ? 1.07 : 1})`,
-          }}
-        />
+        {isMobile ? (
+          <div
+            className="pointer-events-none absolute top-1.5 bottom-1.5 left-1.5 z-[1] flex w-[calc((100%-12px)/5)] items-center justify-center transition-transform duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
+            style={{
+              transform: `translate3d(${displayIndex * 100}%, 0, 0)`,
+            }}
+          >
+            <div
+              className={cn(
+                "h-11 w-11 rounded-full border border-foreground/20 bg-foreground/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.85)] backdrop-blur-md transition-[transform,background-color,border-color] duration-200 dark:border-white/25 dark:bg-white/[0.14] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.28)]",
+                isLensGliding && "scale-[1.07] border-accent/50 bg-accent/15",
+              )}
+            />
+          </div>
+        ) : (
+          <div
+            className={cn(
+              "pointer-events-none absolute top-1.5 left-1.5 z-[1] h-10 w-10 rounded-full border border-foreground/20 bg-foreground/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.85)] backdrop-blur-md transition-[transform,box-shadow,background-color,border-color] duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform dark:border-white/25 dark:bg-white/[0.14] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.28)]",
+              isLensGliding && "border-accent/50 bg-accent/15",
+            )}
+            style={{
+              transform: `translate3d(${desktopTranslationOffset}px, 0, 0) scale(${isLensGliding ? 1.07 : 1})`,
+            }}
+          />
+        )}
 
         {/* Foreground navigation items */}
-        <div className="relative z-[2] flex items-center gap-1 sm:gap-2">
+        <div className="relative z-[2] grid w-full grid-cols-5 items-center sm:flex sm:w-auto sm:gap-2">
           {navItems.map((item, index) => {
             const Icon = item.icon;
-
-            // Standard active check
-            const isActive =
-              !item.isThemeToggle &&
-              !item.isExternal &&
-              (item.path === "/"
-                ? location.pathname === "/"
-                : location.pathname.startsWith(item.path));
-
-            // Visual active check follows sliding glass lens (touch glide -> pointer hover -> active route)
-            const isCurrentlyActive =
-              glideIndex !== null
-                ? glideIndex === index
-                : hoveredIndex !== null
-                  ? hoveredIndex === index
-                  : isActive;
+            const isCurrentlyActive = displayIndex === index;
 
             return (
               <button
                 key={item.label}
-                onClick={() => handleItemClick(item)}
-                onMouseEnter={() => {
-                  resetDimTimer();
-                  setHoveredIndex(index);
+                onClick={() => handleItemSelect(item, index)}
+                onPointerEnter={(e) => {
+                  if (e.pointerType === "mouse") {
+                    resetDimTimer();
+                    setHoveredIndex(index);
+                  }
                 }}
                 className={cn(
-                  "group relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-[#6e6a7c] transition-[transform,color] duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.2)] outline-none active:scale-[0.92] sm:h-10 sm:w-10 dark:text-[#a8a29e] [&_svg]:h-[18px] [&_svg]:w-[18px] [&_svg]:transition-[stroke-width,transform] [&_svg]:duration-200 sm:[&_svg]:h-5 sm:[&_svg]:w-5",
+                  "group relative flex h-11 w-full cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-[#6e6a7c] transition-[scale,transform,color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] outline-none active:scale-[0.92] sm:h-10 sm:w-10 dark:text-[#a8a29e] [&_svg]:h-5 [&_svg]:w-5 [&_svg]:transition-[stroke-width,transform] [&_svg]:duration-200",
                   isCurrentlyActive &&
                     "scale-[1.06] text-accent dark:text-foreground",
                 )}
