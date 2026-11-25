@@ -253,8 +253,9 @@ export const FloatingDock: React.FC = () => {
   const gap = isMobile ? 4 : 8;
   const translationOffset = displayIndex * (buttonWidth + gap);
 
-  // Unified Pointer Glide (works for mobile touch swipe AND desktop drag)
+  // Unified Pointer Glide (works for mobile touch swipe AND desktop drag, never blocks clicks)
   const activePointerIdRef = useRef<number | null>(null);
+  const pointerStartXRef = useRef<number>(0);
 
   const getItemIndexAtPoint = (
     clientX: number,
@@ -283,22 +284,28 @@ export const FloatingDock: React.FC = () => {
     resetDimTimer();
     const index = getItemIndexAtPoint(e.clientX, e.clientY);
     activePointerIdRef.current = e.pointerId;
+    pointerStartXRef.current = e.clientX;
     touchStartIndexRef.current = index;
     didTouchGlideRef.current = false;
     if (e.pointerType !== "mouse") {
       setHoveredIndex(null);
     }
-    setGlideIndex(index);
-    e.currentTarget.setPointerCapture(e.pointerId);
+    // Do NOT call setPointerCapture on pointerdown — that steals click from child buttons!
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (activePointerIdRef.current !== e.pointerId) return;
+    const movedDistance = Math.abs(e.clientX - pointerStartXRef.current);
+
+    // Only enter swipe/glide mode after intentional drag (> 8px)
+    if (!didTouchGlideRef.current) {
+      if (movedDistance < 8) return;
+      didTouchGlideRef.current = true;
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
+
     resetDimTimer();
     const index = getItemIndexAtPoint(e.clientX, e.clientY);
-    if (index !== touchStartIndexRef.current) {
-      didTouchGlideRef.current = true;
-    }
     setGlideIndex(index);
   };
 
@@ -316,7 +323,7 @@ export const FloatingDock: React.FC = () => {
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
 
-    if (targetIndex !== null && didGlide) {
+    if (didGlide && targetIndex !== null) {
       handleItemSelect(navItems[targetIndex], targetIndex);
     }
     setGlideIndex(null);
