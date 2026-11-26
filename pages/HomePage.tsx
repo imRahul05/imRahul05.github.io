@@ -38,7 +38,7 @@ import { ScrambleText } from "../components/blueprint/ScrambleText";
 import { DimensionLine } from "../components/blueprint/DimensionLine";
 import { focusOrreryBody } from "../components/blueprint/orreryState";
 import { useReveal } from "../components/blueprint/useReveal";
-import { ClaimsFoundry } from "../components/iso/ClaimsFoundry";
+import { NowBuilding } from "../components/iso/NowBuilding";
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -366,12 +366,7 @@ export const HomePage: React.FC = () => {
           data-hud-section="Now Building"
           data-hud-index="01"
         >
-          <SectionTitle index="01">Now Building</SectionTitle>
-          <p className="mb-4 max-w-[560px] text-[0.9rem] leading-[1.65] text-secondary-foreground">
-            An isometric sketch of the AI medical-coding &amp; claims workflow
-            I&apos;m building — the model suggests, deterministic code decides.
-          </p>
-          <ClaimsFoundry />
+          <NowBuilding />
         </section>
 
         {/* EXPERIENCE */}
