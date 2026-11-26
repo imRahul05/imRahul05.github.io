@@ -38,6 +38,7 @@ import { ScrambleText } from "../components/blueprint/ScrambleText";
 import { DimensionLine } from "../components/blueprint/DimensionLine";
 import { focusOrreryBody } from "../components/blueprint/orreryState";
 import { useReveal } from "../components/blueprint/useReveal";
+import { ClaimsFoundry } from "../components/iso/ClaimsFoundry";
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -358,13 +359,28 @@ export const HomePage: React.FC = () => {
           </div>
         </section>
 
+        {/* NOW BUILDING — isometric pipeline diorama */}
+        <section
+          className="mb-12"
+          data-reveal
+          data-hud-section="Now Building"
+          data-hud-index="01"
+        >
+          <SectionTitle index="01">Now Building</SectionTitle>
+          <p className="mb-4 max-w-[560px] text-[0.9rem] leading-[1.65] text-secondary-foreground">
+            An isometric sketch of the AI medical-coding &amp; claims workflow
+            I&apos;m building — the model suggests, deterministic code decides.
+          </p>
+          <ClaimsFoundry />
+        </section>
+
         {/* EXPERIENCE */}
-        <div data-reveal data-hud-section="Experience" data-hud-index="01">
+        <div data-reveal data-hud-section="Experience" data-hud-index="02">
           <Experience />
         </div>
 
         {/* EDUCATION */}
-        <div data-reveal data-hud-section="Education" data-hud-index="02">
+        <div data-reveal data-hud-section="Education" data-hud-index="03">
           <Education />
         </div>
 
@@ -373,9 +389,9 @@ export const HomePage: React.FC = () => {
           className="mb-12"
           data-reveal
           data-hud-section="Projects"
-          data-hud-index="03"
+          data-hud-index="04"
         >
-          <SectionTitle index="03">Featured Projects</SectionTitle>
+          <SectionTitle index="04">Featured Projects</SectionTitle>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             {featuredProjects.map((project) => (
               <ProjectCard key={project.name} {...project} />
@@ -406,9 +422,9 @@ export const HomePage: React.FC = () => {
           className="mb-12"
           data-reveal
           data-hud-section="Build Rhythm"
-          data-hud-index="04"
+          data-hud-index="05"
         >
-          <SectionTitle index="04">Build Rhythm</SectionTitle>
+          <SectionTitle index="05">Build Rhythm</SectionTitle>
           <ContributionGraph
             className="cad-card relative overflow-hidden p-4"
             data={contributionData}

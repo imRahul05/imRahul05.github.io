@@ -104,7 +104,7 @@ const EducationItem: React.FC<EducationItemProps> = ({
 export const Education: React.FC = () => {
   return (
     <section className="mb-12">
-      <SectionTitle index="02">Education</SectionTitle>
+      <SectionTitle index="03">Education</SectionTitle>
       <div>
         {DATA.education.map((edu, index) => (
           <EducationItem
