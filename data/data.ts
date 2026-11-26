@@ -92,6 +92,29 @@ export const DATA = {
   ],
   projects: [
     {
+      name: "Shortlist",
+      period: "November 2026",
+      tag: "Chrome Extension · 100% Local",
+      featured: true,
+      previewCommand: "Alt+J → match this job",
+      previewTagline: "Job Match · Resume Tailor · Autofill · On-device AI",
+      description:
+        "Free, private Chrome extension that reads any job page, scores your resume against it with a deterministic, explainable matcher, tailors your resume and cover letter live, and autofills applications. No sign-in, no API keys, no server — everything runs in the browser, with optional on-device Gemini Nano.",
+      tech: [
+        "JavaScript",
+        "Chrome Extension (MV3)",
+        "Gemini Nano",
+        "pdf.js",
+        "Next.js",
+        "Tailwind CSS",
+      ],
+      link: "https://shortliistt.vercel.app",
+      sourceUrl: "https://github.com/imRahul05/shortliistt",
+      blogSlug: "shortlist-local-first-job-match",
+      image: "/projects/shortlist.webp",
+      video: "",
+    },
+    {
       name: "RHL AI",
       period: "September 2026 - Present",
       tag: "AI Tooling & CLI Monorepo",
@@ -177,7 +200,6 @@ export const DATA = {
     {
       name: "FinSage AI",
       period: "November 2024 - December 2024",
-      featured: true,
       description:
         "A better way to manage your finances. Take control of your financial journey with our comprehensive suite of tools.",
       tech: ["React", "Web", "JS", "FireBase"],

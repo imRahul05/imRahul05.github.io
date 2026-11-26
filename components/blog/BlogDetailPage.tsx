@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { BLOGS } from "../../data/blogs";
 import { MermaidDiagram } from "./MermaidDiagram";
+import { BlogEmbed, isBlogEmbed } from "./BlogEmbed";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -118,7 +119,11 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
         } else {
           const code = codeBlockContent.join("\n");
 
-          if (codeBlockLanguage === "mermaid") {
+          if (isBlogEmbed(codeBlockLanguage)) {
+            elements.push(
+              <BlogEmbed key={`embed-${index}`} name={codeBlockLanguage} />,
+            );
+          } else if (codeBlockLanguage === "mermaid") {
             elements.push(
               <MermaidDiagram key={`mermaid-${index}`} chart={code} />,
             );

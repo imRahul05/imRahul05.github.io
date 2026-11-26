@@ -28,7 +28,11 @@ function extractBlogs(content) {
           slug,
           title,
           excerpt: excerpt ? excerpt.replace(/\n/g, " ").trim() : "",
-          image: image || "https://imrahul.me/og-card.png",
+          image: image
+            ? image.startsWith("/")
+              ? `https://imrahul.me${image}`
+              : image
+            : "https://imrahul.me/og-card.png",
         });
       }
     }

@@ -1,4 +1,61 @@
 export const BLOG_CONTENTS: Record<string, string> = {
+  "shortlist-local-first-job-match": `
+Most "AI job tools" want your resume on their server, an account, and an API key. **Shortlist** goes the other way: it is a free Chrome extension that reads the job page you are on, scores your resume against it, tailors your resume and cover letter, and autofills the application — **entirely inside the browser**. No sign-in, no API keys, no backend.
+
+\`\`\`iso:shortlist
+\`\`\`
+
+## How a Job Gets Scored
+
+When you open a posting on LinkedIn, Indeed, Naukri, Greenhouse, Lever, Workday and many more, a content script reads the job straight from the page's DOM: **schema.org \`JobPosting\` data first**, then site-specific selectors, then a text-density heuristic. Text you select on the page overrides all of these.
+
+The background service worker then scores it against the resume stored in \`chrome.storage.local\`, sets the toolbar badge, and a floating score card appears on the page. Press **Alt+J** for the full report in the side panel.
+
+## A Deterministic, Explainable Score
+
+The match score uses **no AI**. Same resume + same job = same score, every time.
+
+\`\`\`mermaid
+flowchart LR
+    JD["Job text"] --> SK["~250 skills with aliases<br/>must-have · important · nice-to-have"]
+    RES["Your resume"] --> HAVE["Your skills<br/>direct · implied · related"]
+    SK --> S["Skills 55%"]
+    HAVE --> S
+    JD --> E["Experience 15%"]
+    JD --> K["Keywords 15%"]
+    JD --> T["Title 10%"]
+    JD --> D["Education 5%"]
+    S --> SCORE["Weighted score<br/>capped if must-haves are missing"]
+    E --> SCORE
+    K --> SCORE
+    T --> SCORE
+    D --> SCORE
+
+    classDef indigo fill:#4f46e5,stroke:#4338ca,color:#ffffff,stroke-width:2px
+    classDef teal fill:#0d9488,stroke:#0f766e,color:#ffffff,stroke-width:2px
+    classDef emerald fill:#10b981,stroke:#059669,color:#0f172a,stroke-width:2px
+
+    class JD,RES indigo
+    class SK,HAVE,S,E,K,T,D teal
+    class SCORE emerald
+\`\`\`
+
+- **Skills:** about 250 skills with aliases, weighted by which section of the job they appear in. Knowing Next.js implies React; related skills in the same family earn partial credit.
+- **Experience:** years are computed from your resume's date ranges (\`Sep 2025 – Present\`, \`2025-09\`, \`Since …\`).
+- **Must-haves matter:** each missing must-have **caps** the score, so a keyword-stuffed resume can't fake a strong match.
+
+## AI Is Optional — and Stays on Your Device
+
+For writing help (summary, bullet rewrites, cover letters, application answers), Shortlist uses **Chrome's built-in Gemini Nano** through the Prompt API. It runs locally, needs no key, and **never changes the deterministic score**. If the model isn't available, Shortlist falls back to rule-based tools and templates.
+
+Prompts tell the model never to invent employers, dates, metrics or skills, and AI bullet rewrites are shown as a **diff you accept or reject line by line**.
+
+## Privacy by Architecture
+
+Your resume, profile, history and drafts live in \`chrome.storage.local\` on your device. There is **no Shortlist server**, and the extension makes no network requests of its own — data only leaves your browser when you submit an application to a job site. **Profile → Delete all my data** removes everything.
+
+Try it at **[shortliistt.vercel.app](https://shortliistt.vercel.app)** or read the source on **[GitHub](https://github.com/imRahul05/shortliistt)**.
+`,
   "asha-saathi-voice-ai-architecture": `
 Built for **Build with Agora, Bengaluru (Track 5: Voice AI for Bharat)**, **ASHA Saathi** is a multilingual voice assistant in Hindi, Kannada, and English designed for frontline ASHA health workers. Instead of navigating complex mobile forms during home visits, workers speak naturally to log antenatal care (ANC) vitals and escalate high-risk cases.
 
