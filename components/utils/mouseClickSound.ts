@@ -136,22 +136,21 @@ export function playMouseClickSound(config?: MouseClickSoundConfig): void {
   }
 }
 
-// Preload decoding as early as possible when in browser
+// Prepare the audio on the visitor's first interaction rather than at
+// startup: browsers only allow an AudioContext to start after a user
+// gesture anyway, and this keeps decoding off the page-load path.
 if (typeof window !== "undefined") {
-  const preload = () => {
+  const prepare = () => {
+    window.removeEventListener("pointerdown", prepare, true);
+    window.removeEventListener("keydown", prepare, true);
     const ctx = getAudioContext();
     if (ctx) {
       ensureAudioBufferDecoded(ctx);
     }
   };
-
-  if ("requestIdleCallback" in window) {
-    (
-      window as Window & {
-        requestIdleCallback: (cb: () => void) => number;
-      }
-    ).requestIdleCallback(preload);
-  } else {
-    setTimeout(preload, 100);
-  }
+  window.addEventListener("pointerdown", prepare, {
+    capture: true,
+    passive: true,
+  });
+  window.addEventListener("keydown", prepare, { capture: true });
 }

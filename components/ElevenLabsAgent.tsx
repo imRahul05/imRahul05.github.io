@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { X, Phone } from "lucide-react";
+import { afterLoadIdle } from "../lib/idle";
 
 export function ElevenLabsAgent() {
   const [dismissed, setDismissed] = useState<boolean>(() => {
@@ -10,13 +11,22 @@ export function ElevenLabsAgent() {
   useEffect(() => {
     if (dismissed) return;
 
-    const script = document.createElement("script");
-    script.src = "https://unpkg.com/@elevenlabs/convai-widget-embed";
-    script.async = true;
-    document.body.appendChild(script);
+    // Third-party widget: fetch it only after the page has loaded and gone
+    // idle, so it never delays first paint or the first interactions.
+    let script: HTMLScriptElement | null = null;
+    const cancel = afterLoadIdle(
+      () => {
+        script = document.createElement("script");
+        script.src = "https://unpkg.com/@elevenlabs/convai-widget-embed";
+        script.async = true;
+        document.body.appendChild(script);
+      },
+      { delay: 2000 },
+    );
 
     return () => {
-      document.body.removeChild(script);
+      cancel();
+      script?.remove();
     };
   }, [dismissed]);
 

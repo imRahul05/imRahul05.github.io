@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Maximize2, ZoomIn, ZoomOut, RotateCcw, X } from "lucide-react";
 import {
   Dialog,
@@ -23,8 +23,32 @@ export const MermaidDiagram: React.FC<Props> = ({ chart }) => {
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
+  // Mermaid (and its ~400ms render on mid-range phones) is only fetched and
+  // run once the diagram is about to scroll into view.
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [isNear, setIsNear] = useState(
+    () => typeof IntersectionObserver === "undefined",
+  );
 
   useEffect(() => {
+    if (isNear) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setIsNear(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "800px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [isNear]);
+
+  useEffect(() => {
+    if (!isNear) return;
     let cancelled = false;
 
     const renderDiagram = async () => {
@@ -68,7 +92,7 @@ export const MermaidDiagram: React.FC<Props> = ({ chart }) => {
     return () => {
       cancelled = true;
     };
-  }, [chart]);
+  }, [chart, isNear]);
 
   const handleOpenChange = useCallback((open: boolean) => {
     setIsOpen(open);
@@ -99,7 +123,10 @@ export const MermaidDiagram: React.FC<Props> = ({ chart }) => {
 
   return (
     <>
-      <div className="group relative my-8 rounded-xl border border-border bg-background transition-colors hover:border-muted-foreground/60">
+      <div
+        ref={containerRef}
+        className="group relative my-8 rounded-xl border border-border bg-background transition-colors hover:border-muted-foreground/60"
+      >
         {/* Top-right expand button (diagonal two-arrow icon) */}
         <button
           type="button"

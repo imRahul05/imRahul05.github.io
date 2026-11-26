@@ -1,3 +1,4 @@
+import { onThemeChange } from "@/lib/theme";
 import React, { useEffect, useRef } from "react";
 import { DATA } from "../../data/data";
 import { ORRERY_FOCUS_EVENT, orreryState } from "./orreryState";
@@ -164,8 +165,10 @@ export const OrreryCanvas: React.FC<{ className?: string }> = ({
     const resize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
-      dpr = Math.min(window.devicePixelRatio || 1, width < 768 ? 1.5 : 2);
+      // Phones see the orrery through a frosted sheet: 1x is visually identical
+      dpr = Math.min(window.devicePixelRatio || 1, width < 768 ? 1 : 2);
       canvas.width = Math.round(width * dpr);
+      currentFont = ""; // resizing resets the 2D context state
       canvas.height = Math.round(height * dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
@@ -206,11 +209,19 @@ export const OrreryCanvas: React.FC<{ className?: string }> = ({
     let cosP = 1;
     let sinP = 0;
 
-    const setCamera = (t: number) => {
-      const doc = document.documentElement;
-      const maxScroll = Math.max(1, doc.scrollHeight - window.innerHeight);
-      const progress = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+    // Scroll progress is cached: reading scrollHeight inside the frame loop
+    // forced a synchronous layout on every frame.
+    let maxScroll = 1;
+    let progress = 0;
+    const measureScroll = () => {
+      maxScroll = Math.max(
+        1,
+        document.documentElement.scrollHeight - window.innerHeight,
+      );
+      progress = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+    };
 
+    const setCamera = (t: number) => {
       smoothX += (pointerX - smoothX) * 0.04;
       smoothY += (pointerY - smoothY) * 0.04;
 
@@ -288,6 +299,15 @@ export const OrreryCanvas: React.FC<{ className?: string }> = ({
       ctx.setLineDash([]);
     };
 
+    // Re-assigning ctx.font re-parses it; labels are drawn many times a frame.
+    let currentFont = "";
+    const setFont = (f: string) => {
+      if (f !== currentFont) {
+        ctx.font = f;
+        currentFont = f;
+      }
+    };
+
     const monoFont = (px: number, weight = 500) =>
       `${weight} ${px}px "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace`;
 
@@ -356,7 +376,7 @@ export const OrreryCanvas: React.FC<{ className?: string }> = ({
             0,
             Math.sin(a) * (outer + 0.14),
           );
-          ctx.font = monoFont(9);
+          setFont(monoFont(9));
           ctx.fillStyle = rgba(fg, 0.34 * depthAlpha(pl[2]));
           ctx.textAlign = "center";
           ctx.fillText(`${deg}°`, pl[0], pl[1] + 3);
@@ -459,7 +479,7 @@ export const OrreryCanvas: React.FC<{ className?: string }> = ({
             const da = depthAlpha(p[2]) * dim;
 
             // Comet-like trail along the orbit
-            const trailSeg = 18;
+            const trailSeg = 12;
             for (let k = 0; k < trailSeg; k++) {
               const a1 = a - (k / trailSeg) * 0.75;
               const a2 = a - ((k + 1) / trailSeg) * 0.75;
@@ -551,7 +571,7 @@ export const OrreryCanvas: React.FC<{ className?: string }> = ({
               ctx.stroke();
 
               ctx.textAlign = dir > 0 ? "left" : "right";
-              ctx.font = monoFont(isFocused ? 11 : 10, isFocused ? 600 : 500);
+              setFont(monoFont(isFocused ? 11 : 10, isFocused ? 600 : 500));
               ctx.fillStyle = rgba(
                 isFocused ? accent : fg,
                 (isFocused ? 1 : 0.62) * da,
@@ -561,7 +581,7 @@ export const OrreryCanvas: React.FC<{ className?: string }> = ({
                 lx + dir * (shelf + 4),
                 ly + 3,
               );
-              ctx.font = monoFont(8.5, 400);
+              setFont(monoFont(8.5, 400));
               ctx.fillStyle = rgba(fg, 0.36 * da);
               const deg = ((((a * 180) / Math.PI) % 360) + 360) % 360;
               ctx.fillText(
@@ -615,7 +635,7 @@ export const OrreryCanvas: React.FC<{ className?: string }> = ({
           ctx.arc(ax.sx, ax.sy, 6.5, 0, TAU);
           ctx.fillStyle = rgba(ax.color, 0.95);
           ctx.fill();
-          ctx.font = monoFont(8, 700);
+          setFont(monoFont(8, 700));
           ctx.textAlign = "center";
           ctx.fillStyle = "#fff";
           ctx.fillText(ax.label, ax.sx, ax.sy + 3);
@@ -632,8 +652,18 @@ export const OrreryCanvas: React.FC<{ className?: string }> = ({
       last = now;
     };
 
+    // Phones / touch devices: a low frame rate is indistinguishable for a slow drift
+    // behind a blurred sheet, and halves canvas + compositor work.
+    const lowPower =
+      window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
+    // (24fps: the drift is ~2°/s, so frames differ by a fraction of a pixel)
+    const minFrameMs = lowPower ? 1000 / 24 - 2 : 0;
+    let lastDraw = 0;
     const loop = (now: number) => {
-      draw(now);
+      if (now - lastDraw >= minFrameMs) {
+        lastDraw = now;
+        draw(now);
+      }
       rafId = requestAnimationFrame(loop);
     };
 
@@ -652,22 +682,24 @@ export const OrreryCanvas: React.FC<{ className?: string }> = ({
 
     readTheme();
     resize();
+    measureScroll();
 
     const onResize = () => {
       resize();
+      measureScroll();
       if (reduceMotion) requestDraw();
     };
     const onScroll = () => {
+      progress = Math.min(1, Math.max(0, window.scrollY / maxScroll));
       if (reduceMotion) requestDraw();
     };
+    // Page height changes (sections expanding, images loading) without resize
+    const heightObserver = new ResizeObserver(measureScroll);
+    heightObserver.observe(document.body);
 
-    const themeObserver = new MutationObserver(() => {
+    const stopThemeWatch = onThemeChange(() => {
       readTheme();
       if (reduceMotion) requestDraw();
-    });
-    themeObserver.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class", "data-theme"],
     });
 
     const onVisibility = () => {
@@ -697,7 +729,8 @@ export const OrreryCanvas: React.FC<{ className?: string }> = ({
 
     return () => {
       if (rafId !== null) cancelAnimationFrame(rafId);
-      themeObserver.disconnect();
+      stopThemeWatch();
+      heightObserver.disconnect();
       window.removeEventListener("resize", onResize);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onPointer);

@@ -17,10 +17,7 @@ import {
 } from "@/components/ui/hover-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DATA } from "../data/data";
-import {
-  ContributionGraph,
-  generateContributionData,
-} from "../components/ContributionGraph";
+import { LazyWhenVisible } from "../components/LazyWhenVisible";
 import { SectionTitle } from "../components/SectionTitle";
 import { ProjectCard } from "../components/project/ProjectCard";
 import { Education } from "../components/education/Education";
@@ -38,7 +35,12 @@ import { ScrambleText } from "../components/blueprint/ScrambleText";
 import { DimensionLine } from "../components/blueprint/DimensionLine";
 import { focusOrreryBody } from "../components/blueprint/orreryState";
 import { useReveal } from "../components/blueprint/useReveal";
+import { cdnImage, cdnVideo } from "@/lib/cdn";
+import { afterLoadIdle } from "@/lib/idle";
 import { NowBuilding } from "../components/iso/NowBuilding";
+
+// Below the fold: code + GitHub API call load only when scrolled near.
+const BuildRhythm = React.lazy(() => import("../components/BuildRhythm"));
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -47,7 +49,17 @@ export const HomePage: React.FC = () => {
   const [hasFlippedManually, setHasFlippedManually] = useState(false);
   const [isShowingVideo, setIsShowingVideo] = useState(false);
   const profileVideoRef = useRef<HTMLVideoElement | null>(null);
-  const contributionData = React.useMemo(() => generateContributionData(), []);
+  // The flip-side profile video is decorative: request a right-sized copy
+  // only once the page has loaded and gone idle, instead of at full size
+  // in parallel with the critical resources.
+  const [profileVideoSrc, setProfileVideoSrc] = useState<string | undefined>();
+  useEffect(
+    () =>
+      afterLoadIdle(() =>
+        setProfileVideoSrc(cdnVideo(DATA.personal.profileVideo, 128)),
+      ),
+    [],
+  );
   useReveal();
 
   const headerRef = useRef<HTMLElement | null>(null);
@@ -245,8 +257,12 @@ export const HomePage: React.FC = () => {
                     className="w-auto p-0 bg-transparent border-0 shadow-none ring-0"
                   >
                     <img
-                      src={DATA.personal.currentlyBuilding.previewImage}
+                      src={cdnImage(
+                        DATA.personal.currentlyBuilding.previewImage,
+                        280,
+                      )}
                       alt={DATA.personal.currentlyBuilding.name}
+                      decoding="async"
                       className="w-[280px] max-w-[80vw] border border-border bg-card"
                     />
                   </HoverCardContent>
@@ -288,6 +304,10 @@ export const HomePage: React.FC = () => {
                 <img
                   src={DATA.personal.image}
                   alt={DATA.personal.name}
+                  width={128}
+                  height={128}
+                  fetchPriority="high"
+                  decoding="async"
                   className={cn(
                     "w-full h-full object-cover border border-foreground rounded-full shrink-0 transition-[width,height] duration-300 ease-out dark:grayscale",
                     !isImageLoaded && "hidden",
@@ -300,7 +320,7 @@ export const HomePage: React.FC = () => {
                 <video
                   ref={profileVideoRef}
                   className="w-full h-full object-cover rounded-full border border-foreground transition-[width,height] duration-300 ease-out"
-                  src={DATA.personal.profileVideo}
+                  src={profileVideoSrc}
                   autoPlay
                   muted
                   loop
@@ -420,10 +440,9 @@ export const HomePage: React.FC = () => {
           data-hud-index="05"
         >
           <SectionTitle index="05">Build Rhythm</SectionTitle>
-          <ContributionGraph
-            className="cad-card relative overflow-hidden p-4"
-            data={contributionData}
-          />
+          <LazyWhenVisible placeholderClassName="h-[168px] w-full">
+            <BuildRhythm />
+          </LazyWhenVisible>
         </section>
 
         {/* FOOTER */}

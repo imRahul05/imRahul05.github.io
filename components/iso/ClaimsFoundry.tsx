@@ -1,3 +1,4 @@
+import { onThemeChange } from "@/lib/theme";
 import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -127,6 +128,16 @@ export const ClaimsFoundry: React.FC<{ className?: string }> = ({
       isDark = document.documentElement.classList.contains("dark");
     };
 
+    // Assigning ctx.font re-parses the font string every time; labels are
+    // drawn dozens of times per frame, so only assign when it changes.
+    let currentFont = "";
+    const setFont = (f: string) => {
+      if (f !== currentFont) {
+        ctx.font = f;
+        currentFont = f;
+      }
+    };
+
     /* ---------------- sizing ---------------- */
     let W = 0;
     let H = 0;
@@ -139,6 +150,7 @@ export const ClaimsFoundry: React.FC<{ className?: string }> = ({
       H = Math.round(Math.max(250, Math.min(400, W * 0.54)));
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(W * dpr);
+      currentFont = ""; // resizing resets the 2D context state
       canvas.height = Math.round(H * dpr);
       canvas.style.width = `${W}px`;
       canvas.style.height = `${H}px`;
@@ -147,7 +159,8 @@ export const ClaimsFoundry: React.FC<{ className?: string }> = ({
       const topH = 3.6;
       const s1 = (W - 16) / (2 * r);
       const s2 = (H - 44) / (2 * r * SIN_E + topH * COS_E);
-      s = Math.min(s1, s2);
+      // A freshly (lazily) mounted container can measure 0 wide for a frame
+      s = Math.max(0.01, Math.min(s1, s2));
       ox = W / 2;
       oy = H / 2 + (topH * COS_E * s) / 2 + 10;
     };
@@ -256,7 +269,7 @@ export const ClaimsFoundry: React.FC<{ className?: string }> = ({
       weight = 500,
     ) => {
       const p = proj(x, y, z);
-      ctx.font = `${weight} ${size}px "Geist Mono", ui-monospace, monospace`;
+      setFont(`${weight} ${size}px "Geist Mono", ui-monospace, monospace`);
       ctx.textAlign = "center";
       ctx.fillStyle = rgba(color, alpha);
       ctx.fillText(text, p[0], p[1]);
@@ -398,6 +411,7 @@ export const ClaimsFoundry: React.FC<{ className?: string }> = ({
     let tourClock = 0;
 
     const frame = (dt: number) => {
+      if (W < 40 || H < 40) return;
       if (!reduce) {
         t += dt;
         step(dt);
@@ -943,7 +957,9 @@ export const ClaimsFoundry: React.FC<{ className?: string }> = ({
       }
 
       // HUD
-      ctx.font = `500 ${compact ? 9 : 10}px "Geist Mono", ui-monospace, monospace`;
+      setFont(
+        `500 ${compact ? 9 : 10}px "Geist Mono", ui-monospace, monospace`,
+      );
       ctx.textAlign = "left";
       ctx.fillStyle = rgba(fg, 0.55);
       ctx.fillText("FIG. 01 — CLAIMS FOUNDRY (CONCEPT)", 10, 16);
@@ -970,10 +986,16 @@ export const ClaimsFoundry: React.FC<{ className?: string }> = ({
     let raf: number | null = null;
     let last = performance.now();
     let visible = false;
+    // Touch devices: 30fps keeps the motion smooth at half the CPU cost.
+    const minFrameMs = window.matchMedia("(pointer: coarse)").matches
+      ? 1000 / 30 - 2
+      : 0;
     const loop = (now: number) => {
-      const dt = Math.min(0.05, (now - last) / 1000);
-      last = now;
-      frame(dt);
+      if (now - last >= minFrameMs) {
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        frame(dt);
+      }
       raf = requestAnimationFrame(loop);
     };
     const start = () => {
@@ -1021,13 +1043,9 @@ export const ClaimsFoundry: React.FC<{ className?: string }> = ({
       if (document.hidden) stop();
       else if (visible) start();
     };
-    const mo = new MutationObserver(() => {
+    const stopThemeWatch = onThemeChange(() => {
       readTheme();
       requestDraw();
-    });
-    mo.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class", "data-theme"],
     });
     document.fonts?.ready.then(requestDraw).catch(() => undefined);
 
@@ -1042,7 +1060,7 @@ export const ClaimsFoundry: React.FC<{ className?: string }> = ({
       stop();
       ro.disconnect();
       io.disconnect();
-      mo.disconnect();
+      stopThemeWatch();
       canvas.removeEventListener("pointerdown", onPointerDown);
       canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerup", onPointerUp);

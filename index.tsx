@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./styles/globals.css";
+import { afterLoadIdle } from "./lib/idle";
 
 // Dynamically import PostHog to reduce initial bundle size
 
@@ -19,10 +20,16 @@ const PostHogWrapper: React.FC<{ children: React.ReactNode }> = ({
     useState<PostHogProviderType | null>(null);
 
   useEffect(() => {
-    // Load PostHog after initial render
-    import("posthog-js/react").then(({ PostHogProvider: Provider }) => {
-      setPostHogProvider(() => Provider);
-    });
+    // Analytics is never on the critical path: wait until the page has
+    // loaded and the main thread is idle before fetching PostHog (~70 KB).
+    return afterLoadIdle(
+      () => {
+        import("posthog-js/react").then(({ PostHogProvider: Provider }) => {
+          setPostHogProvider(() => Provider);
+        });
+      },
+      { delay: 1500 },
+    );
   }, []);
 
   if (!PostHogProvider) {

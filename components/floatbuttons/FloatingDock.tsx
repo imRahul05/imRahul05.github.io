@@ -22,6 +22,7 @@ import { DATA } from "../../data/data";
 import { playMouseClickSound } from "../utils/mouseClickSound";
 import { cn } from "@/lib/utils";
 import { LiquidGlassFilter, useLiquidGlass } from "./LiquidGlass";
+import { prefetchRoute } from "../routes/Routes";
 
 // Safe interface for view transitions
 interface TransitionDocument extends Omit<Document, "startViewTransition"> {
@@ -385,6 +386,12 @@ export const FloatingDock: React.FC = () => {
   /* Liquid Glass: refraction filters, droplet lens physics, rim light   */
   /* ------------------------------------------------------------------ */
   const glass = useLiquidGlass();
+  // Refraction filters are generated during idle time; until each one exists
+  // the CSS frosted-glass fallback is used, so the dock never looks broken.
+  const [dockGlassReady, setDockGlassReady] = useState(false);
+  const [lensGlassReady, setLensGlassReady] = useState(false);
+  const onDockGlassReady = useCallback(() => setDockGlassReady(true), []);
+  const onLensGlassReady = useCallback(() => setLensGlassReady(true), []);
   const lensRef = useRef<HTMLDivElement | null>(null);
   const [dockSize, setDockSize] = useState({ w: 0, h: 0 });
   const lensSize = isMobile ? 48 : 44;
@@ -508,6 +515,7 @@ export const FloatingDock: React.FC = () => {
             magnify={0}
             strength={22}
             blur={4}
+            onReady={onDockGlassReady}
           />
           <LiquidGlassFilter
             id={lensFilterId}
@@ -517,17 +525,18 @@ export const FloatingDock: React.FC = () => {
             bezel={lensSize * 0.26}
             magnify={0.16}
             strength={11}
+            onReady={onLensGlassReady}
           />
         </>
       )}
 
       <div
         ref={containerRef}
-        data-refract={glass.refract ? "" : undefined}
+        data-refract={glass.refract && dockGlassReady ? "" : undefined}
         data-reduced={glass.reduced ? "" : undefined}
         className="group/dock liquid-glass liquid-rim relative flex w-full touch-none items-center rounded-full p-1.5 sm:w-auto"
         style={
-          glass.refract
+          glass.refract && dockGlassReady
             ? {
                 backdropFilter: `url(#${dockFilterId}) saturate(185%) brightness(1.04)`,
               }
@@ -574,10 +583,14 @@ export const FloatingDock: React.FC = () => {
                 }}
                 onClick={() => handleItemSelect(item, index)}
                 onPointerEnter={(e) => {
+                  if (isRoute) prefetchRoute(item.path);
                   if (e.pointerType === "mouse") {
                     resetDimTimer();
                     setHoveredIndex(index);
                   }
+                }}
+                onPointerDown={() => {
+                  if (isRoute) prefetchRoute(item.path);
                 }}
                 className={cn(
                   "group relative flex h-12 w-full cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-foreground/60 transition-[color] duration-200 ease-out outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-11 sm:w-11 [&_svg]:transition-[stroke-width,transform] [&_svg]:duration-300",
@@ -629,7 +642,7 @@ export const FloatingDock: React.FC = () => {
             width: lensSize,
             height: lensSize,
             transform: `translate3d(-999px, -50%, 0)`,
-            ...(glass.refract
+            ...(glass.refract && lensGlassReady
               ? {
                   backdropFilter: `url(#${lensFilterId}) saturate(160%) brightness(1.06)`,
                 }

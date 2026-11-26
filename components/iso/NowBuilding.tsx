@@ -2,7 +2,10 @@ import React, { useEffect, useId, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SectionTitle } from "../SectionTitle";
-import { ClaimsFoundry } from "./ClaimsFoundry";
+import { LazyWhenVisible } from "../LazyWhenVisible";
+
+// The isometric renderer is its own chunk, fetched when the section is near.
+const ClaimsFoundry = React.lazy(() => import("./ClaimsFoundry"));
 import { STATIONS } from "./isoScene";
 
 const STORAGE_KEY = "now-building:collapsed";
@@ -117,7 +120,9 @@ export const NowBuilding: React.FC = () => {
                 workflow I&apos;m building — the model suggests, deterministic
                 code decides.
               </p>
-              <ClaimsFoundry />
+              <LazyWhenVisible placeholderClassName="h-[360px] w-full sm:h-[500px]">
+                <ClaimsFoundry />
+              </LazyWhenVisible>
             </>
           )}
         </div>

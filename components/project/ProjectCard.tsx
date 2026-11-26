@@ -23,6 +23,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { cdnImage } from "@/lib/cdn";
 
 interface ProjectCardProps {
   name: string;
@@ -93,11 +94,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           )}
           {image ? (
             <img
-              src={image}
+              src={cdnImage(image, 480)}
               alt={name}
+              loading="lazy"
+              decoding="async"
+              width={1280}
+              height={720}
               className={cn(
-                "h-full w-full object-cover transition-[transform,filter] duration-300 group-hover/card:scale-[1.02] dark:brightness-95",
-                !isImageLoaded && "hidden",
+                "h-full w-full object-cover transition-[transform,filter,opacity] duration-300 group-hover/card:scale-[1.02] dark:brightness-95",
+                !isImageLoaded && "opacity-0",
               )}
               onLoad={() => setIsImageLoaded(true)}
             />

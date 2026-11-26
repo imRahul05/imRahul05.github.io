@@ -94,6 +94,19 @@ export const createIso = (ctx: CanvasRenderingContext2D) => {
     isDark: false,
   };
 
+  // Assigning ctx.font re-parses the string; skip it when unchanged.
+  let currentFont = "";
+  const setFont = (f: string) => {
+    if (f !== currentFont) {
+      ctx.font = f;
+      currentFont = f;
+    }
+  };
+  /** Call after resizing the canvas (which resets the context state). */
+  const resetState = () => {
+    currentFont = "";
+  };
+
   const setTheme = (t: Theme) => {
     theme = t;
   };
@@ -216,7 +229,7 @@ export const createIso = (ctx: CanvasRenderingContext2D) => {
     align: CanvasTextAlign = "center",
   ) => {
     const p = proj(x, y, z);
-    ctx.font = `${weight} ${size}px "Geist Mono", ui-monospace, monospace`;
+    setFont(`${weight} ${size}px "Geist Mono", ui-monospace, monospace`);
     ctx.textAlign = align;
     ctx.fillStyle = rgba(color, alpha);
     ctx.fillText(text, p[0], p[1]);
@@ -237,7 +250,8 @@ export const createIso = (ctx: CanvasRenderingContext2D) => {
     const r = Math.hypot(bounds.x1 - bounds.x0, bounds.y1 - bounds.y0) / 2;
     const s1 = (W - pad.x) / (2 * r);
     const s2 = (H - pad.y) / (2 * r * SIN_E + bounds.top * COS_E);
-    cam.s = Math.min(s1, s2);
+    // A freshly (lazily) mounted container can measure 0 wide for a frame
+    cam.s = Math.max(0.01, Math.min(s1, s2));
     cam.ox = W / 2;
     cam.oy = H / 2 + (bounds.top * COS_E * cam.s) / 2 + 8;
   };
@@ -249,6 +263,8 @@ export const createIso = (ctx: CanvasRenderingContext2D) => {
       return theme;
     },
     setYaw,
+    setFont,
+    resetState,
     proj,
     depthOf,
     poly,
