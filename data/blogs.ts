@@ -11,6 +11,16 @@ export interface Blog {
 
 export const BLOGS: Blog[] = [
   {
+    slug: "shortlist-local-first-job-match",
+    title: "Shortlist: A Job Matcher That Never Leaves Your Browser",
+    excerpt:
+      "How Shortlist scores your resume against any job page with a deterministic, explainable matcher — and tailors, drafts and autofills — entirely inside Chrome, with optional on-device Gemini Nano and no server at all.",
+    date: "2026-11-26",
+    readTime: "3 min read",
+    tags: ["Chrome Extension", "Local-first", "Gemini Nano", "Privacy"],
+    image: "/projects/shortlist.webp",
+  },
+  {
     slug: "asha-saathi-voice-ai-architecture",
     title: "ASHA Saathi: Deterministic Voice AI Architecture for Healthcare",
     excerpt:

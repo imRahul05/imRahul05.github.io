@@ -43,10 +43,19 @@ const contactLines = () => [
 
 /* ----------------------------- Markdown ---------------------------------- */
 
+/** Interactive embeds (```iso:name```) have no text form — describe them. */
+const describeEmbeds = (md: string) =>
+  md.replace(
+    /```iso:[\w-]+\s*```/g,
+    `_[Interactive isometric animation — view it at ${SITE_URL}]_`,
+  );
+
 export const blogMarkdown = (slug: string): string | null => {
   const blog = BLOGS.find((b) => b.slug === slug);
   if (!blog) return null;
-  const body = (BLOG_CONTENTS[slug] ?? blog.content ?? "").trim();
+  const body = describeEmbeds(
+    (BLOG_CONTENTS[slug] ?? blog.content ?? "").trim(),
+  );
   return [
     `# ${blog.title}`,
     "",
@@ -241,7 +250,7 @@ export const blogStaticHtml = (slug: string): string | null => {
   const md = blogMarkdown(slug);
   if (!blog || !md) return null;
   return wrap(
-    `<article><h1>${escapeHtml(blog.title)}</h1><p>By ${escapeHtml(personal.name)} · <time datetime="${blog.date}">${blog.date}</time> · ${escapeHtml(blog.readTime)}</p><p>${escapeHtml(blog.excerpt)}</p><pre style="white-space:pre-wrap">${escapeHtml((BLOG_CONTENTS[slug] ?? blog.content ?? "").trim())}</pre><p>Markdown: <a href="/blogs/${slug}.md">/blogs/${slug}.md</a></p></article>`,
+    `<article><h1>${escapeHtml(blog.title)}</h1><p>By ${escapeHtml(personal.name)} · <time datetime="${blog.date}">${blog.date}</time> · ${escapeHtml(blog.readTime)}</p><p>${escapeHtml(blog.excerpt)}</p><pre style="white-space:pre-wrap">${escapeHtml(describeEmbeds((BLOG_CONTENTS[slug] ?? blog.content ?? "").trim()))}</pre><p>Markdown: <a href="/blogs/${slug}.md">/blogs/${slug}.md</a></p></article>`,
   );
 };
 
