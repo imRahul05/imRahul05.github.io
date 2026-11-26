@@ -43,6 +43,12 @@ async function generate() {
   }
 
   const template = fs.readFileSync(INDEX_HTML, "utf-8");
+
+  // Static article + JSON-LD per post, produced by scripts/vite-plugin-llm.ts
+  const manifestPath = path.resolve(DIST_DIR, ".llm-blog-static.json");
+  const llm = fs.existsSync(manifestPath)
+    ? JSON.parse(fs.readFileSync(manifestPath, "utf-8"))
+    : null;
   const blogsContent = fs.readFileSync(BLOGS_FILE, "utf-8");
   const blogs = extractBlogs(blogsContent);
 
@@ -127,9 +133,33 @@ async function generate() {
       }
     }
 
+    // Swap the home page's static content for this post's article so
+    // LLMs / no-JS crawlers get the real text of the blog post.
+    const llmEntry = llm?.manifest?.[blog.slug];
+    if (llmEntry) {
+      const startIdx = html.indexOf(llm.start);
+      const endIdx = html.indexOf(llm.end);
+      if (startIdx !== -1 && endIdx > startIdx) {
+        html =
+          html.slice(0, startIdx) +
+          llmEntry.html +
+          html.slice(endIdx + llm.end.length);
+      }
+      html = html.replace(
+        /<script type="application\/ld\+json">[\s\S]*?<\/script>/,
+        `<script type="application/ld+json">${llmEntry.jsonLd}</script>`,
+      );
+      html = html.replace(
+        'href="/llms-full.txt"',
+        `href="/blogs/${blog.slug}.md"`,
+      );
+    }
+
     fs.writeFileSync(path.resolve(blogDir, "index.html"), html);
     console.log(`  - Generated: blogs/${blog.slug}/index.html`);
   }
+
+  if (llm) fs.rmSync(manifestPath, { force: true });
 
   console.log("Static page generation complete.");
 }

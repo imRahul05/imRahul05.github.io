@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useCallback,
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { flushSync } from "react-dom";
 import {
@@ -15,10 +21,14 @@ import {
 import { DATA } from "../../data/data";
 import { playMouseClickSound } from "../utils/mouseClickSound";
 import { cn } from "@/lib/utils";
+import { LiquidGlassFilter, useLiquidGlass } from "./LiquidGlass";
 
 // Safe interface for view transitions
 interface TransitionDocument extends Omit<Document, "startViewTransition"> {
-  startViewTransition?: (callback: () => void) => { ready: Promise<void> };
+  startViewTransition?: (callback: () => void) => {
+    ready: Promise<void>;
+    finished?: Promise<void>;
+  };
 }
 
 interface NavItem {
@@ -61,6 +71,9 @@ export const FloatingDock: React.FC = () => {
   const [isDimmed, setIsDimmed] = useState<boolean>(false);
   const dimTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const pendingExternalRef = useRef<string | null>(null);
+  const pendingClearRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   // Theme state
   const [currentThemeIndex, setCurrentThemeIndex] = useState<number>(() => {
@@ -70,8 +83,9 @@ export const FloatingDock: React.FC = () => {
     return index >= 0 ? index : 0;
   });
 
-  // Sync theme changes to document attributes
-  useEffect(() => {
+  // Sync theme changes to document attributes. Layout effect so the class is
+  // on <html> in the same commit the view transition snapshots.
+  useLayoutEffect(() => {
     const theme = THEMES[currentThemeIndex].name;
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
@@ -163,17 +177,29 @@ export const FloatingDock: React.FC = () => {
     const nextIndex = (currentThemeIndex + 1) % THEMES.length;
     const isNextDark = THEMES[nextIndex].name === "dark";
 
+    // Freeze CSS transitions during the swap: otherwise glass shadows /
+    // tints animate for ~300ms after the wipe and look out of sync.
+    const root = document.documentElement;
+    root.classList.add("theme-switching");
+    const unfreeze = () =>
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => root.classList.remove("theme-switching")),
+      );
+
     const transitionDoc = document as TransitionDocument;
     if (!transitionDoc.startViewTransition) {
-      setCurrentThemeIndex(nextIndex);
+      flushSync(() => setCurrentThemeIndex(nextIndex));
+      unfreeze();
       return;
     }
 
-    await transitionDoc.startViewTransition(() => {
+    const transition = transitionDoc.startViewTransition(() => {
       flushSync(() => {
         setCurrentThemeIndex(nextIndex);
       });
-    }).ready;
+    });
+    void transition.finished?.finally(unfreeze);
+    await transition.ready;
 
     document.documentElement.animate(
       {
@@ -218,15 +244,26 @@ export const FloatingDock: React.FC = () => {
   })();
 
   // Click / selection action for items
-  const handleItemSelect = (item: NavItem, index: number) => {
+  const handleItemSelect = (
+    item: NavItem,
+    index: number,
+    deferExternal = false,
+  ) => {
     resetDimTimer();
 
     if (item.isThemeToggle) {
       setPendingIndex(null);
       void toggleTheme();
     } else if (item.isExternal) {
-      setPendingIndex(null);
-      window.open(item.path, "_blank", "noopener,noreferrer");
+      // Briefly hold the lens on the item so the release feels acknowledged
+      setPendingIndex(index);
+      if (pendingClearRef.current) clearTimeout(pendingClearRef.current);
+      pendingClearRef.current = setTimeout(() => setPendingIndex(null), 450);
+      if (deferExternal) {
+        pendingExternalRef.current = item.path;
+      } else {
+        window.open(item.path, "_blank", "noopener,noreferrer");
+      }
     } else {
       // Lock lens on destination index immediately so lazy route transition never bounces back
       setPendingIndex(index);
@@ -249,10 +286,6 @@ export const FloatingDock: React.FC = () => {
           ? resolvedPendingIndex
           : activeIndex;
 
-  const buttonWidth = 40;
-  const gap = 8;
-  const desktopTranslationOffset = displayIndex * (buttonWidth + gap);
-
   // Unified Pointer Glide (works for mobile touch swipe AND desktop drag, never blocks clicks)
   const activePointerIdRef = useRef<number | null>(null);
   const pointerStartXRef = useRef<number>(0);
@@ -268,14 +301,12 @@ export const FloatingDock: React.FC = () => {
       return null;
     }
 
-    const padding = 6;
-    const innerWidth = Math.max(1, rect.width - padding * 2);
-    const relativeX = clientX - rect.left - padding;
-    const step = isMobile ? innerWidth / navItems.length : buttonWidth + gap;
-
-    const index = Math.floor(relativeX / step);
-    if (index >= 0 && index < navItems.length) {
-      return index;
+    // Hit-test against the real button boxes (works for any layout/scale)
+    for (let i = 0; i < buttonRefs.current.length; i++) {
+      const btn = buttonRefs.current[i];
+      if (!btn) continue;
+      const b = btn.getBoundingClientRect();
+      if (clientX >= b.left - 4 && clientX <= b.right + 4) return i;
     }
     return null;
   };
@@ -325,7 +356,14 @@ export const FloatingDock: React.FC = () => {
     }
 
     if (didGlide && targetIndex !== null) {
-      handleItemSelect(navItems[targetIndex], targetIndex);
+      // Mobile browsers (iOS Safari especially) only allow window.open()
+      // from click / touchend, not pointerup — so for touch we defer the
+      // external open to the touchend that follows.
+      handleItemSelect(
+        navItems[targetIndex],
+        targetIndex,
+        e.pointerType !== "mouse",
+      );
     }
     setGlideIndex(null);
     if (e.pointerType !== "mouse") {
@@ -343,20 +381,170 @@ export const FloatingDock: React.FC = () => {
 
   const isLensGliding = glideIndex !== null || hoveredIndex !== null;
 
+  /* ------------------------------------------------------------------ */
+  /* Liquid Glass: refraction filters, droplet lens physics, rim light   */
+  /* ------------------------------------------------------------------ */
+  const glass = useLiquidGlass();
+  const lensRef = useRef<HTMLDivElement | null>(null);
+  const [dockSize, setDockSize] = useState({ w: 0, h: 0 });
+  const lensSize = isMobile ? 48 : 44;
+
+  // Track dock size so the displacement map matches it 1:1
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      setDockSize({ w: el.offsetWidth, h: el.offsetHeight });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Spring-driven lens: it lags, overshoots and stretches like a droplet
+  const lensTargetRef = useRef<number | null>(null);
+  const lensPressRef = useRef(false);
+  const lensKickRef = useRef<() => void>(() => undefined);
+
+  useEffect(() => {
+    let x: number | null = null;
+    let v = 0;
+    let scale = 1;
+    let raf: number | null = null;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const step = () => {
+      raf = null;
+      const lens = lensRef.current;
+      const target = lensTargetRef.current;
+      if (!lens || target === null) return;
+      if (x === null || reduce) {
+        x = target;
+        v = 0;
+      }
+      v += (target - x) * 0.16;
+      v *= 0.7;
+      x += v;
+      const press = lensPressRef.current ? 1.14 : 1;
+      scale += (press - scale) * 0.22;
+      const speed = Math.abs(v);
+      const sx = scale * (1 + Math.min(0.5, speed * 0.04));
+      const sy = scale * (1 - Math.min(0.22, speed * 0.018));
+      lens.style.transform = `translate3d(${(x - lensSize / 2).toFixed(2)}px, -50%, 0) scale(${sx.toFixed(3)}, ${sy.toFixed(3)})`;
+      if (
+        Math.abs(target - x) > 0.1 ||
+        speed > 0.05 ||
+        Math.abs(press - scale) > 0.002
+      ) {
+        raf = requestAnimationFrame(step);
+      }
+    };
+    lensKickRef.current = () => {
+      if (raf === null) raf = requestAnimationFrame(step);
+    };
+    lensKickRef.current();
+    return () => {
+      if (raf !== null) cancelAnimationFrame(raf);
+    };
+  }, [lensSize]);
+
+  useEffect(() => {
+    const btn = buttonRefs.current[displayIndex];
+    const dock = containerRef.current;
+    if (!btn || !dock) return;
+    const b = btn.getBoundingClientRect();
+    const d = dock.getBoundingClientRect();
+    // Account for the dock's own scale (shrink-on-scroll)
+    const ratio = dock.offsetWidth / Math.max(1, d.width);
+    lensTargetRef.current = (b.left - d.left + b.width / 2) * ratio;
+    lensPressRef.current = isLensGliding;
+    lensKickRef.current();
+  }, [displayIndex, isLensGliding, dockSize.w, isMobile]);
+
+  // Tiny haptic tick while gliding across items (Android)
+  useEffect(() => {
+    if (glideIndex === null) return;
+    (navigator as Navigator & { vibrate?: (ms: number) => boolean }).vibrate?.(
+      6,
+    );
+  }, [glideIndex]);
+
+  // Rim highlight follows the pointer like a light source
+  const handleLightMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty(
+      "--lx",
+      `${(((e.clientX - r.left) / r.width) * 100).toFixed(1)}%`,
+    );
+    el.style.setProperty(
+      "--ly",
+      `${(((e.clientY - r.top) / r.height) * 100).toFixed(1)}%`,
+    );
+  };
+
+  const dockFilterId = "liquid-glass-dock";
+  const lensFilterId = "liquid-glass-lens";
+
   return (
     <div
       className={cn(
-        "pointer-events-auto fixed bottom-4 left-1/2 z-[1000] flex w-[calc(100vw-2rem)] max-w-[380px] origin-bottom -translate-x-1/2 scale-100 items-center justify-center opacity-100 transition-[scale,transform,opacity] duration-[380ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[scale,opacity] select-none sm:bottom-6 sm:w-auto sm:max-w-none",
-        isShrunk && "scale-[0.86] opacity-80 hover:scale-100 hover:opacity-100",
-        isDimmed && "opacity-45 hover:opacity-100",
+        "pointer-events-auto fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-[1000] flex w-[calc(100vw-2rem)] max-w-[400px] origin-bottom -translate-x-1/2 scale-100 items-center justify-center transition-[scale,transform] duration-[380ms] ease-[cubic-bezier(0.22,1,0.36,1)] select-none sm:bottom-6 sm:w-auto sm:max-w-none",
+        // NOTE: never put opacity/filter on this wrapper — it would become a
+        // "backdrop root" and the glass inside could no longer see the page.
+        isShrunk && "scale-[0.86] hover:scale-100",
       )}
     >
+      {glass.refract && dockSize.w > 0 && (
+        <>
+          <LiquidGlassFilter
+            id={dockFilterId}
+            width={dockSize.w}
+            height={dockSize.h}
+            radius={dockSize.h / 2}
+            bezel={Math.min(16, dockSize.h * 0.3)}
+            magnify={0}
+            strength={22}
+            blur={4}
+          />
+          <LiquidGlassFilter
+            id={lensFilterId}
+            width={lensSize}
+            height={lensSize}
+            radius={lensSize / 2}
+            bezel={lensSize * 0.26}
+            magnify={0.16}
+            strength={11}
+          />
+        </>
+      )}
+
       <div
         ref={containerRef}
-        className="relative flex w-full touch-none items-center rounded-full border border-border bg-card/75 p-1.5 shadow-[0_12px_36px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur-[32px] backdrop-saturate-[220%] transition-[border-color,background-color,box-shadow] duration-300 ease-in-out sm:w-auto sm:gap-2 dark:border-white/18 dark:bg-[#0a0a0a]/75 dark:shadow-[0_16px_42px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.16)]"
+        data-refract={glass.refract ? "" : undefined}
+        data-reduced={glass.reduced ? "" : undefined}
+        className="group/dock liquid-glass liquid-rim relative flex w-full touch-none items-center rounded-full p-1.5 sm:w-auto"
+        style={
+          glass.refract
+            ? {
+                backdropFilter: `url(#${dockFilterId}) saturate(185%) brightness(1.04)`,
+              }
+            : undefined
+        }
         onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
+        onPointerMove={(e) => {
+          handleLightMove(e);
+          handlePointerMove(e);
+        }}
         onPointerUp={handlePointerUp}
+        onTouchEnd={() => {
+          const href = pendingExternalRef.current;
+          if (!href) return;
+          pendingExternalRef.current = null;
+          window.open(href, "_blank", "noopener,noreferrer");
+        }}
         onPointerCancel={handlePointerCancel}
         onPointerLeave={(e) => {
           if (e.pointerType === "mouse") {
@@ -364,42 +552,26 @@ export const FloatingDock: React.FC = () => {
           }
         }}
       >
-        {/* Apple Liquid Glass sliding circular lens */}
-        {isMobile ? (
-          <div
-            className="pointer-events-none absolute top-1.5 bottom-1.5 left-1.5 z-[1] flex w-[calc((100%-12px)/5)] items-center justify-center transition-transform duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
-            style={{
-              transform: `translate3d(${displayIndex * 100}%, 0, 0)`,
-            }}
-          >
-            <div
-              className={cn(
-                "h-11 w-11 rounded-full border border-foreground/20 bg-foreground/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.85)] backdrop-blur-md transition-[transform,background-color,border-color] duration-200 dark:border-white/25 dark:bg-white/[0.14] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.28)]",
-                isLensGliding && "scale-[1.07] border-accent/50 bg-accent/15",
-              )}
-            />
-          </div>
-        ) : (
-          <div
-            className={cn(
-              "pointer-events-none absolute top-1.5 left-1.5 z-[1] h-10 w-10 rounded-full border border-foreground/20 bg-foreground/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.85)] backdrop-blur-md transition-[transform,box-shadow,background-color,border-color] duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform dark:border-white/25 dark:bg-white/[0.14] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.28)]",
-              isLensGliding && "border-accent/50 bg-accent/15",
-            )}
-            style={{
-              transform: `translate3d(${desktopTranslationOffset}px, 0, 0) scale(${isLensGliding ? 1.07 : 1})`,
-            }}
-          />
-        )}
-
         {/* Foreground navigation items */}
-        <div className="relative z-[2] grid w-full grid-cols-5 items-center sm:flex sm:w-auto sm:gap-2">
+        <div
+          className={cn(
+            "relative z-[2] grid w-full grid-cols-5 items-center transition-opacity duration-500 sm:flex sm:w-auto sm:gap-1.5",
+            (isDimmed || isShrunk) &&
+              !isLensGliding &&
+              "opacity-60 [@media(hover:hover)]:group-hover/dock:opacity-100",
+          )}
+        >
           {navItems.map((item, index) => {
             const Icon = item.icon;
             const isCurrentlyActive = displayIndex === index;
+            const isRoute = !item.isExternal && !item.isThemeToggle;
 
             return (
               <button
                 key={item.label}
+                ref={(el) => {
+                  buttonRefs.current[index] = el;
+                }}
                 onClick={() => handleItemSelect(item, index)}
                 onPointerEnter={(e) => {
                   if (e.pointerType === "mouse") {
@@ -408,23 +580,62 @@ export const FloatingDock: React.FC = () => {
                   }
                 }}
                 className={cn(
-                  "group relative flex h-11 w-full cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-[#6e6a7c] transition-[scale,transform,color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] outline-none active:scale-[0.92] sm:h-10 sm:w-10 dark:text-[#a8a29e] [&_svg]:h-5 [&_svg]:w-5 [&_svg]:transition-[stroke-width,transform] [&_svg]:duration-200",
-                  isCurrentlyActive &&
-                    "scale-[1.06] text-accent dark:text-foreground",
+                  "group relative flex h-12 w-full cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-foreground/60 transition-[color] duration-200 ease-out outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-11 sm:w-11 [&_svg]:transition-[stroke-width,transform] [&_svg]:duration-300",
+                  isCurrentlyActive && "text-accent dark:text-foreground",
                 )}
                 aria-label={item.label}
+                aria-current={
+                  isRoute && activeIndex === index ? "page" : undefined
+                }
                 type="button"
               >
-                <span className="pointer-events-none invisible absolute bottom-[calc(100%+12px)] left-1/2 z-[1010] -translate-x-1/2 translate-y-1 rounded-md border border-white/10 bg-[rgba(26,21,35,0.9)] px-2.5 py-1.5 font-mono text-[0.7rem] tracking-[0.02em] whitespace-nowrap text-white opacity-0 shadow-[0_4px_12px_rgba(0,0,0,0.2)] backdrop-blur-[4px] transition-all duration-200 ease-in-out group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-[5px] after:border-solid after:border-transparent after:border-t-[rgba(26,21,35,0.9)] after:content-[''] dark:border-black/10 dark:bg-[rgba(250,250,249,0.94)] dark:text-[#101014] dark:after:border-t-[rgba(250,250,249,0.94)]">
+                <span className="liquid-tooltip pointer-events-none invisible absolute bottom-[calc(100%+14px)] left-1/2 z-[1010] -translate-x-1/2 translate-y-1 rounded-full px-3 py-1.5 font-mono text-[0.62rem] tracking-[0.1em] whitespace-nowrap uppercase opacity-0 transition-all duration-200 ease-out group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
                   {item.label}
+                  {isRoute && (
+                    <span className="ml-1.5 text-accent normal-case">
+                      {item.path === "/" ? "~/" : `~${item.path}`}
+                    </span>
+                  )}
+                  {item.isExternal && (
+                    <span className="ml-1.5 text-accent">↗</span>
+                  )}
                 </span>
-                <div className="flex items-center justify-center transition-transform duration-200 ease-in-out">
-                  <Icon size={20} strokeWidth={isCurrentlyActive ? 2.4 : 1.9} />
-                </div>
+                <Icon
+                  size={20}
+                  strokeWidth={isCurrentlyActive ? 2.3 : 1.8}
+                  className={cn(isCurrentlyActive && "scale-[1.08]")}
+                />
+                {/* Running indicator for the current route */}
+                {isRoute && activeIndex === index && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute bottom-[3px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-accent shadow-[0_0_6px_var(--accent)]"
+                  />
+                )}
               </button>
             );
           })}
         </div>
+
+        {/* The droplet lens — sits ABOVE the icons and magnifies them */}
+        <div
+          ref={lensRef}
+          aria-hidden="true"
+          className={cn(
+            "liquid-lens pointer-events-none absolute top-1/2 left-0 z-[3] rounded-full will-change-transform",
+            isLensGliding && "is-pressed",
+          )}
+          style={{
+            width: lensSize,
+            height: lensSize,
+            transform: `translate3d(-999px, -50%, 0)`,
+            ...(glass.refract
+              ? {
+                  backdropFilter: `url(#${lensFilterId}) saturate(160%) brightness(1.06)`,
+                }
+              : null),
+          }}
+        />
       </div>
     </div>
   );

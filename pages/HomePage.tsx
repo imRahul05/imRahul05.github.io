@@ -29,6 +29,16 @@ import { SocialLink } from "../components/SocialLink";
 import { DigitalClock } from "../components/DigitalClock";
 import { XIcon } from "../components/XIcon";
 import { AnimatedRoleTitle } from "../components/AnimatedRoleTitle";
+import { OrreryCanvas } from "../components/blueprint/OrreryCanvas";
+import {
+  ViewportBackChrome,
+  ViewportFrontChrome,
+} from "../components/blueprint/ViewportChrome";
+import { ScrambleText } from "../components/blueprint/ScrambleText";
+import { DimensionLine } from "../components/blueprint/DimensionLine";
+import { focusOrreryBody } from "../components/blueprint/orreryState";
+import { useReveal } from "../components/blueprint/useReveal";
+import { ClaimsFoundry } from "../components/iso/ClaimsFoundry";
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -38,6 +48,7 @@ export const HomePage: React.FC = () => {
   const [isShowingVideo, setIsShowingVideo] = useState(false);
   const profileVideoRef = useRef<HTMLVideoElement | null>(null);
   const contributionData = React.useMemo(() => generateContributionData(), []);
+  useReveal();
 
   const headerRef = useRef<HTMLElement | null>(null);
   const spacerRef = useRef<HTMLDivElement | null>(null);
@@ -172,16 +183,43 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen [overflow-anchor:none]">
-      <div className="relative z-[1] max-w-[42rem] mx-auto px-6 py-16 min-h-screen">
+      {/* 3D wireframe orrery + design-tool viewport chrome */}
+      <OrreryCanvas className="orrery-enter pointer-events-none fixed inset-0 z-0" />
+      <ViewportBackChrome />
+      <ViewportFrontChrome />
+
+      <div className="blueprint-sheet relative z-[1] mx-auto min-h-screen max-w-[44rem] px-6 py-16 sm:my-10 sm:px-10 lg:max-w-[48rem] lg:px-14">
+        {/* Registration marks + sheet caption */}
+        <span aria-hidden="true" className="reg-mark -top-[7px] -left-[7px]" />
+        <span aria-hidden="true" className="reg-mark -top-[7px] -right-[7px]" />
+        <span
+          aria-hidden="true"
+          className="reg-mark -bottom-[7px] -left-[7px]"
+        />
+        <span
+          aria-hidden="true"
+          className="reg-mark -right-[7px] -bottom-[7px]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-6 right-0 left-0 hidden items-center justify-between font-mono text-[0.58rem] tracking-[0.1em] text-muted-foreground uppercase sm:flex"
+        >
+          <span>Sheet 01 — rahul_kumar.portfolio</span>
+          <span>Scale 1:1 · Units px</span>
+        </div>
+
         {/* HEADER */}
         <header
           ref={headerRef}
-          className="group sticky top-0 z-50 bg-background/92 backdrop-blur-[12px] py-4 -mt-4 mb-8 flex flex-row justify-between items-start gap-6 sm:gap-8 border-b border-transparent transition-[gap,padding,border-color,background-color] duration-300 ease-out [&.is-scrolled]:items-center [&.is-scrolled]:gap-4 [&.is-scrolled]:py-2.5 [&.is-scrolled]:border-b-border"
+          className="group sticky top-0 z-50 lg:top-4 bg-background/92 backdrop-blur-[12px] py-4 -mt-4 mb-8 flex flex-row justify-between items-start gap-6 sm:gap-8 border-b border-transparent transition-[gap,padding,border-color,background-color] duration-300 ease-out [&.is-scrolled]:items-center [&.is-scrolled]:gap-4 [&.is-scrolled]:py-2.5 [&.is-scrolled]:border-b-border"
         >
           <div>
-            <h1 className="font-sans text-[1.75rem] font-medium mb-1.5 tracking-[-0.04em] leading-[1.1] transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[1.15rem] group-[.is-scrolled]:mb-[0.1rem]">
-              {DATA.personal.name}
-            </h1>
+            <div className="w-fit">
+              <h1 className="font-sans text-[2.1rem] sm:text-[2.6rem] font-semibold mb-1 tracking-[-0.045em] leading-[1.05] transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:text-[1.15rem] group-[.is-scrolled]:mb-[0.1rem]">
+                <ScrambleText text={DATA.personal.name} />
+              </h1>
+              <DimensionLine className="mb-2.5 group-[.is-scrolled]:hidden" />
+            </div>
             <AnimatedRoleTitle className="mb-3.5 group-[.is-scrolled]:text-[0.68rem] group-[.is-scrolled]:mb-[0.15rem]" />
             <div className="flex items-center gap-1.5 mb-2 font-mono text-[0.72rem] text-muted-foreground transition-[font-size,margin-bottom] duration-300 ease-out group-[.is-scrolled]:mb-0 group-[.is-scrolled]:text-[0.68rem]">
               <MapPin size={13} className="text-accent" />
@@ -281,20 +319,39 @@ export const HomePage: React.FC = () => {
         />
 
         {/* BIO */}
-        <section className="mb-12">
-          <p className="max-w-[540px] text-[0.95rem] leading-[1.75] text-secondary-foreground">
+        <section
+          className="mb-12"
+          data-reveal
+          data-hud-section="Hero"
+          data-hud-index="00"
+        >
+          <p className="max-w-[560px] text-[1.02rem] leading-[1.75] text-foreground/85">
             {DATA.personal.bio}
           </p>
         </section>
 
-        {/* SKILLS (CAD Micro-Chips) */}
-        <section className="mb-12">
+        {/* SKILLS (CAD Micro-Chips) — each one is a body in the orrery */}
+        <section
+          className="mb-12"
+          data-reveal
+          data-hud-section="Stack"
+          data-hud-index="00"
+        >
+          <p className="mb-2.5 font-mono text-[0.62rem] tracking-[0.1em] text-muted-foreground uppercase">
+            <span className="text-accent">◎</span> Stack in orbit — hover or tap
+            to locate
+          </p>
           <div className="flex flex-wrap gap-1.5 text-xs">
             {DATA.skills.map((skill) => (
               <Badge
                 key={skill}
                 variant="outline"
-                className="cad-chip h-auto bg-card px-2.5 py-1 text-[0.72rem] font-normal text-secondary-foreground"
+                tabIndex={0}
+                onMouseEnter={() => focusOrreryBody(skill)}
+                onMouseLeave={() => focusOrreryBody(null)}
+                onFocus={() => focusOrreryBody(skill)}
+                onBlur={() => focusOrreryBody(null)}
+                className="cad-chip cad-chip-orbit h-auto cursor-crosshair bg-card px-2.5 py-1 text-[0.72rem] font-normal text-secondary-foreground"
               >
                 {skill}
               </Badge>
@@ -302,15 +359,39 @@ export const HomePage: React.FC = () => {
           </div>
         </section>
 
+        {/* NOW BUILDING — isometric pipeline diorama */}
+        <section
+          className="mb-12"
+          data-reveal
+          data-hud-section="Now Building"
+          data-hud-index="01"
+        >
+          <SectionTitle index="01">Now Building</SectionTitle>
+          <p className="mb-4 max-w-[560px] text-[0.9rem] leading-[1.65] text-secondary-foreground">
+            An isometric sketch of the AI medical-coding &amp; claims workflow
+            I&apos;m building — the model suggests, deterministic code decides.
+          </p>
+          <ClaimsFoundry />
+        </section>
+
         {/* EXPERIENCE */}
-        <Experience />
+        <div data-reveal data-hud-section="Experience" data-hud-index="02">
+          <Experience />
+        </div>
 
         {/* EDUCATION */}
-        <Education />
+        <div data-reveal data-hud-section="Education" data-hud-index="03">
+          <Education />
+        </div>
 
         {/* FEATURED PROJECTS */}
-        <section className="mb-12">
-          <SectionTitle index="03">Featured Projects</SectionTitle>
+        <section
+          className="mb-12"
+          data-reveal
+          data-hud-section="Projects"
+          data-hud-index="04"
+        >
+          <SectionTitle index="04">Featured Projects</SectionTitle>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             {featuredProjects.map((project) => (
               <ProjectCard key={project.name} {...project} />
@@ -337,8 +418,13 @@ export const HomePage: React.FC = () => {
         </section>
 
         {/* CONTRIBUTION GRAPH */}
-        <section className="mb-12">
-          <SectionTitle index="04">Build Rhythm</SectionTitle>
+        <section
+          className="mb-12"
+          data-reveal
+          data-hud-section="Build Rhythm"
+          data-hud-index="05"
+        >
+          <SectionTitle index="05">Build Rhythm</SectionTitle>
           <ContributionGraph
             className="cad-card relative overflow-hidden p-4"
             data={contributionData}
@@ -372,9 +458,30 @@ export const HomePage: React.FC = () => {
               <DigitalClock />
             </div>
           </div>
-          <p className="mt-8 text-xs text-muted-foreground">
+          {/* Drawing title block */}
+          <dl className="mt-8 grid grid-cols-2 border-t border-l border-border font-mono text-[0.62rem] tracking-[0.06em] uppercase sm:grid-cols-4">
+            {[
+              ["Drawn by", DATA.personal.name],
+              ["Location", "12.97°N 77.59°E"],
+              ["Sheet", "01 of 01"],
+              [
+                "Rev",
+                `${new Date().getFullYear()}.${String(new Date().getMonth() + 1).padStart(2, "0")}`,
+              ],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="border-r border-b border-border px-3 py-2"
+              >
+                <dt className="text-muted-foreground">{label}</dt>
+                <dd className="m-0 text-foreground">{value}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-4 text-xs text-muted-foreground">
             © {new Date().getFullYear()} {DATA.personal.name}. Built with React,
-            TypeScript, Tailwind CSS, and Base UI.
+            TypeScript, Tailwind CSS, Base UI — and a hand-rolled 3D canvas
+            orrery.
           </p>
         </footer>
       </div>

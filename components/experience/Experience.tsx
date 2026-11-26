@@ -86,7 +86,7 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({
 export const Experience: React.FC = () => {
   return (
     <section className="mb-12">
-      <SectionTitle index="01">Experience</SectionTitle>
+      <SectionTitle index="02">Experience</SectionTitle>
       <div>
         {DATA.experience.map((job, index) => (
           <ExperienceItem
