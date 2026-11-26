@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useCallback,
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { flushSync } from "react-dom";
 import {
@@ -19,7 +25,10 @@ import { LiquidGlassFilter, useLiquidGlass } from "./LiquidGlass";
 
 // Safe interface for view transitions
 interface TransitionDocument extends Omit<Document, "startViewTransition"> {
-  startViewTransition?: (callback: () => void) => { ready: Promise<void> };
+  startViewTransition?: (callback: () => void) => {
+    ready: Promise<void>;
+    finished?: Promise<void>;
+  };
 }
 
 interface NavItem {
@@ -62,6 +71,8 @@ export const FloatingDock: React.FC = () => {
   const [isDimmed, setIsDimmed] = useState<boolean>(false);
   const dimTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const pendingExternalRef = useRef<string | null>(null);
+  const pendingClearRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   // Theme state
@@ -72,8 +83,9 @@ export const FloatingDock: React.FC = () => {
     return index >= 0 ? index : 0;
   });
 
-  // Sync theme changes to document attributes
-  useEffect(() => {
+  // Sync theme changes to document attributes. Layout effect so the class is
+  // on <html> in the same commit the view transition snapshots.
+  useLayoutEffect(() => {
     const theme = THEMES[currentThemeIndex].name;
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
@@ -165,17 +177,29 @@ export const FloatingDock: React.FC = () => {
     const nextIndex = (currentThemeIndex + 1) % THEMES.length;
     const isNextDark = THEMES[nextIndex].name === "dark";
 
+    // Freeze CSS transitions during the swap: otherwise glass shadows /
+    // tints animate for ~300ms after the wipe and look out of sync.
+    const root = document.documentElement;
+    root.classList.add("theme-switching");
+    const unfreeze = () =>
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => root.classList.remove("theme-switching")),
+      );
+
     const transitionDoc = document as TransitionDocument;
     if (!transitionDoc.startViewTransition) {
-      setCurrentThemeIndex(nextIndex);
+      flushSync(() => setCurrentThemeIndex(nextIndex));
+      unfreeze();
       return;
     }
 
-    await transitionDoc.startViewTransition(() => {
+    const transition = transitionDoc.startViewTransition(() => {
       flushSync(() => {
         setCurrentThemeIndex(nextIndex);
       });
-    }).ready;
+    });
+    void transition.finished?.finally(unfreeze);
+    await transition.ready;
 
     document.documentElement.animate(
       {
@@ -220,15 +244,26 @@ export const FloatingDock: React.FC = () => {
   })();
 
   // Click / selection action for items
-  const handleItemSelect = (item: NavItem, index: number) => {
+  const handleItemSelect = (
+    item: NavItem,
+    index: number,
+    deferExternal = false,
+  ) => {
     resetDimTimer();
 
     if (item.isThemeToggle) {
       setPendingIndex(null);
       void toggleTheme();
     } else if (item.isExternal) {
-      setPendingIndex(null);
-      window.open(item.path, "_blank", "noopener,noreferrer");
+      // Briefly hold the lens on the item so the release feels acknowledged
+      setPendingIndex(index);
+      if (pendingClearRef.current) clearTimeout(pendingClearRef.current);
+      pendingClearRef.current = setTimeout(() => setPendingIndex(null), 450);
+      if (deferExternal) {
+        pendingExternalRef.current = item.path;
+      } else {
+        window.open(item.path, "_blank", "noopener,noreferrer");
+      }
     } else {
       // Lock lens on destination index immediately so lazy route transition never bounces back
       setPendingIndex(index);
@@ -321,7 +356,14 @@ export const FloatingDock: React.FC = () => {
     }
 
     if (didGlide && targetIndex !== null) {
-      handleItemSelect(navItems[targetIndex], targetIndex);
+      // Mobile browsers (iOS Safari especially) only allow window.open()
+      // from click / touchend, not pointerup — so for touch we defer the
+      // external open to the touchend that follows.
+      handleItemSelect(
+        navItems[targetIndex],
+        targetIndex,
+        e.pointerType !== "mouse",
+      );
     }
     setGlideIndex(null);
     if (e.pointerType !== "mouse") {
@@ -497,6 +539,12 @@ export const FloatingDock: React.FC = () => {
           handlePointerMove(e);
         }}
         onPointerUp={handlePointerUp}
+        onTouchEnd={() => {
+          const href = pendingExternalRef.current;
+          if (!href) return;
+          pendingExternalRef.current = null;
+          window.open(href, "_blank", "noopener,noreferrer");
+        }}
         onPointerCancel={handlePointerCancel}
         onPointerLeave={(e) => {
           if (e.pointerType === "mouse") {
