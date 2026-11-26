@@ -520,3 +520,166 @@
     animation: none;
   }
 }
+
+/* ================================================== */
+/* Liquid Glass — dock, lens, tooltip                 */
+/* ================================================== */
+
+.liquid-glass {
+  --lx: 22%;
+  --ly: 0%;
+  --glass-tint: rgba(255, 255, 255, 0.14);
+  --glass-edge: rgba(255, 255, 255, 0.65);
+  --glass-edge-dim: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 18px 40px -14px rgba(10, 10, 30, 0.35);
+  isolation: isolate;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    var(--glass-tint) 42%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  /* Fallback (Safari / Firefox): frosted blur — refraction is Chromium-only */
+  backdrop-filter: blur(18px) saturate(190%);
+  -webkit-backdrop-filter: blur(18px) saturate(190%);
+  box-shadow:
+    inset 0 1px 0.5px rgba(255, 255, 255, 0.85),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.22),
+    inset 0 0 18px -6px rgba(255, 255, 255, 0.6),
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    var(--glass-shadow);
+  transition: box-shadow 0.3s ease;
+}
+
+.dark .liquid-glass {
+  --glass-tint: rgba(255, 255, 255, 0.045);
+  --glass-edge: rgba(255, 255, 255, 0.5);
+  --glass-edge-dim: rgba(255, 255, 255, 0.06);
+  --glass-shadow: 0 22px 48px -14px rgba(0, 0, 0, 0.8);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.09) 0%,
+    var(--glass-tint) 45%,
+    rgba(95, 161, 243, 0.05) 100%
+  );
+  box-shadow:
+    inset 0 1px 0.5px rgba(255, 255, 255, 0.35),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.06),
+    inset 0 0 22px -8px rgba(95, 161, 243, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    var(--glass-shadow);
+}
+
+/* Specular rim that tracks the pointer like a light source */
+.liquid-rim::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      140px circle at var(--lx) var(--ly),
+      var(--glass-edge),
+      transparent 60%
+    ),
+    linear-gradient(
+      160deg,
+      var(--glass-edge) 0%,
+      var(--glass-edge-dim) 30%,
+      var(--glass-edge-dim) 70%,
+      var(--glass-edge) 100%
+    );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* Soft top sheen — the "wet" look */
+.liquid-rim::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 90% at 50% -20%,
+    rgba(255, 255, 255, 0.32),
+    rgba(255, 255, 255, 0) 60%
+  );
+  opacity: 0.7;
+}
+
+.dark .liquid-rim::after {
+  opacity: 0.18;
+}
+
+/* The droplet lens */
+.liquid-lens {
+  background: radial-gradient(
+    circle at 50% 30%,
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0.04) 60%,
+    color-mix(in srgb, var(--accent) 10%, transparent) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.9),
+    inset 0 -3px 8px -2px color-mix(in srgb, var(--accent) 28%, transparent),
+    0 6px 16px -6px rgba(0, 0, 0, 0.35);
+  /* No blur in the fallback, so the icon under the lens stays crisp */
+  backdrop-filter: saturate(150%) brightness(1.04);
+  -webkit-backdrop-filter: saturate(150%) brightness(1.04);
+  transition: box-shadow 0.25s ease;
+}
+
+.dark .liquid-lens {
+  background: radial-gradient(
+    circle at 50% 30%,
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0.02) 60%,
+    color-mix(in srgb, var(--accent) 14%, transparent) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.26),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.4),
+    inset 0 -3px 10px -2px color-mix(in srgb, var(--accent) 40%, transparent),
+    0 8px 20px -6px rgba(0, 0, 0, 0.7);
+}
+
+.liquid-lens.is-pressed {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent) 70%, white),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.9),
+    inset 0 -4px 10px -2px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 10px 24px -8px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+/* Glass tooltip */
+.liquid-tooltip {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--background) 62%, transparent);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 0 0 1px color-mix(in srgb, var(--foreground) 10%, transparent),
+    0 8px 20px -8px rgba(0, 0, 0, 0.35);
+}
+
+/* Users who ask for less transparency get a solid, high-contrast dock */
+.liquid-glass[data-reduced] {
+  background: var(--card);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.liquid-glass[data-reduced]::after {
+  display: none;
+}

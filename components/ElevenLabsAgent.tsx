@@ -26,7 +26,7 @@ export function ElevenLabsAgent() {
         type="button"
         onClick={() => setDismissed(false)}
         aria-label="Talk to AI"
-        className="fixed right-5 bottom-5 z-[10000] flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-border bg-foreground p-0 text-background shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
+        className="liquid-glass liquid-rim fixed right-4 bottom-[calc(max(1rem,env(safe-area-inset-bottom))+76px)] z-[10000] flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-0 p-0 text-foreground sm:right-5 sm:bottom-5"
       >
         <Phone size={20} />
       </button>
