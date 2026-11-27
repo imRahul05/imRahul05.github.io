@@ -1,16 +1,27 @@
 import React, { Suspense, lazy } from "react";
+import { SHORTLIST_LAUNCH_VIDEO } from "@/data/media";
+import { BlogVideo } from "./BlogVideo";
 
 /**
- * Interactive embeds for blog posts. In a post's Markdown, write an empty
- * fenced block whose language is the embed name, e.g.
+ * Embeds for blog posts. In a post's Markdown, write an empty fenced block
+ * whose language is the embed name, e.g.
  *
  *   ```iso:shortlist
  *   ```
  *
- * Embeds are lazy-loaded so they only cost bytes on posts that use them.
+ * Heavy embeds are lazy-loaded so they only cost bytes on posts that use
+ * them; video embeds fetch nothing until they're near the viewport.
  */
-const EMBEDS: Record<string, React.LazyExoticComponent<React.FC>> = {
+const ShortlistLaunchVideo: React.FC = () => (
+  <BlogVideo
+    video={SHORTLIST_LAUNCH_VIDEO}
+    caption="Fig. 02 — The real extension on an example job page: score, confirm a skill, tailor, autofill. 29 s · sound on."
+  />
+);
+
+const EMBEDS: Record<string, React.ComponentType> = {
   "iso:shortlist": lazy(() => import("../iso/ShortlistIso")),
+  "video:shortlist-launch": ShortlistLaunchVideo,
 };
 
 export const isBlogEmbed = (lang: string) => lang in EMBEDS;

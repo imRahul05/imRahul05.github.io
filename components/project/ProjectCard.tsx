@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Play,
@@ -35,10 +35,20 @@ interface ProjectCardProps {
   blogSlug?: string;
   image?: string;
   video?: string;
+  videoPoster?: string;
+  videoLabel?: string;
+  videoAspect?: number;
+  videoHoverPreview?: boolean;
   tag?: string;
   previewCommand?: string;
   previewTagline?: string;
 }
+
+/** Hover previews only make sense with a real mouse and motion allowed. */
+const canHoverPreview = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+  !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const MAX_VISIBLE_TECH = 5;
 
@@ -52,6 +62,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   blogSlug,
   image,
   video,
+  videoPoster,
+  videoLabel,
+  videoAspect,
+  videoHoverPreview,
   tag,
   previewCommand,
   previewTagline,
@@ -60,20 +74,64 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isTechExpanded, setIsTechExpanded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  // Muted inline preview: the source is attached on the first hover, so no
+  // video bytes are fetched until the user points at the card.
+  const previewRef = useRef<HTMLVideoElement>(null);
+  const [previewSrc, setPreviewSrc] = useState<string | null>(null);
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
+  const isHoveringRef = useRef(false);
+  const hasHoverPreview = Boolean(video && videoHoverPreview);
+
+  // With preload="none" nothing loads until play(), so start it once the
+  // source is mounted (if the pointer is still on the card).
+  useEffect(() => {
+    if (previewSrc && isHoveringRef.current) {
+      previewRef.current?.play().catch(() => {});
+    }
+  }, [previewSrc]);
 
   const visibleTech = isTechExpanded ? tech : tech.slice(0, MAX_VISIBLE_TECH);
   const hiddenTech = tech.slice(MAX_VISIBLE_TECH);
   const remainingTechCount = hiddenTech.length;
+
+  const stopPreview = useCallback(() => {
+    isHoveringRef.current = false;
+    const el = previewRef.current;
+    if (el) {
+      el.pause();
+      if (el.readyState > 0) el.currentTime = 0;
+    }
+    setIsPreviewPlaying(false);
+  }, []);
+
+  const handlePreviewEnter = useCallback(
+    (e: React.PointerEvent) => {
+      if (!video || e.pointerType !== "mouse" || !canHoverPreview()) return;
+      isHoveringRef.current = true;
+      if (!previewSrc) {
+        // First hover: mount the source; the effect above starts playback.
+        setPreviewSrc(video);
+        return;
+      }
+      previewRef.current?.play().catch(() => {});
+    },
+    [video, previewSrc],
+  );
+
+  const handlePreviewLeave = useCallback(() => {
+    stopPreview();
+  }, [stopPreview]);
 
   const handlePlayClick = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
       if (video) {
+        stopPreview();
         setIsVideoModalOpen(true);
       }
     },
-    [video],
+    [video, stopPreview],
   );
 
   const handleOpenChange = useCallback((open: boolean) => {
@@ -88,7 +146,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     <>
       <article className="cad-card group/card flex h-full flex-col overflow-hidden">
         {/* Visual Header Section */}
-        <div className="cad-hatch relative aspect-video w-full shrink-0 overflow-hidden border-b border-border bg-secondary">
+        <div
+          className="cad-hatch relative aspect-video w-full shrink-0 overflow-hidden border-b border-border bg-secondary"
+          onPointerEnter={hasHoverPreview ? handlePreviewEnter : undefined}
+          onPointerLeave={hasHoverPreview ? handlePreviewLeave : undefined}
+        >
           {!isImageLoaded && image && (
             <Skeleton className="absolute inset-0 h-full w-full rounded-none animate-shimmer" />
           )}
@@ -147,6 +209,39 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 <span>{period ?? "Project"}</span>
               </div>
             </div>
+          )}
+
+          {hasHoverPreview && previewSrc && (
+            <>
+              <video
+                ref={previewRef}
+                src={previewSrc}
+                muted
+                loop
+                playsInline
+                preload="none"
+                disablePictureInPicture
+                aria-hidden="true"
+                tabIndex={-1}
+                data-hover-preview=""
+                className={cn(
+                  "pointer-events-none absolute inset-0 h-full w-full object-cover transition-opacity duration-300",
+                  isPreviewPlaying ? "opacity-100" : "opacity-0",
+                )}
+                onPlaying={() => setIsPreviewPlaying(true)}
+                onPause={() => setIsPreviewPlaying(false)}
+              />
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "pointer-events-none absolute top-2.5 left-2.5 z-10 inline-flex items-center gap-1.5 border border-white/25 bg-black/60 px-2 py-0.5 font-mono text-[0.6rem] tracking-[0.08em] text-white uppercase backdrop-blur-[4px] transition-opacity duration-300",
+                  isPreviewPlaying ? "opacity-100" : "opacity-0",
+                )}
+              >
+                <Play size={9} className="fill-current" />
+                Preview · Muted
+              </span>
+            </>
           )}
 
           {video && (
@@ -280,7 +375,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <Dialog open={isVideoModalOpen} onOpenChange={handleOpenChange}>
           <DialogContent
             showCloseButton={false}
-            className="fixed top-1/2 left-1/2 z-[1000] max-h-[90vh] w-[90vw] max-w-5xl -translate-x-1/2 -translate-y-1/2 gap-0 border-0 bg-transparent p-0 shadow-none ring-0 outline-none sm:max-w-5xl"
+            className={cn(
+              "fixed top-1/2 left-1/2 z-[1000] max-h-[90vh] w-[90vw] max-w-5xl -translate-x-1/2 -translate-y-1/2 gap-0 border-0 bg-transparent p-0 shadow-none ring-0 outline-none sm:max-w-5xl",
+              // Square video: size the dialog to the video, not the screen
+              videoAspect === 1 &&
+                "max-w-[min(90vw,80vh)] sm:max-w-[min(90vw,80vh)]",
+            )}
           >
             <DialogHeader className="sr-only">
               <DialogTitle>{name} video player</DialogTitle>
@@ -294,8 +394,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <video
               ref={videoRef}
               src={video}
+              poster={videoPoster}
+              aria-label={videoLabel ?? `${name} video`}
               controls
               autoPlay
+              playsInline
               className="max-h-[85vh] w-full rounded-lg bg-black"
             >
               Your browser does not support the video tag.
