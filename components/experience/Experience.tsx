@@ -31,15 +31,19 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({
       onClick={() => setIsOpen(!isOpen)}
     >
       {image && (
-        <div className="shrink-0 w-12 h-12 rounded-full overflow-hidden bg-border-light border border-border">
+        <div className="relative shrink-0 w-12 h-12 rounded-full overflow-hidden bg-border-light border border-border">
           {!isImageLoaded && (
-            <div className="w-full h-full rounded-full animate-shimmer" />
+            <div className="absolute inset-0 rounded-full animate-shimmer" />
           )}
           <img
             src={image}
             alt={company}
-            className={`w-full h-full object-cover transition-[filter] duration-300 ease-in-out dark:grayscale ${
-              !isImageLoaded ? "hidden" : ""
+            loading="lazy"
+            decoding="async"
+            width={48}
+            height={48}
+            className={`w-full h-full object-cover transition-[filter,opacity] duration-300 ease-in-out dark:grayscale ${
+              !isImageLoaded ? "opacity-0" : ""
             }`}
             onLoad={() => setIsImageLoaded(true)}
           />

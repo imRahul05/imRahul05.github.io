@@ -5,6 +5,13 @@ Most "AI job tools" want your resume on their server, an account, and an API key
 \`\`\`iso:shortlist
 \`\`\`
 
+## Watch It Work
+
+Thirty seconds with the real extension on an example job page: the score card opens at **69%**, confirming a skill with **"I have this"** lifts it to **78%**, the Resume Studio highlights the job's skills, and Autofill fills the application form.
+
+\`\`\`video:shortlist-launch
+\`\`\`
+
 ## How a Job Gets Scored
 
 When you open a posting on LinkedIn, Indeed, Naukri, Greenhouse, Lever, Workday and many more, a content script reads the job straight from the page's DOM: **schema.org \`JobPosting\` data first**, then site-specific selectors, then a text-density heuristic. Text you select on the page overrides all of these.

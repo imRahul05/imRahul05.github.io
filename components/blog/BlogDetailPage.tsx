@@ -11,6 +11,7 @@ import {
 import { BLOGS } from "../../data/blogs";
 import { MermaidDiagram } from "./MermaidDiagram";
 import { BlogEmbed, isBlogEmbed } from "./BlogEmbed";
+import { cdnImage } from "@/lib/cdn";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,14 @@ interface BlogDetailPageProps {
 
 type FontStyle = "mono" | "sans" | "serif";
 type ReadingTheme = "default" | "sepia" | "high-contrast";
+
+// One shared formatter: toLocaleDateString() builds a new Intl formatter on
+// every call, which is surprisingly expensive on phones.
+const DATE_FORMAT = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+});
 
 export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
   slug,
@@ -64,14 +73,8 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
     setFontSize((prev) => Math.min(Math.max(prev + delta * 2, 12), 32));
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
+  const formatDate = (dateString: string) =>
+    DATE_FORMAT.format(new Date(dateString));
 
   // Simple markdown-like rendering for the content
   const renderContent = (rawContent: string) => {
@@ -625,8 +628,10 @@ export const BlogDetailPage: React.FC<BlogDetailPageProps> = ({
                 <Skeleton className="aspect-16/9 w-full rounded-xl animate-shimmer" />
               )}
               <img
-                src={blog.image}
+                src={cdnImage(blog.image, 720)}
                 alt={blog.title}
+                fetchPriority="high"
+                decoding="async"
                 className={`h-auto max-h-[520px] w-full rounded-xl object-contain dark:brightness-95 ${
                   !isImageLoaded ? "hidden" : ""
                 }`}

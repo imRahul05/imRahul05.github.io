@@ -1,3 +1,4 @@
+import { cdnImage } from "@/lib/cdn";
 import React, { useState } from "react";
 import { Calendar, Clock, ArrowRight } from "lucide-react";
 import { type Blog } from "../../data/blogs";
@@ -49,13 +50,15 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog, onReadMore }) => {
       {blog.image && (
         <div className="relative m-3 mb-0 aspect-16/9 w-[calc(100%-1.5rem)] shrink-0 overflow-hidden rounded-lg bg-border-light">
           {!isImageLoaded && (
-            <Skeleton className="size-full rounded-lg animate-shimmer" />
+            <Skeleton className="absolute inset-0 size-full rounded-lg animate-shimmer" />
           )}
           <img
-            src={blog.image}
+            src={cdnImage(blog.image, 420)}
             alt={blog.title}
+            loading="lazy"
+            decoding="async"
             className={`size-full rounded-lg object-cover transition-all duration-300 ease-out group-hover:scale-105 dark:brightness-90 ${
-              !isImageLoaded ? "hidden" : ""
+              !isImageLoaded ? "opacity-0" : ""
             }`}
             onLoad={() => setIsImageLoaded(true)}
           />

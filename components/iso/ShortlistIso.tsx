@@ -1,3 +1,4 @@
+import { onThemeChange } from "@/lib/theme";
 import React, { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -76,6 +77,7 @@ export const ShortlistIso: React.FC<{ className?: string }> = ({
       H = Math.round(Math.max(240, Math.min(400, W * 0.56)));
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(W * dpr);
+      iso.resetState();
       canvas.height = Math.round(H * dpr);
       canvas.style.width = `${W}px`;
       canvas.style.height = `${H}px`;
@@ -90,6 +92,7 @@ export const ShortlistIso: React.FC<{ className?: string }> = ({
     let lastInteraction = -1e9;
 
     const frame = (time: number) => {
+      if (W < 40 || H < 40) return;
       const { fg, card, accent, isDark } = iso.theme;
       const t = reduce ? 6.2 : time % LOOP;
       const idle = performance.now() - lastInteraction > 2500 && !dragging;
@@ -389,7 +392,9 @@ export const ShortlistIso: React.FC<{ className?: string }> = ({
             );
           const n = Math.round(SCORE * prog);
           const c = iso.proj(ccx, ccy, scoreZ + SCORE_CARD.h);
-          ctx.font = `700 ${compact ? 13 : 17}px "Geist Mono", ui-monospace, monospace`;
+          iso.setFont(
+            `700 ${compact ? 13 : 17}px "Geist Mono", ui-monospace, monospace`,
+          );
           ctx.textAlign = "center";
           ctx.fillStyle = rgba(prog > 0.02 ? GREEN : fg, 0.95);
           ctx.fillText(`${n}%`, c[0], c[1] + 5);
@@ -585,7 +590,9 @@ export const ShortlistIso: React.FC<{ className?: string }> = ({
       if (!serverBehind) drawServer();
 
       /* ---- station tags (floor labels on pills) ---- */
-      ctx.font = `600 ${compact ? 8 : 9.5}px "Geist Mono", ui-monospace, monospace`;
+      iso.setFont(
+        `600 ${compact ? 8 : 9.5}px "Geist Mono", ui-monospace, monospace`,
+      );
       ctx.textAlign = "center";
       for (const [tx, ty, text] of tags) {
         const p = iso.proj(tx, ty, 0);
@@ -603,7 +610,9 @@ export const ShortlistIso: React.FC<{ className?: string }> = ({
       }
 
       /* ---- HUD ---- */
-      ctx.font = `500 ${compact ? 9 : 10}px "Geist Mono", ui-monospace, monospace`;
+      iso.setFont(
+        `500 ${compact ? 9 : 10}px "Geist Mono", ui-monospace, monospace`,
+      );
       ctx.textAlign = "left";
       ctx.fillStyle = rgba(fg, 0.55);
       ctx.fillText("FIG. 01 — INSIDE THE BROWSER", 10, 16);
@@ -623,10 +632,16 @@ export const ShortlistIso: React.FC<{ className?: string }> = ({
     let raf: number | null = null;
     let clock = 0;
     let last = performance.now();
+    // Touch devices: 30fps keeps the motion smooth at half the CPU cost.
+    const minFrameMs = window.matchMedia("(pointer: coarse)").matches
+      ? 1000 / 30 - 2
+      : 0;
     const loop = (now: number) => {
-      clock += Math.min(0.05, (now - last) / 1000);
-      last = now;
-      frame(clock);
+      if (now - last >= minFrameMs) {
+        clock += Math.min(0.05, (now - last) / 1000);
+        last = now;
+        frame(clock);
+      }
       raf = requestAnimationFrame(loop);
     };
     const start = () => {
@@ -658,13 +673,9 @@ export const ShortlistIso: React.FC<{ className?: string }> = ({
     io.observe(canvas);
     const onVis = () => (document.hidden ? stop() : visible && start());
     document.addEventListener("visibilitychange", onVis);
-    const mo = new MutationObserver(() => {
+    const stopThemeWatch = onThemeChange(() => {
       iso.setTheme(readTheme(iso.theme));
       redraw();
-    });
-    mo.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class", "data-theme"],
     });
     document.fonts?.ready.then(redraw).catch(() => undefined);
 
@@ -701,7 +712,7 @@ export const ShortlistIso: React.FC<{ className?: string }> = ({
       stop();
       ro.disconnect();
       io.disconnect();
-      mo.disconnect();
+      stopThemeWatch();
       document.removeEventListener("visibilitychange", onVis);
       canvas.removeEventListener("pointerdown", onDown);
       canvas.removeEventListener("pointermove", onMove);

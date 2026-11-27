@@ -12,6 +12,7 @@
 import { DATA } from "../data/data";
 import { BLOGS } from "../data/blogs";
 import { BLOG_CONTENTS } from "../data/blog-contents";
+import { BLOG_VIDEOS } from "../data/media";
 
 export const SITE_URL = "https://imrahul.me";
 
@@ -43,12 +44,21 @@ const contactLines = () => [
 
 /* ----------------------------- Markdown ---------------------------------- */
 
-/** Interactive embeds (```iso:name```) have no text form — describe them. */
+/**
+ * Embeds have no text form — describe them: ```iso:name``` animations get a
+ * note, ```video:name``` fences become a direct link to the MP4.
+ */
 const describeEmbeds = (md: string) =>
-  md.replace(
-    /```iso:[\w-]+\s*```/g,
-    `_[Interactive isometric animation — view it at ${SITE_URL}]_`,
-  );
+  md
+    .replace(
+      /```iso:[\w-]+\s*```/g,
+      `_[Interactive isometric animation — view it at ${SITE_URL}]_`,
+    )
+    .replace(/```video:([\w-]+)\s*```/g, (_, name: string) => {
+      const v = BLOG_VIDEOS[name];
+      if (!v) return "";
+      return `_[Video: ${v.title} (${Math.floor(v.durationSeconds)} s) — ${v.src}]_`;
+    });
 
 export const blogMarkdown = (slug: string): string | null => {
   const blog = BLOGS.find((b) => b.slug === slug);
@@ -105,6 +115,7 @@ const profileMarkdown = (): string => {
     lines.push(`- Tech: ${p.tech.join(", ")}`);
     if (p.link) lines.push(`- Live: ${p.link}`);
     if (p.sourceUrl) lines.push(`- Source: ${p.sourceUrl}`);
+    if (p.video) lines.push(`- Video: ${p.video}`);
     if (p.blogSlug) lines.push(`- Write-up: ${SITE_URL}/blogs/${p.blogSlug}`);
     lines.push("");
   }

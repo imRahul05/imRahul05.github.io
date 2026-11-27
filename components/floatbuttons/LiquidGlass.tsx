@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { onIdle } from "@/lib/idle";
 
 /**
  * Liquid Glass — real refraction for `backdrop-filter`.
@@ -99,16 +100,49 @@ const CHANNELS: Array<{ key: "r" | "g" | "b"; matrix: string; k: number }> = [
   { key: "b", matrix: "0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0", k: 0.94 },
 ];
 
+// Maps are pure functions of their options; cache them so re-renders,
+// remounts and route changes never recompute the same pixels.
+const mapCache = new Map<string, string>();
+
 export const LiquidGlassFilter: React.FC<
-  MapOptions & { id: string; strength: number; blur?: number }
-> = ({ id, strength, blur = 0, ...map }) => {
-  const [href, setHref] = useState("");
+  MapOptions & {
+    id: string;
+    strength: number;
+    blur?: number;
+    /** Fires once the filter exists in the DOM and can be referenced */
+    onReady?: () => void;
+  }
+> = ({ id, strength, blur = 0, onReady, ...map }) => {
   const { width, height, radius, bezel, magnify } = map;
+  const key = [width, height, radius, bezel, magnify]
+    .map((n) => n.toFixed(2))
+    .join("|");
+  const [href, setHref] = useState(() => mapCache.get(key) ?? "");
 
   useEffect(() => {
     if (width < 2 || height < 2) return;
-    setHref(buildDisplacementMap({ width, height, radius, bezel, magnify }));
-  }, [width, height, radius, bezel, magnify]);
+    const cached = mapCache.get(key);
+    if (cached) {
+      setHref(cached);
+      return;
+    }
+    // Building a map walks every pixel — keep it off the critical path.
+    return onIdle(() => {
+      const url = buildDisplacementMap({
+        width,
+        height,
+        radius,
+        bezel,
+        magnify,
+      });
+      mapCache.set(key, url);
+      setHref(url);
+    }, 1500);
+  }, [key, width, height, radius, bezel, magnify]);
+
+  useEffect(() => {
+    if (href) onReady?.();
+  }, [href, onReady]);
 
   if (!href) return null;
 

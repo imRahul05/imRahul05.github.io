@@ -1,3 +1,5 @@
+import { SHORTLIST_LAUNCH_VIDEO } from "./media";
+
 export interface ProjectData {
   name: string;
   period?: string;
@@ -8,6 +10,14 @@ export interface ProjectData {
   blogSlug?: string;
   image?: string;
   video?: string;
+  /** Poster frame for `video` */
+  videoPoster?: string;
+  /** Accessible description of `video` */
+  videoLabel?: string;
+  /** Width / height of `video` (defaults to 16:9) */
+  videoAspect?: number;
+  /** Desktop only: play a muted inline preview of `video` on hover */
+  videoHoverPreview?: boolean;
   tag?: string;
   featured?: boolean;
   previewCommand?: string;
@@ -112,7 +122,11 @@ export const DATA = {
       sourceUrl: "https://github.com/imRahul05/shortliistt",
       blogSlug: "shortlist-local-first-job-match",
       image: "/projects/shortlist.webp",
-      video: "",
+      video: SHORTLIST_LAUNCH_VIDEO.src,
+      videoPoster: SHORTLIST_LAUNCH_VIDEO.poster,
+      videoLabel: SHORTLIST_LAUNCH_VIDEO.description,
+      videoAspect: SHORTLIST_LAUNCH_VIDEO.width / SHORTLIST_LAUNCH_VIDEO.height,
+      videoHoverPreview: true,
     },
     {
       name: "RHL AI",
