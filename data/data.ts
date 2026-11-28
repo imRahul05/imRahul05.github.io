@@ -102,6 +102,29 @@ export const DATA = {
   ],
   projects: [
     {
+      name: "Vela",
+      period: "November 2026 - Present",
+      tag: "macOS Notch App · Native Swift 6",
+      featured: true,
+      previewCommand: "⌃⌥Space · localhost:7878/event",
+      previewTagline: "Claude Code · Antigravity · Opt-In Plugins",
+      description:
+        "A ~1.5 MB native Swift 6 macOS notch companion for AI workflows. Auto-hooks into Claude Code, Antigravity, and Codex, launches any installed browser, runs on-device Apple Intelligence, and expands with opt-in plugins including Smart Clipboard, a Finviz-style Storage Heatmap Cleaner, and an AES-256 encrypted Phone Companion.",
+      tech: [
+        "Swift 6",
+        "SwiftUI",
+        "AppKit",
+        "macOS",
+        "Apple Intelligence",
+        "CryptoKit",
+        "Vision OCR",
+        "IOKit",
+      ],
+      link: "https://rhl-cli.vercel.app/products/vela",
+      image: "/projects/vela.webp",
+      video: "",
+    },
+    {
       name: "Shortlist",
       period: "November 2026",
       tag: "Chrome Extension · 100% Local",
@@ -132,7 +155,6 @@ export const DATA = {
       name: "RHL AI",
       period: "September 2026 - Present",
       tag: "AI Tooling & CLI Monorepo",
-      featured: true,
       previewCommand: "npx @rhl-ai/cli init",
       previewTagline: "Agent Skills · @rhl-ai/* Packages · Scaffolds",
       description:
